@@ -1,0 +1,203 @@
+[
+{"bolton":
+[
+    {
+        "id": "ramsay-snow-the-bastard-of-bolton",
+        "name": "Ramsay Snow",
+        "nickname": "The Bastard of Bolton",
+        "faction": "bolton",
+        "removedfactioncards": []
+},
+{
+        "id": "roosebolton",
+        "name": "Roose Bolton",
+        "nickname": "Lord of the Dreadfort",
+        "faction": "bolton",
+        "removedfactioncards": []
+},
+{
+        "id": "steelshankswalton",
+        "name": "Steelshanks Walton",
+        "nickname": "Captain of the Guard",
+        "faction": "bolton",
+        "removedfactioncards": []
+},
+{
+        "id": "vargohoat",
+        "name": "Vargo Hoat",
+        "nickname": "The Goat of Harrenhal",
+        "faction": "bolton",
+        "removedfactioncards": []
+}
+]},
+{"greyjoy":
+[
+    {
+        "id": "ashagreyjoy",
+        "name": "Asha Greyjoy",
+        "nickname": "The Kraken's Daughter",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "victariongreyjoy",
+        "name": "Victarion Greyjoy",
+        "nickname": "The Iron Captain",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "balongreyjoy",
+        "name": "Balon Greyjoy",
+        "nickname": "The Kraken King",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "erikironmaker",
+        "name": "Erik Ironmaker",
+        "nickname": "Anvil-Breaker",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "eurongreyjoy",
+        "name": "Euron Greyjoy",
+        "nickname": "Lord Reaper of Pyke",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "theongreyjoy",
+        "name": "Theon Greyjoy",
+        "nickname": "\"Prince\" of Winterfell",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "baelorblacktyde",
+        "name": "Baelor Blacktyde",
+        "nickname": "Lord of Blacktyde",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+},
+{
+        "id": "dagmercleftjaw",
+        "name": "Dagmer Cleftjaw",
+        "nickname": "Master-at-Arms",
+        "faction": "greyjoy",
+        "removedfactioncards": []
+}
+]},
+{"neutral":
+[
+    {
+    "id": "ramsaysnow_neutral",
+    "name": "Ramsay Snow",
+    "nickname": "The Bastard of Bolton",
+    "faction": "neutral",
+    "removedfactioncards": []
+},
+    {
+    "id": "roosebolton_neutral",
+    "name": "Roose Bolton",
+    "nickname": "The Leech Lord",
+    "faction": "neutral",
+    "removedfactioncards": []
+},
+    {
+    "id": "vargohoat_neutral",
+    "name": "Vargo Hoat",
+    "nickname": "The Goat of Harrenhal",
+    "faction": "neutral",
+    "removedfactioncards": []
+    },
+    {
+    "id": "daarionaharis_neutral",
+    "name": "Daario Naharis",
+    "nickname": "Stormcrow Captain",
+    "faction": "neutral",
+    "removedfactioncards": []
+},
+{
+    "id": "jokin_neutral",
+    "name": "Jokin",
+    "nickname": "Stormcrow Captain",
+    "faction": "neutral",
+    "removedfactioncards": []
+    }
+]},
+{"targaryen":
+[
+    {
+        "id": "jorahmormont",
+        "name": "Jorah Mormont",
+        "nickname": "Westerosi Tactician",
+        "faction": "targaryen",
+        "removedfactioncards": ["Overrun"]
+},
+{
+        "id": "khaldrogo",
+        "name": "Khal Drogo",
+        "nickname": "The Great Khal",
+        "faction": "targaryen",
+        "removedfactioncards": ["Sudden Retreat"]
+},
+{
+        "id": "daarionaharis",
+        "name": "Daario Naharis",
+        "nickname": "Stormcrow Captain",
+        "faction": "targaryen",
+        "removedfactioncards": ["Fire and Blood"]
+},
+{
+        "id": "daenerystargaryenmotherofdragons",
+        "name": "Daenerys Targaryen",
+        "nickname": "Mother of Dragons",
+        "faction": "targaryen",
+        "removedfactioncards": ["Field Control"]
+},
+{
+        "id": "daenerystargaryenqueenofmeereen",
+        "name": "Daenerys Targaryen",
+        "nickname": "Queen of Meereen",
+        "faction": "targaryen",
+        "removedfactioncards": ["Swift Reposition"]
+},
+{
+        "id": "barristanselmy",
+        "name": "Barristan Selmy",
+        "nickname": "The Bold",
+        "faction": "targaryen",
+        "removedfactioncards": ["Sudden Retreat"]
+},
+{
+        "id": "belwas",
+        "name": "Belwas",
+        "nickname": "The Strong",
+        "faction": "targaryen",
+        "removedfactioncards": ["Field Control"]
+},
+{
+        "id": "greyworm",
+        "name": "Grey Worm",
+        "nickname": "Unsullied Commander",
+        "faction": "targaryen",
+        "removedfactioncards": ["Blood of the Dragon"]
+},
+{
+        "id": "marselen",
+        "name": "Marselen",
+        "nickname": "Mother's Men Commander",
+        "faction": "targaryen",
+        "removedfactioncards": ["Field Control"]
+},
+{
+        "id": "skahazmokandaq",
+        "name": "Skahaz mo Kandaq",
+        "nickname": "The Shavepate",
+        "faction": "targaryen",
+        "removedfactioncards": ["Unstoppable Advance"]
+}
+]}
+]
