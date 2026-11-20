@@ -1759,7 +1759,14 @@
       "lorastyrell",
       "brienne-neutral",
       "brienne-the-blue",
-      "brienne-rainbow-guard"
+      "brienne-rainbow-guard",
+      "justin-massey-cunning-follower",
+      "justinmassey",
+      "bryce-caron",
+      "emmon-cuy",
+      "guyard-morrigen",
+      "parmen-crane",
+      "robar-royce"
     ]
   },
   {
@@ -1941,7 +1948,15 @@
       ]
     },
     "ignoresLimits": [],
-    "loyalty": "renly-baratheon"
+    "loyalty": "renly-baratheon",
+    "discountIfInArmy": {
+      "ids": [
+        "renlybaratheoncharismaticheir",
+        "renlybaratheonlordparamount",
+        "renlybaratheonkinginthesouth"
+      ],
+      "amount": 1
+    }
   },
   {
     "id": "loras-tyrell-kings-squire",
@@ -2444,6 +2459,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2464,6 +2480,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2483,6 +2500,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2502,6 +2520,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2522,6 +2541,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2567,6 +2587,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2587,6 +2608,7 @@
         "infantry"
       ]
     },
+    "firstAttachmentDiscount": 1,
     "ignoresLimits": []
   },
   {
@@ -2596,7 +2618,11 @@
     "class": "ncu",
     "faction": "brotherhood",
     "excludedFactions": [],
-    "points": 4
+    "points": 4,
+    "forbiddenWith": [
+      "beric-dondarrion-azor-ahai",
+      "bericdondarrion"
+    ]
   },
   {
     "id": "ghost-of-high-heart",
@@ -2705,7 +2731,10 @@
       "defense": 3,
       "morale": 3
     },
-    "soloUnit": []
+    "soloUnit": [],
+    "requiresInArmy": [
+      "skinchanger"
+    ]
   },
   {
     "id": "thenn-warriors",
@@ -2993,6 +3022,12 @@
     "excludedFactions": [],
     "type": "monster",
     "points": 3,
+    "extraCards": [
+      {
+        "id": "varamyrs-eagle",
+        "name": "Varamyr's Eagle"
+      }
+    ],
     "maxPerList": 1,
     "traits": [
       "master-skinchanger",
@@ -3124,7 +3159,21 @@
         "infantry"
       ]
     },
-    "ignoresLimits": []
+    "ignoresLimits": [],
+    "extraCards": [
+      {
+        "id": "bear",
+        "name": "Bear"
+      },
+      {
+        "id": "wolf",
+        "name": "Wolf"
+      },
+      {
+        "id": "eagle",
+        "name": "Eagle"
+      }
+    ]
   },
   {
     "id": "chosen-of-styr",
@@ -5521,6 +5570,7 @@
     "class": "ncu",
     "faction": "martell",
     "excludedFactions": [],
+    "extraCards": [{ "id": "the-strangler", "name": "The Strangler" }],
     "points": 5
   },
   {
@@ -5732,7 +5782,7 @@
       "defense": 3,
       "morale": 3
     },
-    "soloUnit": [],
+    "soloUnit": true,
     "forbiddenWith": [
       "benjen-stark-wolf-of-the-wall",
       "benjenstarkfirstranger",
@@ -5798,7 +5848,7 @@
       "defense": 4,
       "morale": 3
     },
-    "soloUnit": []
+    "soloUnit": true
   },
   {
     "id": "watch-captain",
@@ -6295,7 +6345,10 @@
     "class": "ncu",
     "faction": "nightswatch",
     "excludedFactions": [],
-    "points": 1
+    "points": 1,
+    "requiresInArmy": [
+      "samwell-tarly-craven-scholar"
+    ]
   },
   {
     "id": "jeor-mormont-the-old-bear",
@@ -6582,11 +6635,9 @@
     },
     "soloUnit": [],
     "requiresInArmy": [
-      "eddard-stark-lord-of-winterfell",
       "eddardstark"
     ],
     "mustHost": [
-      "eddard-stark-lord-of-winterfell",
       "eddardstark"
     ]
   },
@@ -6717,6 +6768,7 @@
       "defense": 5,
       "morale": 5
     },
+    "extraCards": [{ "id": "crannog-poison", "name": "Crannog Poison" }],
     "soloUnit": []
   },
   {
@@ -6900,67 +6952,6 @@
     "ignoresLimits": []
   },
   {
-    "id": "eddard-stark-lord-of-winterfell",
-    "name": "Eddard Stark",
-    "nickname": "Lord of Winterfell",
-    "class": "attachment",
-    "faction": "stark",
-    "excludedFactions": [],
-    "points": 1,
-    "traits": [
-      "rally-cry",
-      "iron-resolve"
-    ],
-    "maxPerList": [],
-    "attachesTo": {
-      "type": [
-        "infantry"
-      ]
-    },
-    "ignoresLimits": []
-  },
-  {
-    "id": "howland-reed-lord-of-the-crannogs",
-    "name": "Howland Reed",
-    "nickname": "Lord of the Crannogs",
-    "class": "attachment",
-    "faction": "stark",
-    "excludedFactions": [],
-    "points": 1,
-    "traits": [
-      "order-superior-flanking",
-      "disrupt"
-    ],
-    "grantsKeyword": "Affiliation: Crannogman",
-    "maxPerList": [],
-    "attachesTo": {
-      "type": [
-        "infantry"
-      ]
-    },
-    "ignoresLimits": []
-  },
-  {
-    "id": "rodrik-cassel-master-at-arms",
-    "name": "Rodrik Cassel",
-    "nickname": "Master-at-Arms",
-    "class": "attachment",
-    "faction": "stark",
-    "excludedFactions": [],
-    "points": 1,
-    "traits": [
-      "order-mark-target",
-      "boldness-and-courage"
-    ],
-    "maxPerList": [],
-    "attachesTo": {
-      "type": [
-        "infantry"
-      ]
-    },
-    "ignoresLimits": []
-  },
-  {
     "id": "jojen-reed-greensight",
     "name": "Jojen Reed",
     "nickname": "Greensight",
@@ -7065,7 +7056,6 @@
     "ignoresLimits": [],
     "requiresInArmy": [
       "eddardstark",
-      "eddard-stark-lord-of-winterfell",
       "eddard-stark-hand-of-the-king",
       "eddard-stark-warden-of-the-north",
       "arya-stark-the-wolf-girl"
@@ -7185,6 +7175,9 @@
         "infantry"
       ]
     },
+    "freeFirstIfInArmy": [
+      "howlandreed"
+    ],
     "ignoresLimits": [
       "attachment-limits"
     ]
@@ -7224,6 +7217,9 @@
         "infantry"
       ]
     },
+    "freeFirstIfInArmy": [
+      "eddardstark"
+    ],
     "ignoresLimits": []
   },
   {
@@ -7313,7 +7309,12 @@
     "class": "ncu",
     "faction": "stark",
     "excludedFactions": [],
-    "points": 5
+    "points": 5,
+    "forbiddenWith": [
+      "eddard-stark-hand-of-the-king",
+      "eddard-stark-warden-of-the-north",
+      "eddardstark"
+    ]
   },
   {
     "id": "rodrik-cassel-combat-veteran",
@@ -7352,7 +7353,7 @@
       "defense": 4,
       "morale": 3
     },
-    "soloUnit": []
+    "soloUnit": true
   },
   {
     "id": "dothraki-screamers",
@@ -7928,7 +7929,10 @@
         "cavalry"
       ]
     },
-    "ignoresLimits": []
+    "ignoresLimits": [],
+    "forbiddenWith": [
+      "drogos-bloodriders"
+    ]
   },
   {
     "id": "haggo",
@@ -7948,7 +7952,10 @@
         "cavalry"
       ]
     },
-    "ignoresLimits": []
+    "ignoresLimits": [],
+    "forbiddenWith": [
+      "drogos-bloodriders"
+    ]
   },
   {
     "id": "qotho",
@@ -7969,7 +7976,10 @@
         "cavalry"
       ]
     },
-    "ignoresLimits": []
+    "ignoresLimits": [],
+    "forbiddenWith": [
+      "drogos-bloodriders"
+    ]
   },
   {
     "id": "rakharo",
@@ -8080,7 +8090,8 @@
     "class": "ncu",
     "faction": "targaryen",
     "excludedFactions": [],
-    "points": 4
+    "points": 4,
+    "loyalty": "greens"
   },
   {
     "id": "barristan-selmy-advisor-to-the-dragon",
@@ -8107,7 +8118,16 @@
     "class": "ncu",
     "faction": "targaryen",
     "excludedFactions": [],
-    "points": 5
+    "points": 5,
+    "discountsUnits": {
+      "units": [
+        "drogon",
+        "rhaegal",
+        "viserion"
+      ],
+      "amount": 1,
+      "count": 1
+    }
   },
   {
     "id": "hizdahr-zo-loraq",
@@ -8170,7 +8190,8 @@
     "class": "ncu",
     "faction": "targaryen",
     "excludedFactions": [],
-    "points": 4
+    "points": 4,
+    "loyalty": "blacks"
   },
   {
     "id": "xaro-xhoan-daxos",

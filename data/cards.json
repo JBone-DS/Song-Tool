@@ -1061,6 +1061,36 @@
 2,
 3
 ],
+"varamyrs-eagle": [
+"freefolk-port",
+2,
+4
+],
+"crannog-poison": [
+"stark-port",
+2,
+5
+],
+"manticore-venom": [
+"martell-port",
+5,
+3
+],
+"the-strangler": [
+"martell-port",
+6,
+3
+],
+"eagle": [
+"freefolk-port",
+1,
+4
+],
+"wolf": [
+"freefolk-port",
+3,
+4
+],
 "wolf-pack": [
 "freefolk-land",
 3,
@@ -2320,21 +2350,6 @@
 "stark-port",
 6,
 0
-],
-"eddard-stark-lord-of-winterfell": [
-"stark-port",
-7,
-0
-],
-"howland-reed-lord-of-the-crannogs": [
-"stark-port",
-0,
-1
-],
-"rodrik-cassel-master-at-arms": [
-"stark-port",
-1,
-1
 ],
 "jojen-reed-greensight": [
 "stark-port",

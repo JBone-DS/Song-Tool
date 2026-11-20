@@ -10,13 +10,13 @@ let gallery = null;   // the tactics card viewer: { cards, index } when open
 let menu = null;   // which pick-menu is open: { kind: "unit" } | { kind: "ncu" } | { kind: "attachment", index }
 
 async function loadData() {
-  const names = ["season", "factions", "commanders", "units", "tactics", "cards"];
-  const [season, factions, commandersRaw, units, tactics, cards] = await Promise.all(
+  const names = ["season", "factions", "commanders", "units", "tactics", "cards", "combat"];
+  const [season, factions, commandersRaw, units, tactics, cards, combat] = await Promise.all(
     names.map(n => fetch(`data/${n}.json`).then(r => r.json()))
   );
   const commanders = commandersRaw.flatMap(group => Object.values(group).flat());
   return {
-    season, factions, commanders, units, tactics, cards,
+    season, factions, commanders, units, tactics, cards, combat,
     unitsById: new Map(units.map(u => [u.id, u])),
     commandersById: new Map(commanders.map(c => [c.id, c])),
     factionsById: new Map(factions.map(f => [f.id, f])),
@@ -227,13 +227,39 @@ function usesFreePoints(attachment, list) {
 }
 
 // the cost of each attachment on one unit, after any discount the unit gives
-function attachmentCosts(entry) {
+// printed points less any discount that applies in this list
+// (Cortnay Penrose, Loyal Tactician: 1 less while a form of Renly Baratheon is in the army)
+function modelPoints(model, l = list) {
+  const d = model.discountIfInArmy;
+  return d && l && d.ids.some(id => armyIds(l).includes(id)) ? Math.max(0, model.points - d.amount) : model.points;
+}
+
+// Brotherhood attachments (Gendry, Hot Pie...) that say "Reduce the cost of the first attachment included in your army by 1":
+// each one in the army takes that much off the first attachment, counting rows in order, then attachments on enemy units
+function firstAttachmentDiscount(l = list) {
+  const all = [...l.entries.flatMap(e => e.attachments), ...l.enemyAttachments];
+  const amount = all.reduce((s, id) => s + (data.unitsById.get(id)?.firstAttachmentDiscount ?? 0), 0);
+  const row = l.entries.findIndex(e => e.attachments.length);
+  return { amount, row, enemy: row < 0 && l.enemyAttachments.length > 0 };
+}
+
+function attachmentCosts(entry, l = list) {
   const unit = entry.unit ? data.unitsById.get(entry.unit) : null;
   const costs = entry.attachments.map(id => {
     const attachment = data.unitsById.get(id);
     // some units take a particular attachment for nothing (Tyrion on the Stone Crows)
-    return { attachment, cost: unit?.freeAttachments?.includes(id) ? 0 : attachment.points };
+    return { attachment, cost: unit?.freeAttachments?.includes(id) ? 0 : modelPoints(attachment, l) };
   });
+  // "the first X in your army is free while Y is in the army" (Crannogman Survivalist with Howland Reed)
+  costs.forEach((c, j) => {
+    const need = c.attachment.freeFirstIfInArmy;
+    if (need && need.some(id => armyIds(l).includes(id)) &&
+        l.entries.findIndex(e => e.attachments.includes(c.attachment.id)) === l.entries.indexOf(entry) &&
+        entry.attachments.indexOf(c.attachment.id) === j) c.cost = 0;
+  });
+  const first = firstAttachmentDiscount(l);
+  if (first.amount && first.row >= 0 && l.entries[first.row] === entry)
+    costs[0].cost = Math.max(0, costs[0].cost - first.amount);
   if (unit?.adaptive) {   // Stormcrow Mercenaries: cheaper attachments
     const { attachmentsAffected: n, attachmentCostReduction: r } = unit.adaptive;
     costs.slice(0, n).forEach(c => { c.cost -= Math.min(r, c.cost); });
@@ -243,14 +269,16 @@ function attachmentCosts(entry) {
 
 // attachments placed on enemy units: no unit of ours to discount them, so they cost their printed points
 function enemyAttachmentCosts(list) {
-  return list.enemyAttachments.map(id => {
+  const first = firstAttachmentDiscount(list);
+  return list.enemyAttachments.map((id, k) => {
     const attachment = data.unitsById.get(id);
-    return { attachment, cost: attachment.points };
+    const cost = modelPoints(attachment, list);
+    return { attachment, cost: first.enemy && k === 0 ? Math.max(0, cost - first.amount) : cost };
   });
 }
 
 function attachmentTotals(list) {
-  const all = [...list.entries.flatMap(entry => attachmentCosts(entry)), ...enemyAttachmentCosts(list)];
+  const all = [...list.entries.flatMap(entry => attachmentCosts(entry, list)), ...enemyAttachmentCosts(list)];
   const sum = items => items.reduce((s, c) => s + c.cost, 0);
   const inFaction = sum(all.filter(c => usesFreePoints(c.attachment, list)));
   const other = sum(all.filter(c => !usesFreePoints(c.attachment, list)));
@@ -269,9 +297,37 @@ function ncuCost(l, id) {
   return c && c.ncu === id && c.points != null ? c.points : data.unitsById.get(id).points;
 }
 
+// NCUs that cheapen certain units (Daenerys, The Unburnt: one dragon costs 1 less):
+// returns the discount for each row, given to the first rows holding a listed unit
+function unitDiscounts(l = list) {
+  const out = new Map();
+  l.ncus.map(id => data.unitsById.get(id)?.discountsUnits).filter(Boolean).forEach(rule => {
+    let left = rule.count ?? 1;
+    l.entries.forEach((e, i) => {
+      if (left > 0 && e.unit && rule.units.includes(e.unit) && !out.has(i)) { out.set(i, rule.amount); left -= 1; }
+    });
+  });
+  return out;
+}
+// whether a unit about to be picked would get such a discount
+function pickDiscount(model, l = list) {
+  if (model.class !== "combat_unit") return 0;
+  const taken = unitDiscounts(l);
+  for (const rule of l.ncus.map(id => data.unitsById.get(id)?.discountsUnits).filter(Boolean))
+    if (rule.units.includes(model.id) && taken.size < (rule.count ?? 1)) return rule.amount;
+  return 0;
+}
+// what row i costs: the unit (or its commander price) less any NCU discount
+function rowCost(l, i) {
+  const e = l.entries[i];
+  if (!e?.unit) return 0;
+  const uc = unitCommander(l);
+  const base = uc && l.commanderUnit === i ? uc.points : data.unitsById.get(e.unit).points;
+  return Math.max(0, base - (unitDiscounts(l).get(i) ?? 0));
+}
+
 function totalPoints(list) {
-  const uc = unitCommander(list);
-  const units = list.entries.reduce((sum, e, i) => sum + (e.unit ? (uc && list.commanderUnit === i ? uc.points : data.unitsById.get(e.unit).points) : 0), 0);
+  const units = list.entries.reduce((sum, e, i) => sum + rowCost(list, i), 0);
   const ncus = list.ncus.reduce((sum, id) => sum + ncuCost(list, id), 0);
   return units + ncus + attachmentTotals(list).charged;   // commanders cost nothing
 }
@@ -287,7 +343,7 @@ function neutralPoints(list) {
     const u = e.unit ? data.unitsById.get(e.unit) : null;
     return sum + (u && u.faction === "neutral" ? u.points : 0);
   }, 0);
-  const attachments = [...list.entries.flatMap(e => attachmentCosts(e)), ...enemyAttachmentCosts(list)]
+  const attachments = [...list.entries.flatMap(e => attachmentCosts(e, list)), ...enemyAttachmentCosts(list)]
     .filter(c => c.attachment.faction === "neutral")
     .reduce((sum, c) => sum + c.cost, 0);
   const ncus = list.ncus.map(id => data.unitsById.get(id))
@@ -699,7 +755,7 @@ function filledTile(model, size) {
   const tile = artTile(size === "small" ? ["attachments", "units"] : "units", model);
   tile.classList.add("filled", size);
   tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
-  tile.append(el("span", { className: "tile-points", textContent: model.points }));
+  tile.append(el("span", { className: "tile-points", textContent: modelPoints(model) }));
   return tile;
 }
 
@@ -864,10 +920,10 @@ function exportText() {
   lines.push("");
   list.entries.forEach((e, i) => {
     const unit = e.unit ? data.unitsById.get(e.unit) : null;
-    const extras = e.attachments.map(id => data.unitsById.get(id)).map(a => `${modelLabel(a)} (${a.points})`);
+    const extras = e.attachments.map(id => data.unitsById.get(id)).map(a => `${modelLabel(a)} (${modelPoints(a)})`);
     const asUnit = unitCommander() && list.commanderUnit === i;
     if (commander && list.commanderUnit === i && !asUnit) extras.unshift(`${modelLabel(fieldCommander() ?? commander)} (Commander)`);
-    lines.push(`${i + 1}. ${unit ? `${unit.name} (${asUnit ? `${commander.points}, Commander` : unit.points})` : "(no unit)"}${extras.length ? ` + ${extras.join(", ")}` : ""}`);
+    lines.push(`${i + 1}. ${unit ? `${unit.name} (${asUnit ? `${commander.points}, Commander` : rowCost(list, i)})` : "(no unit)"}${extras.length ? ` + ${extras.join(", ")}` : ""}`);
   });
   if (list.enemyAttachments.length)
     lines.push(`Attached to enemy units: ${list.enemyAttachments.map(id => modelLabel(data.unitsById.get(id))).join(", ")}`);
@@ -948,6 +1004,12 @@ function renderListBar() {
 }
 
 // the title with a button that opens or closes the panel of list tools
+// Build / Analysis links shown at the top of both pages
+function renderNav(current) {
+  const link = (id, href, text) => el("a", { href, textContent: text, className: id === current ? "nav-link current" : "nav-link" });
+  return [el("nav", { className: "site-nav" }, link("build", "index.html", "Building"), link("analysis", "analysis.html", "Analysis"))];
+}
+
 function renderHeader() {
   const toggle = el("button", {
     className: toolsOpen ? "tools-toggle open" : "tools-toggle",
@@ -1134,7 +1196,7 @@ function renderUnitInfo(entry, i) {
   if (u) {
     box.append(
       el("h3", { textContent: u.name }),
-      el("p", { className: "meta" }, el("span", { className: "cap", textContent: u.type }), ` · ${unitCommander() && list.commanderUnit === i ? `${unitCommander().points} pts as commander` : `${u.points} pts`}`));
+      el("p", { className: "meta" }, el("span", { className: "cap", textContent: u.type }), ` · ${unitCommander() && list.commanderUnit === i ? `${unitCommander().points} pts as commander` : `${rowCost(list, i)} pts`}`));
     if (u.stats)
       box.append(el("p", { textContent: `Speed ${u.stats.speed} · Defense ${u.stats.defense} · Morale ${u.stats.morale}` }));
   } else {
@@ -1174,6 +1236,7 @@ function renderSlots() {
     let big;
     if (entry.unit) {
       const tile = filledTile(data.unitsById.get(entry.unit), "big");
+      tile.querySelector(".tile-points").textContent = rowCost(list, i);
       if (unitCommander() && list.commanderUnit === i) {
         // a unit commander: shown as the unit, at his commander cost; the cross removes the commander
         tile.classList.add("commander");
@@ -1194,8 +1257,12 @@ function renderSlots() {
     const commander = data.commandersById.get(list.commander);
     if (commander && attachedCommander(list, i))
       attachCol.append(slotBox("small", commanderTile(fieldCommander() ?? commander), clearCommander, "Remove the commander"));
-    entry.attachments.forEach((id, j) =>
-      attachCol.append(slotBox("small", filledTile(data.unitsById.get(id), "small"), () => removeAttachment(i, j))));
+    const rowCosts = attachmentCosts(entry);
+    entry.attachments.forEach((id, j) => {
+      const t = filledTile(data.unitsById.get(id), "small");
+      if (rowCosts[j]) t.querySelector(".tile-points").textContent = rowCosts[j].cost;   // after any discount
+      attachCol.append(slotBox("small", t, () => removeAttachment(i, j)));
+    });
     // nothing can ever be attached to solo units, monsters and the like: no + box at all
     const rowUnit = entry.unit ? data.unitsById.get(entry.unit) : null;
     if (!rowUnit || canTakeAttachments(rowUnit)) {
@@ -1306,7 +1373,7 @@ function menuTile(model, onclick) {
   const tile = artTile(menu.kind === "unit" ? "units" : ["attachments", "units"], model, onclick);
   // * = cannot use the free attachment points
   const star = menu.kind === "attachment" && !usesFreePoints(model, list) ? "*" : "";
-  tile.append(el("span", { className: "tile-points", textContent: `${model.points}${star}` }));
+  tile.append(el("span", { className: "tile-points", textContent: `${Math.max(0, modelPoints(model) - pickDiscount(model))}${star}` }));
   tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
   return tile;
 }
@@ -1384,21 +1451,31 @@ function modelCard(id, label) {
   return { name: modelLabel(model), label, image: sheet ? { file: sheet.file, cols: sheet.cols, rows: sheet.rows, col: pos[1], row: pos[2], w: sheet.w, h: sheet.h } : null };
 }
 
+function extraCard(x, label) {
+  const pos = data.cards.cards[x.id];
+  const sheet = pos && data.cards.sheets[pos[0]];
+  return { name: x.name, label, extra: true, image: sheet ? { file: sheet.file, cols: sheet.cols, rows: sheet.rows, col: pos[1], row: pos[2], w: sheet.w, h: sheet.h } : null };
+}
+
 // the cards on one row of the list: the unit, then its attachments, then the commander if he is there
 function rowCards(i) {
   const e = list.entries[i];
   return [
     ...(e.unit ? [modelCard(e.unit, `Row ${i + 1} - Unit`)] : []),
-    ...e.attachments.map(id => modelCard(id, `Row ${i + 1} - Attachment`)),
-    ...(attachedCommander(list, i) ? [list.commander, ...(fieldCommander() ? [fieldCommander().id] : [])].filter(id => data.cards.cards[id]).map(id => modelCard(id, `Row ${i + 1} - Commander`)) : []),   // a commander who is his own unit (Mag, Varamyr) has no card of his own
+    // cards that come with a unit without being a model of their own (Varamyr's Eagle)
+    ...(e.unit ? (data.unitsById.get(e.unit).extraCards ?? []) : []).map(x => extraCard(x, `Row ${i + 1} - Unit`)),
+    ...e.attachments.flatMap(id => [modelCard(id, `Row ${i + 1} - Attachment`), ...(data.unitsById.get(id)?.extraCards ?? []).map(x => extraCard(x, `Row ${i + 1} - Attachment`))]),
+    ...(attachedCommander(list, i) ? [list.commander, ...(fieldCommander() ? [fieldCommander().id] : [])].filter(id => data.cards.cards[id]).flatMap(id => [modelCard(id, `Row ${i + 1} - Commander`), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, `Row ${i + 1} - Commander`))]) : []),   // a commander who is his own unit (Mag, Varamyr) has no card of his own
   ].filter(Boolean);
 }
 function allCards() {
   return [
     ...list.entries.flatMap((e, i) => rowCards(i)),
     ...list.enemyAttachments.map(id => modelCard(id, "Attachment for an enemy unit")),
-    ...list.ncus.map(id => modelCard(id, "Non-combatant unit")),
-  ].filter(Boolean);
+    ...list.ncus.flatMap(id => [modelCard(id, "Non-combatant unit"), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, "Non-combatant unit"))]),
+  ].filter(Boolean)
+    // a poison card or the like shared by several models is shown once
+    .filter((card, i, all) => !card.extra || all.findIndex(c => c.extra && c.name === card.name) === i);
 }
 function openCards(cards) { if (cards.length) { gallery = { cards, index: 0 }; render(); } }
 
@@ -1430,7 +1507,7 @@ function renderGallery() {
 }
 
 function render() {
-  const parts = [...renderHeader(), renderSetup(), renderSlots(), renderSummary(), renderMenu(), renderGallery(), renderDialog(), renderPrintSheet()].filter(Boolean);
+  const parts = [...renderNav("build"), ...renderHeader(), renderSetup(), renderSlots(), renderSummary(), renderMenu(), renderGallery(), renderDialog(), renderPrintSheet()].filter(Boolean);
   notice = null;   // a notice is shown once, then cleared
   toolMsg = null;
   saveCurrent();
@@ -1460,4 +1537,4 @@ async function start() {
   }
 }
 
-start();
+if (!window.SONG_NO_UI) start();

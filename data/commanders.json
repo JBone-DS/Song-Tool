@@ -756,6 +756,7 @@
       "name": "Oberyn Martell",
       "nickname": "Prince of Dorne",
       "faction": "martell",
+      "extraCards": [{ "id": "manticore-venom", "name": "Manticore Venom" }],
       "traits": [
         "manticore-venom",
         "vipers-fangs",
