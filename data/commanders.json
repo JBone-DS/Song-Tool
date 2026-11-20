@@ -1,0 +1,1030 @@
+[
+  [
+    {
+      "id": "ramsay-snow-the-bastard-of-bolton",
+      "name": "Ramsay Snow",
+      "nickname": "The Bastard of Bolton",
+      "faction": "bolton",
+      "traits": [
+        "sadistic-exhilaration",
+        "cruel-indulgence"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "roosebolton",
+      "name": "Roose Bolton",
+      "nickname": "Lord of the Dreadfort",
+      "faction": "bolton",
+      "traits": [
+        "calculated-cruelty",
+        "intimidating-reputation"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "steelshankswalton",
+      "name": "Steelshanks Walton",
+      "nickname": "Captain of the Guard",
+      "faction": "bolton",
+      "traits": [
+        "seasoned-brutality",
+        "battle-hardened",
+        "loyalty-in-service"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "vargohoat",
+      "name": "Vargo Hoat",
+      "nickname": "The Goat of Harrenhal",
+      "faction": "bolton",
+      "traits": [
+        "cruel-mutilation",
+        "weakened-resolve"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "ashagreyjoy",
+      "name": "Asha Greyjoy",
+      "nickname": "The Kraken's Daughter",
+      "faction": "greyjoy",
+      "traits": [
+        "boisterous-charisma",
+        "iron-resolve",
+        "stubborn-tenacity"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "victariongreyjoy",
+      "name": "Victarion Greyjoy",
+      "nickname": "The Iron Captain",
+      "faction": "greyjoy",
+      "traits": [
+        "order-overrun",
+        "furious-charge",
+        "vicious"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "balongreyjoy",
+      "name": "Balon Greyjoy",
+      "nickname": "The Kraken King",
+      "faction": "greyjoy",
+      "traits": [
+        "fueled-by-slaughter",
+        "the-krakens-dues"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "erikironmaker",
+      "name": "Erik Ironmaker",
+      "nickname": "Anvil-Breaker",
+      "faction": "greyjoy",
+      "traits": [
+        "order-divide-the-spoils",
+        "gifts-of-silver-and-bronze"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "eurongreyjoy",
+      "name": "Euron Greyjoy",
+      "nickname": "Lord Reaper of Pyke",
+      "faction": "greyjoy",
+      "traits": [
+        "order-sow-discord",
+        "intimidating-presence"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "theongreyjoy",
+      "name": "Theon Greyjoy",
+      "nickname": "\"Prince\" of Winterfell",
+      "faction": "greyjoy",
+      "traits": [
+        "order-sentinel",
+        "ambush",
+        "enhanced-mobility"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "baelorblacktyde",
+      "name": "Baelor Blacktyde",
+      "nickname": "Lord of Blacktyde",
+      "faction": "greyjoy",
+      "traits": [
+        "to-the-last",
+        "hardened"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "dagmercleftjaw",
+      "name": "Dagmer Cleftjaw",
+      "nickname": "Master-at-Arms",
+      "faction": "greyjoy",
+      "traits": [
+        "order-martial-training",
+        "gang-up"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "ramsay-snow-the-bastard-of-bolton-neutral",
+      "name": "Ramsay Snow",
+      "nickname": "The Bastard of Bolton",
+      "faction": "neutral",
+      "traits": [
+        "horrific-visage"
+      ],
+      "grantsKeyword": "Affiliation: House Bolton",
+      "removedFactionCards": []
+    },
+    {
+      "id": "roosebolton-neutral",
+      "name": "Roose Bolton",
+      "nickname": "The Leech Lord",
+      "faction": "neutral",
+      "traits": [
+        "order-spread-fear",
+        "prey-on-fear"
+      ],
+      "grantsKeyword": "Affiliation: House Bolton",
+      "removedFactionCards": []
+    },
+    {
+      "id": "vargohoat-neutral",
+      "name": "Vargo Hoat",
+      "nickname": "The Goat of Harrenhal",
+      "faction": "neutral",
+      "traits": [
+        "order-threaten",
+        "sadistic-mutilation"
+      ],
+      "grantsKeyword": "Affiliation: Bloody Mummer",
+      "removedFactionCards": []
+    },
+    {
+      "id": "daarionaharis-neutral",
+      "name": "Daario Naharis",
+      "nickname": "Stormcrow Captain",
+      "faction": "neutral",
+      "traits": [
+        "improved-armaments",
+        "motivated-by-coin"
+      ],
+      "grantsKeyword": "Affiliation: Stormcrows",
+      "removedFactionCards": []
+    },
+    {
+      "id": "jokin-stormcrow-captain-neutral",
+      "name": "Jokin",
+      "nickname": "Stormcrow Captain",
+      "faction": "neutral",
+      "traits": [
+        "acute-precision"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "jorahmormont",
+      "name": "Jorah Mormont",
+      "nickname": "Westerosi Tactician",
+      "faction": "targaryen",
+      "traits": [
+        "ambush",
+        "stubborn-tenacity"
+      ],
+      "removedFactionCards": [
+        "Overrun"
+      ]
+    },
+    {
+      "id": "khaldrogo",
+      "name": "Khal Drogo",
+      "nickname": "The Great Khal",
+      "faction": "targaryen",
+      "traits": [
+        "expert-duelist",
+        "iron-resolve"
+      ],
+      "removedFactionCards": [
+        "Sudden Retreat"
+      ]
+    },
+    {
+      "id": "daarionaharis",
+      "name": "Daario Naharis",
+      "nickname": "Stormcrow Captain",
+      "faction": "targaryen",
+      "traits": [
+        "improved-armaments",
+        "motivated-by-coin"
+      ],
+      "grantsKeyword": "Affiliation: Stormcrows",
+      "removedFactionCards": [
+        "Fire and Blood"
+      ]
+    },
+    {
+      "id": "daenerystargaryenmotherofdragons",
+      "name": "Daenerys Targaryen",
+      "nickname": "Mother of Dragons",
+      "faction": "targaryen",
+      "traits": [
+        "order-threaten",
+        "mother-of-dragons"
+      ],
+      "removedFactionCards": [
+        "Field Control"
+      ]
+    },
+    {
+      "id": "daenerystargaryenqueenofmeereen",
+      "name": "Daenerys Targaryen",
+      "nickname": "Queen of Meereen",
+      "faction": "targaryen",
+      "traits": [
+        "order-threaten",
+        "intimidating-presence",
+        "the-rightful-queen"
+      ],
+      "removedFactionCards": [
+        "Swift Reposition"
+      ]
+    },
+    {
+      "id": "barristanselmy",
+      "name": "Barristan Selmy",
+      "nickname": "The Bold",
+      "faction": "targaryen",
+      "traits": [
+        "knightly-vow",
+        "embolden"
+      ],
+      "removedFactionCards": [
+        "Sudden Retreat"
+      ]
+    },
+    {
+      "id": "belwas",
+      "name": "Belwas",
+      "nickname": "The Strong",
+      "faction": "targaryen",
+      "traits": [
+        "order-taunt",
+        "hardened"
+      ],
+      "removedFactionCards": [
+        "Field Control"
+      ]
+    },
+    {
+      "id": "greyworm",
+      "name": "Grey Worm",
+      "nickname": "Unsullied Commander",
+      "faction": "targaryen",
+      "traits": [
+        "boldness-and-courage",
+        "counterstrike"
+      ],
+      "removedFactionCards": [
+        "Blood of the Dragon"
+      ]
+    },
+    {
+      "id": "marselen",
+      "name": "Marselen",
+      "nickname": "Mother's Men Commander",
+      "faction": "targaryen",
+      "traits": [
+        "dauntless",
+        "unfaltering-conviction"
+      ],
+      "removedFactionCards": [
+        "Field Control"
+      ]
+    },
+    {
+      "id": "skahazmokandaq",
+      "name": "Skahaz mo Kandaq",
+      "nickname": "The Shavepate",
+      "faction": "targaryen",
+      "traits": [
+        "order-incite",
+        "order-mark-target"
+      ],
+      "removedFactionCards": [
+        "Unstoppable Advance"
+      ]
+    }
+  ],
+  [
+    {
+      "id": "renlybaratheoncharismaticheir",
+      "name": "Renly Baratheon",
+      "nickname": "The Charismatic Heir",
+      "faction": "baratheon",
+      "traits": [
+        "boldness-and-courage",
+        "embolden"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "renly-baratheon"
+    },
+    {
+      "id": "stannisbaratheontherightfulheir",
+      "name": "Stannis Baratheon",
+      "nickname": "The Rightful Heir",
+      "faction": "baratheon",
+      "traits": [
+        "order-adaptive-planning",
+        "order-mark-target"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "andrewestermont",
+      "name": "Andrew Estermont",
+      "nickname": "First of the King's Men",
+      "faction": "baratheon",
+      "traits": [
+        "true-conviction",
+        "first-of-the-kings-men"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "axellflorent",
+      "name": "Axell Florent",
+      "nickname": "First of the Queen's Men",
+      "faction": "baratheon",
+      "traits": [
+        "intimidating-presence",
+        "stalwart"
+      ],
+      "grantsKeyword": "Affiliation: R'hllor",
+      "removedFactionCards": [],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "davosseaworth",
+      "name": "Davos Seaworth",
+      "nickname": "Hero of Blackwater",
+      "faction": "baratheon",
+      "traits": [
+        "outflank",
+        "pathfinder"
+      ],
+      "removedFactionCards": [
+        "Final Strike"
+      ],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "stannisbaratheononetrueking",
+      "name": "Stannis Baratheon",
+      "nickname": "The One True King",
+      "faction": "baratheon",
+      "traits": [
+        "dauntless",
+        "iron-resolve"
+      ],
+      "grantsKeyword": "Affiliation: R'hllor",
+      "removedFactionCards": [],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "cortnaypenrose",
+      "name": "Cortnay Penrose",
+      "nickname": "Castellan of Storm's End",
+      "faction": "baratheon",
+      "traits": [
+        "bookkeeping",
+        "might-of-the-throne"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "renly-baratheon"
+    },
+    {
+      "id": "eldonestermont",
+      "name": "Eldon Estermont",
+      "nickname": "Lord of Greenstone",
+      "faction": "baratheon",
+      "traits": [
+        "order-mark-target",
+        "hardened"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "renly-baratheon"
+    },
+    {
+      "id": "lorastyrell",
+      "name": "Loras Tyrell",
+      "nickname": "The Knight of Flowers",
+      "faction": "baratheon",
+      "traits": [
+        "expert-duelist",
+        "dauntless"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "renly-baratheon"
+    },
+    {
+      "id": "renlybaratheonlordparamount",
+      "name": "Renly Baratheon",
+      "nickname": "Lord Paramount of the Stormlands",
+      "faction": "baratheon",
+      "traits": [
+        "boisterous-charisma",
+        "stalwart",
+        "precision"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "renly-baratheon"
+    },
+    {
+      "id": "justinmassey",
+      "name": "Justin Massey",
+      "nickname": "The Smiler",
+      "faction": "baratheon",
+      "traits": [
+        "order-tactical-reposition",
+        "inspiring-presence"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "stannisbaratheonkingatthewall",
+      "name": "Stannis Baratheon",
+      "nickname": "King at the Wall",
+      "faction": "baratheon",
+      "traits": [
+        "order-incite",
+        "stubborn-tenacity"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "stannis-baratheon"
+    },
+    {
+      "id": "renlybaratheonkinginthesouth",
+      "name": "Renly Baratheon",
+      "nickname": "King in the South",
+      "faction": "baratheon",
+      "traits": [
+        "swift-strike",
+        "claims-to-the-kingdom"
+      ],
+      "removedFactionCards": [],
+      "loyalty": "renly-baratheon"
+    }
+  ],
+  [
+    {
+      "id": "bericdondarrion",
+      "name": "Beric Dondarrion",
+      "nickname": "Lightning Lord",
+      "faction": "brotherhood",
+      "traits": [
+        "order-sentinel",
+        "duty-to-the-crown",
+        "pathfinder"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "thorosofmyr",
+      "name": "Thoros of Myr",
+      "nickname": "The Red Wizard",
+      "faction": "brotherhood",
+      "traits": [
+        "prayers-to-rhllor"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "catelynstarkladystoneheart",
+      "name": "Catelyn Stark",
+      "nickname": "Lady Stoneheart",
+      "faction": "brotherhood",
+      "traits": [
+        "horrific-visage",
+        "intimidating-presence"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "mancerayder",
+      "name": "Mance Rayder",
+      "nickname": "King Beyond the Wall",
+      "faction": "freefolk",
+      "traits": [
+        "order-counterstrategy",
+        "boisterous-charisma",
+        "inspiring-presence"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "tormundgiantsbane",
+      "name": "Tormund Giantsbane",
+      "nickname": "Thunderfist",
+      "faction": "freefolk",
+      "traits": [
+        "order-overrun",
+        "sundering"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "harma",
+      "name": "Harma",
+      "nickname": "Vanguard Commander",
+      "faction": "freefolk",
+      "traits": [
+        "order-superior-flanking",
+        "enhanced-mobility"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "rattleshirt",
+      "name": "Rattleshirt",
+      "nickname": "The Lord of Bones",
+      "faction": "freefolk",
+      "traits": [
+        "order-trophy-hunter",
+        "trophy-collector",
+        "intimidating-presence"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "styr",
+      "name": "Styr",
+      "nickname": "Magnar of Thenn",
+      "faction": "freefolk",
+      "traits": [
+        "order-thenn-supremacy",
+        "iron-resolve"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "theweeper",
+      "name": "The Weeper",
+      "nickname": "Horrific Butcher",
+      "faction": "freefolk",
+      "traits": [
+        "order-grisly-example",
+        "vicious",
+        "weaken-resolve"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "thegreatwalrus",
+      "name": "The Great Walrus",
+      "nickname": "Lord of the Frozen Shore",
+      "faction": "freefolk",
+      "traits": [
+        "go-down-fighting",
+        "hardened"
+      ],
+      "grantsKeyword": "Affiliation: Frozen Shore",
+      "removedFactionCards": []
+    },
+    {
+      "id": "magthemighty",
+      "name": "Mag the Mighty",
+      "nickname": "Mag Mar Tun Doh Weg",
+      "faction": "freefolk",
+      "removedFactionCards": [],
+      "unit": "mag-the-mighty",
+      "points": 5
+    },
+    {
+      "id": "varamyrsixskins",
+      "name": "Varamyr Sixskins",
+      "nickname": "Master Skinchanger",
+      "faction": "freefolk",
+      "removedFactionCards": [],
+      "unit": "varamyr-sixskins",
+      "points": 2
+    }
+  ],
+  [
+    {
+      "id": "gregorclegane",
+      "name": "Gregor Clegane",
+      "nickname": "The Mountain",
+      "faction": "lannister",
+      "traits": [
+        "indomitable",
+        "the-mountains-strength"
+      ],
+      "grantsKeyword": "Affiliation: House Clegane",
+      "removedFactionCards": []
+    },
+    {
+      "id": "jaimelannister",
+      "name": "Jaime Lannister",
+      "nickname": "The Kingslayer",
+      "faction": "lannister",
+      "traits": [
+        "counterstrike",
+        "disrupt",
+        "precision"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "thehighsparrow",
+      "name": "The High Sparrow",
+      "nickname": "His High Holiness",
+      "faction": "lannister",
+      "traits": [
+        "embolden",
+        "intimidating-presence"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "tyrionlannister",
+      "name": "Tyrion Lannister",
+      "nickname": "Halfman",
+      "faction": "lannister",
+      "traits": [
+        "order-counterstrategy",
+        "order-tactical-reposition"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "tywinlannister",
+      "name": "Tywin Lannister",
+      "nickname": "Lord of Casterly Rock",
+      "faction": "lannister",
+      "traits": [
+        "order-threaten",
+        "order-lannister-supremacy"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "joffreybaratheon",
+      "name": "Joffrey Baratheon",
+      "nickname": "First of His Name",
+      "faction": "lannister",
+      "traits": [
+        "orders-of-the-crown"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "addammarbrand",
+      "name": "Addam Marbrand",
+      "nickname": "Commander of the City Watch",
+      "faction": "lannister",
+      "traits": [
+        "hardened",
+        "iron-resolve"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "kevanlannister",
+      "name": "Kevan Lannister",
+      "nickname": "Protector of the Realm",
+      "faction": "lannister",
+      "traits": [
+        "order-lannister-supremacy",
+        "might-of-the-throne"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "doranmartell",
+      "name": "Doran Martell",
+      "nickname": "Lord of Sunspear",
+      "faction": "martell",
+      "traits": [
+        "proxy-orders"
+      ],
+      "removedFactionCards": [],
+      "ncu": "doran-martell-prince-of-dorne",
+      "field": "areohotah",
+      "points": 4
+    },
+    {
+      "id": "areohotah",
+      "name": "Areo Hotah",
+      "nickname": "Captain of the Guard",
+      "faction": "martell",
+      "traits": [
+        "coordinated-assault",
+        "furious-charge",
+        "duty-to-the-crown"
+      ],
+      "removedFactionCards": [],
+      "requiresInArmy": [
+        "doran-martell-prince-of-dorne"
+      ]
+    },
+    {
+      "id": "oberynmartell",
+      "name": "Oberyn Martell",
+      "nickname": "Prince of Dorne",
+      "faction": "martell",
+      "traits": [
+        "manticore-venom",
+        "vipers-fangs",
+        "precision"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "harmenuller",
+      "name": "Harmen Uller",
+      "nickname": "Lord of Hellholt",
+      "faction": "martell",
+      "traits": [
+        "reinforcements",
+        "iron-resolve"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "obarasand",
+      "name": "Obara Sand",
+      "nickname": "Eldest Sister",
+      "faction": "martell",
+      "traits": [
+        "order-reckless-heroism",
+        "fueled-by-slaughter",
+        "sundering"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "daemonsand",
+      "name": "Daemon Sand",
+      "nickname": "Vengeful Knight",
+      "faction": "martell",
+      "traits": [
+        "intimidation-of-the-crown",
+        "rally-cry"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "gerolddayne",
+      "name": "Gerold Dayne",
+      "nickname": "Darkstar",
+      "faction": "martell",
+      "traits": [
+        "order-martial-training",
+        "boldness-and-courage"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "jeormormont",
+      "name": "Jeor Mormont",
+      "nickname": "997th Lord Commander",
+      "faction": "nightswatch",
+      "traits": [
+        "order-stay-at-your-posts",
+        "stand-your-ground"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "jonsnow",
+      "name": "Jon Snow",
+      "nickname": "998th Lord Commander",
+      "faction": "nightswatch",
+      "traits": [
+        "boldness-and-courage",
+        "furious-charge"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "alliserthorne",
+      "name": "Alliser Thorne",
+      "nickname": "Master-at-Arms",
+      "faction": "nightswatch",
+      "traits": [
+        "order-threaten",
+        "vicious",
+        "prey-on-fear"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "donalnoye",
+      "name": "Donal Noye",
+      "nickname": "Defender of Castle Black",
+      "faction": "nightswatch",
+      "traits": [
+        "order-shield-wall",
+        "improved-armaments"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "othellyarwyck",
+      "name": "Othell Yarwyck",
+      "nickname": "First Builder",
+      "faction": "nightswatch",
+      "traits": [
+        "hardened",
+        "spotter"
+      ],
+      "grantsKeyword": "Affiliation: Builder",
+      "removedFactionCards": []
+    },
+    {
+      "id": "benjenstarkfirstranger",
+      "name": "Benjen Stark",
+      "nickname": "First Ranger",
+      "faction": "nightswatch",
+      "traits": [
+        "order-stark-fury",
+        "enhanced-mobility"
+      ],
+      "removedFactionCards": [],
+      "allowedUnitTypes": [
+        "infantry"
+      ],
+      "grantsKeyword": "Affiliation: Rangers"
+    },
+    {
+      "id": "benjenstarkbeyondthewall",
+      "name": "Benjen Stark",
+      "nickname": "Beyond the Wall",
+      "faction": "nightswatch",
+      "traits": [
+        "order-hidden-traps",
+        "ranging-specialist",
+        "disrupt"
+      ],
+      "removedFactionCards": [],
+      "attachesToUnits": [
+        "ranger-trackers",
+        "ranger-vanguards"
+      ]
+    },
+    {
+      "id": "cotterpyke",
+      "name": "Cotter Pyke",
+      "nickname": "Eastwatch Commander",
+      "faction": "nightswatch",
+      "traits": [
+        "order-reckless-heroism",
+        "fueled-by-slaughter"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "serdenysmallister",
+      "name": "Ser Denys Mallister",
+      "nickname": "Shadow Tower Commander",
+      "faction": "nightswatch",
+      "traits": [
+        "knightly-vow",
+        "dutiful-commander"
+      ],
+      "removedFactionCards": []
+    }
+  ],
+  [
+    {
+      "id": "greatjonumber",
+      "name": "Greatjon Umber",
+      "nickname": "Lord of Last Hearth",
+      "faction": "stark",
+      "traits": [
+        "order-overrun",
+        "order-reckless-heroism"
+      ],
+      "grantsKeyword": "Affiliation: House Umber",
+      "removedFactionCards": []
+    },
+    {
+      "id": "robbstark",
+      "name": "Robb Stark",
+      "nickname": "The Wolf Lord",
+      "faction": "stark",
+      "traits": [
+        "order-tactical-reposition",
+        "enhanced-mobility",
+        "regroup"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "bryndentullytheblackfish",
+      "name": "Brynden Tully",
+      "nickname": "The Blackfish",
+      "faction": "stark",
+      "traits": [
+        "stalwart",
+        "stand-your-ground"
+      ],
+      "grantsKeyword": "Affiliation: House Tully",
+      "removedFactionCards": []
+    },
+    {
+      "id": "eddardstark",
+      "name": "Eddard Stark",
+      "nickname": "Lord of Winterfell",
+      "faction": "stark",
+      "traits": [
+        "rally-cry",
+        "iron-resolve"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "howlandreed",
+      "name": "Howland Reed",
+      "nickname": "Lord of the Crannogs",
+      "faction": "stark",
+      "traits": [
+        "order-superior-flanking",
+        "disrupt"
+      ],
+      "grantsKeyword": "Affiliation: Crannogman",
+      "removedFactionCards": []
+    },
+    {
+      "id": "rodrikcassel",
+      "name": "Rodrik Cassel",
+      "nickname": "Master-at-Arms",
+      "faction": "stark",
+      "traits": [
+        "order-mark-target",
+        "boldness-and-courage"
+      ],
+      "removedFactionCards": []
+    },
+    {
+      "id": "maegemormont",
+      "name": "Maege Mormont",
+      "nickname": "Lady of Bear Island",
+      "faction": "stark",
+      "traits": [
+        "battle-scars"
+      ],
+      "grantsKeyword": "Affiliation: House Mormont",
+      "removedFactionCards": []
+    },
+    {
+      "id": "rickardkarstark",
+      "name": "Rickard Karstark",
+      "nickname": "Lord of Karhold",
+      "faction": "stark",
+      "traits": [
+        "fueled-by-slaughter",
+        "superior-numbers"
+      ],
+      "grantsKeyword": "Affiliation: House Karstark",
+      "removedFactionCards": []
+    },
+    {
+      "id": "bryndentullyoutridercommander",
+      "name": "Brynden Tully",
+      "nickname": "Outrider Commander",
+      "faction": "stark",
+      "traits": [
+        "order-sentinel",
+        "elusive-escape"
+      ],
+      "removedFactionCards": []
+    }
+  ]
+]

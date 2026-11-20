@@ -1,0 +1,180 @@
+/* fonts are bundled in the fonts folder, so the app looks the same offline */
+@font-face { font-family: 'Source Sans 3'; font-style: normal; font-weight: 200 900; font-display: swap;
+  src: url("fonts/SourceSans3-VariableFont_wght.ttf") format("truetype"); }
+@font-face { font-family: 'Source Sans 3'; font-style: italic; font-weight: 200 900; font-display: swap;
+  src: url("fonts/SourceSans3-Italic-VariableFont_wght.ttf") format("truetype"); }
+@font-face { font-family: 'Marcellus SC'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("fonts/MarcellusSC-Regular.ttf") format("truetype"); }
+
+:root {
+  /* slate theme: change these to re-colour the whole app */
+  --bg: #1C2127;        /* page */
+  --card: #2B323B;      /* tiles, buttons, menus */
+  --fg: #E9E4D8;        /* text */
+  --sub: #A9A59A;       /* secondary text */
+  --edge: #3A4452;      /* default tile and button borders */
+  --rule: #39414C;      /* dividing lines */
+  --accent: #E6C34A;    /* selection ring, highlights */
+}
+html { color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif; margin: 0; padding: 12px 16px 40px; }
+button { font: inherit; }
+/* headings and tile labels use the display face; it only has one weight */
+h1, h2, h3, h4, .tile-name { font-family: 'Marcellus SC', Georgia, 'Times New Roman', serif; font-weight: 400; }
+h1, h2, h3, h4 { color: var(--fg); }
+select, input { background: var(--card); color: var(--fg); border: 2px solid var(--edge); border-radius: 8px; padding: 4px 8px; font: inherit; }
+.faction-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 640px; margin: 0 auto; }
+.faction-row .tile { width: calc((100% - 5 * 12px) / 6); }
+.tile { position: relative; aspect-ratio: 1; border: 3px solid var(--edge); border-radius: 18px; background: var(--card); color: var(--fg); overflow: hidden; padding: 0; cursor: pointer; }
+.tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tile-name { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px; font-size: 0.75rem; background: rgba(0, 0, 0, 0.6); color: #fff; }
+.tile.selected { outline: 4px solid var(--accent); }
+.sizes, .commander-line { text-align: center; margin: 16px 0; font-size: 1.1rem; }
+.size { margin: 0 4px; padding: 6px 14px; border-radius: 10px; border: 2px solid var(--edge); background: var(--card); color: var(--fg); cursor: pointer; }
+.size { margin: 0 6px; }
+.size.selected { outline: 4px solid var(--accent); }   /* the same ring as the selected faction */
+/* ---- slot grid ---- */
+.tile.noart .tile-name { top: 0; display: flex; align-items: center; justify-content: center; text-align: center; background: none; color: var(--fg); }
+.tile.small.hasart .tile-name { display: none; }
+.tile.big { aspect-ratio: 1; }   /* unit pictures are square (512 x 512) */
+.tile.empty { display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--fg); }
+.tile.disabled { opacity: 0.35; cursor: default; }
+.tile.filled { cursor: default; }
+.tile.small .tile-name { font-size: 0.6rem; padding: 2px; }
+.tile-points { position: absolute; top: 4px; left: 4px; box-sizing: border-box; width: 22px; height: 22px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: gold; color: #222; font-weight: 700; font-size: 0.75rem; line-height: 1; }
+
+.slot { position: relative; }
+.slot.big { width: 280px; }   /* unit boxes are much larger than the 88px attachment boxes */
+.slot.small { width: 88px; }
+.slot .tile { width: 100%; }
+.remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; padding: 0; border-radius: 50%; border: 2px solid var(--edge); background: var(--card); color: var(--fg); line-height: 1; cursor: pointer; }
+
+.slot-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; margin: 16px 0; }
+.attach-col { display: flex; flex-wrap: wrap; gap: 8px; width: 288px; }
+.tile-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.unit-info { flex: 1; min-width: 220px; }
+.unit-info h3 { margin: 0 0 4px; }
+.unit-info p { margin: 4px 0; }
+.unit-info .meta { color: var(--sub); }
+.unit-info .cap { text-transform: capitalize; }
+.unit-info .traits { font-style: italic; }
+.row-btn { display: block; margin-top: 6px; padding: 4px 10px; border-radius: 8px; border: 2px solid var(--edge); background: var(--card); color: var(--fg); cursor: pointer; }
+.unit-info .hint { color: var(--sub); font-style: italic; }
+.tile.swap { cursor: pointer; }
+
+/* ---- pick menu ---- */
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.menu { background: var(--bg); color: var(--fg); border: 2px solid var(--edge); border-radius: 16px; padding: 16px; width: min(860px, 94vw); max-height: 85vh; overflow: auto; }
+.menu-head { display: flex; justify-content: space-between; align-items: center; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.menu-grid.wide { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.menu-grid.wide .tile { aspect-ratio: 1; }
+.menu-grid .tile { width: 100%; }
+.legend { font-size: 0.85rem; color: var(--sub); }
+/* ---- faction colours: border and points badge ---- */
+.tile.faction-baratheon { border-color: #D4A017; }
+.tile.faction-bolton { border-color: #FA8F9A; }
+.tile.faction-brotherhood { border-color: #5E8C3A; }
+.tile.faction-freefolk { border-color: #D9D2C3; }
+.tile.faction-greyjoy { border-color: #2AA7A7; }
+.tile.faction-lannister { border-color: #C62828; }
+.tile.faction-martell { border-color: #E8651A; }
+.tile.faction-neutral { border-color: #9C7207; }
+.tile.faction-nightswatch { border-color: #7A8794; }
+.tile.faction-stark { border-color: #8FA3B5; }
+.tile.faction-targaryen { border-color: #8E1B3A; }
+.tile.commander { border-color: #F5D327; }   /* the commander keeps its own border colour */
+.tile.commander .tile-points { background: #14181C; color: #F5D327; }
+.tile.faction-baratheon .tile-points { background: #D4A017; color: #222; }
+.tile.faction-bolton .tile-points { background: #FA8F9A; color: #222; }
+.tile.faction-brotherhood .tile-points { background: #5E8C3A; color: #fff; }
+.tile.faction-freefolk .tile-points { background: #D9D2C3; color: #222; }
+.tile.faction-greyjoy .tile-points { background: #2AA7A7; color: #14181C; }
+.tile.faction-lannister .tile-points { background: #C62828; color: #fff; }
+.tile.faction-martell .tile-points { background: #E8651A; color: #fff; }
+.tile.faction-neutral .tile-points { background: #9C7207; color: #fff; }
+.tile.faction-nightswatch .tile-points { background: #7A8794; color: #14181C; }
+.tile.faction-stark .tile-points { background: #8FA3B5; color: #222; }
+.tile.faction-targaryen .tile-points { background: #8E1B3A; color: #fff; }
+
+/* ---- points table ---- */
+.points-table { max-width: 640px; margin: 12px 0; }
+.points-row { display: grid; grid-template-columns: 12rem 5rem 1fr; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.points-value { font-weight: 700; }
+.points-note { color: var(--sub); font-size: 0.85rem; }
+.points-row.over .points-value { color: #FF7B7B; }
+.notice { background: #3B3620; color: var(--fg); border: 2px solid var(--accent); border-radius: 10px; padding: 6px 12px; max-width: 640px; }
+
+/* tactics deck and card viewer */
+.deck-head { display: flex; align-items: center; gap: 12px; }
+button.link { background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+button.link:hover { color: var(--accent); text-decoration: underline; }
+.gallery { background: var(--bg); color: var(--fg); border: 2px solid var(--edge); border-radius: 16px; padding: 16px; width: min(900px, 94vw); max-height: 94vh; display: flex; flex-direction: column; }
+.gallery-body { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 0; margin-top: 8px; }
+.gallery .card-img { flex: 1 1 0; min-width: 0; width: 100%; height: auto; border-radius: 10px; background-repeat: no-repeat; }
+.gallery .card-missing { padding: 40px 20px; border: 1px solid var(--edge); border-radius: 10px; text-align: center; }
+.gallery .nav { font-size: 2rem; line-height: 1; padding: 8px 12px; flex: none; }
+.gallery-count { text-align: center; color: var(--sub); margin: 8px 0 0; }
+
+/* saving, sharing, exporting */
+.list-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.list-name { min-width: 0; width: 220px; max-width: 100%; padding: 6px 10px; background: var(--card); color: var(--fg); border: 1px solid var(--edge); border-radius: 8px; font: inherit; }
+.tool-msg { color: var(--sub); }
+.dialog { width: min(640px, 94vw); }
+.export-text { width: 100%; box-sizing: border-box; margin: 10px 0; padding: 10px; background: var(--card); color: var(--fg); border: 1px solid var(--edge); border-radius: 8px; font: 0.9rem/1.4 ui-monospace, Consolas, monospace; resize: vertical; }
+.dialog-buttons { display: flex; gap: 8px; }
+.saved-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--rule); }
+.saved-name { font-weight: 600; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.saved-info { color: var(--sub); font-size: 0.9rem; }
+
+/* printable card sheet */
+.print-sheet { display: none; }
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  html, body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
+  body > h1, #app > *:not(.print-sheet) { display: none !important; }
+  .print-sheet { display: block; font-family: 'Source Sans 3', Arial, sans-serif; }
+  .print-sheet h1 { display: block; margin: 0 0 2mm; font-size: 20pt; color: #000; }
+  .print-sub { margin: 0 0 5mm; font-size: 10pt; color: #333; }
+  .print-row { break-inside: avoid; padding-bottom: 5mm; }
+  .print-row:last-child { padding-bottom: 0; }
+  .print-sheet { break-after: avoid; }
+  .print-row h3 { margin: 0 0 2mm; font-size: 11pt; color: #000; }
+  .print-cards { display: flex; flex-wrap: wrap; gap: 3mm; align-items: flex-start; }
+  .pcard { position: relative; overflow: hidden; border-radius: 2mm; }
+  .pcard.land { width: 92mm; }
+  .pcard.port { width: 61mm; }
+  .pcard img { position: absolute; height: auto; max-width: none; }
+  .pcard.missing { border: 1px solid #999; padding: 6mm; width: 61mm; box-sizing: border-box; }
+}
+
+/* dragging rows */
+.drag-handle { width: 22px; align-self: stretch; display: flex; align-items: center; justify-content: center; color: var(--sub); cursor: grab; user-select: none; border-radius: 6px; letter-spacing: -2px; }
+.drag-handle:hover { color: var(--fg); background: var(--card); }
+.drag-handle.locked { cursor: default; background: none; }
+.slot-row.dragging { opacity: 0.4; }
+.slot-row.drop-before { box-shadow: 0 -3px 0 0 var(--accent); }
+.slot-row.drop-after { box-shadow: 0 3px 0 0 var(--accent); }
+
+/* header and the list tools panel */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.page-head h1 { margin: 0.67em 0; }
+.tools-toggle { padding: 4px 12px; border-radius: 8px; border: 2px solid var(--edge); background: var(--card); color: var(--fg); cursor: pointer; font: inherit; }
+.tools-toggle:hover { border-color: var(--accent); }
+.tools-toggle .chevron { display: inline-block; transition: transform 0.15s; }
+.tools-toggle.open .chevron { transform: rotate(180deg); }
+.slots-head { display: flex; align-items: center; gap: 12px; }
+.slots-head h2 { margin: 0.83em 0; }
+.page-head .list-bar { margin-bottom: 0; }
+
+/* one look for all the ordinary buttons */
+.list-bar button, .slots-head button, .deck-head button, .menu-head button, .dialog-buttons button,
+.saved-row button, .row-btn, .tools-toggle, .gallery .nav {
+  border: 2px solid var(--edge); border-radius: 8px; background: var(--card); color: var(--fg); cursor: pointer; font: inherit;
+}
+.list-bar button, .slots-head button, .deck-head button, .menu-head button, .dialog-buttons button,
+.saved-row button, .row-btn, .tools-toggle { padding: 4px 12px; }
+.list-bar button:hover, .slots-head button:hover, .deck-head button:hover, .menu-head button:hover, .dialog-buttons button:hover,
+.saved-row button:hover, .row-btn:hover, .tools-toggle:hover, .gallery .nav:hover { border-color: var(--accent); }
+.list-bar button:disabled, .slots-head button:disabled, .deck-head button:disabled, .menu-head button:disabled,
+.dialog-buttons button:disabled, .saved-row button:disabled, .row-btn:disabled { opacity: 0.45; cursor: default; border-color: var(--edge); }

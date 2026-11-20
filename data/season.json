@@ -1,0 +1,8 @@
+{
+    "season": "Season-7.2",
+    "gameSize": [30, 40, 50],
+    "defaultGameSize": 40,
+    "attachmentsPerUnit": 1,
+    "neutralLimitPercent": 30,
+    "freeAttachmentPoints": { "30": 3, "40": 4, "50": 5 }
+}

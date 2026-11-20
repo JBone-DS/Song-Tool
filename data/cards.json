@@ -1,0 +1,2790 @@
+{
+"sheets": {
+"bolton-land": {
+"file": "images/cards/bolton-land.jpg",
+"cols": 5,
+"rows": 2,
+"w": 640,
+"h": 373
+},
+"bolton-port": {
+"file": "images/cards/bolton-port.jpg",
+"cols": 8,
+"rows": 3,
+"w": 450,
+"h": 630
+},
+"neutral-land": {
+"file": "images/cards/neutral-land.jpg",
+"cols": 5,
+"rows": 3,
+"w": 640,
+"h": 373
+},
+"neutral-port": {
+"file": "images/cards/neutral-port.jpg",
+"cols": 8,
+"rows": 5,
+"w": 450,
+"h": 630
+},
+"baratheon-land": {
+"file": "images/cards/baratheon-land.jpg",
+"cols": 5,
+"rows": 4,
+"w": 640,
+"h": 373
+},
+"baratheon-port": {
+"file": "images/cards/baratheon-port.jpg",
+"cols": 8,
+"rows": 6,
+"w": 450,
+"h": 630
+},
+"brotherhood-land": {
+"file": "images/cards/brotherhood-land.jpg",
+"cols": 5,
+"rows": 1,
+"w": 640,
+"h": 373
+},
+"brotherhood-port": {
+"file": "images/cards/brotherhood-port.jpg",
+"cols": 8,
+"rows": 2,
+"w": 450,
+"h": 630
+},
+"freefolk-land": {
+"file": "images/cards/freefolk-land.jpg",
+"cols": 5,
+"rows": 5,
+"w": 640,
+"h": 373
+},
+"freefolk-port": {
+"file": "images/cards/freefolk-port.jpg",
+"cols": 8,
+"rows": 5,
+"w": 450,
+"h": 630
+},
+"greyjoy-land": {
+"file": "images/cards/greyjoy-land.jpg",
+"cols": 5,
+"rows": 2,
+"w": 640,
+"h": 373
+},
+"greyjoy-port": {
+"file": "images/cards/greyjoy-port.jpg",
+"cols": 8,
+"rows": 4,
+"w": 450,
+"h": 630
+},
+"lannister-land": {
+"file": "images/cards/lannister-land.jpg",
+"cols": 5,
+"rows": 4,
+"w": 640,
+"h": 373
+},
+"lannister-port": {
+"file": "images/cards/lannister-port.jpg",
+"cols": 8,
+"rows": 5,
+"w": 450,
+"h": 630
+},
+"martell-land": {
+"file": "images/cards/martell-land.jpg",
+"cols": 5,
+"rows": 2,
+"w": 640,
+"h": 373
+},
+"martell-port": {
+"file": "images/cards/martell-port.jpg",
+"cols": 8,
+"rows": 4,
+"w": 450,
+"h": 630
+},
+"nightswatch-land": {
+"file": "images/cards/nightswatch-land.jpg",
+"cols": 5,
+"rows": 3,
+"w": 640,
+"h": 373
+},
+"nightswatch-port": {
+"file": "images/cards/nightswatch-port.jpg",
+"cols": 8,
+"rows": 6,
+"w": 450,
+"h": 630
+},
+"stark-land": {
+"file": "images/cards/stark-land.jpg",
+"cols": 5,
+"rows": 4,
+"w": 640,
+"h": 373
+},
+"stark-port": {
+"file": "images/cards/stark-port.jpg",
+"cols": 8,
+"rows": 6,
+"w": 450,
+"h": 630
+},
+"targaryen-land": {
+"file": "images/cards/targaryen-land.jpg",
+"cols": 5,
+"rows": 4,
+"w": 640,
+"h": 373
+},
+"targaryen-port": {
+"file": "images/cards/targaryen-port.jpg",
+"cols": 8,
+"rows": 5,
+"w": 450,
+"h": 630
+}
+},
+"cards": {
+"dreadfort-spearmen": [
+"bolton-land",
+0,
+0
+],
+"dreadfort-archers": [
+"bolton-land",
+1,
+0
+],
+"cutthroats": [
+"bolton-land",
+2,
+0
+],
+"blackguards": [
+"bolton-land",
+3,
+0
+],
+"bastards-girls": [
+"bolton-land",
+4,
+0
+],
+"bloody-mummer-skirmishers": [
+"bolton-land",
+0,
+1
+],
+"flayed-men": [
+"bolton-land",
+1,
+1
+],
+"bloody-mummer-zorse-riders": [
+"bolton-land",
+2,
+1
+],
+"dreadfort-captain": [
+"bolton-port",
+0,
+0
+],
+"dreadfort-flayer": [
+"bolton-port",
+1,
+0
+],
+"ramsay-snow-sadist": [
+"bolton-port",
+2,
+0
+],
+"roose-bolton-lord-of-the-dreadfort": [
+"bolton-port",
+3,
+0
+],
+"theon-greyjoy-reek": [
+"bolton-port",
+4,
+0
+],
+"ben-bones": [
+"bolton-port",
+5,
+0
+],
+"damon-dance-for-me": [
+"bolton-port",
+6,
+0
+],
+"skinner": [
+"bolton-port",
+7,
+0
+],
+"grunt": [
+"bolton-port",
+0,
+1
+],
+"sour-alyn": [
+"bolton-port",
+1,
+1
+],
+"steelshanks-walton-relentless-soldier": [
+"bolton-port",
+2,
+1
+],
+"vargo-hoat-the-crippler": [
+"bolton-port",
+3,
+1
+],
+"rorge": [
+"bolton-port",
+4,
+1
+],
+"biter": [
+"bolton-port",
+5,
+1
+],
+"jeyne-poole": [
+"bolton-port",
+6,
+1
+],
+"ramsay-snow-red-helm": [
+"bolton-port",
+7,
+1
+],
+"roose-bolton-calculating-and-cruel": [
+"bolton-port",
+0,
+2
+],
+"tybald": [
+"bolton-port",
+1,
+2
+],
+"walda-frey": [
+"bolton-port",
+2,
+2
+],
+"ramsay-snow-the-bastard-of-bolton": [
+"bolton-port",
+3,
+2
+],
+"roosebolton": [
+"bolton-port",
+4,
+2
+],
+"steelshankswalton": [
+"bolton-port",
+5,
+2
+],
+"vargohoat": [
+"bolton-port",
+6,
+2
+],
+"cutthroats-neutral": [
+"neutral-land",
+0,
+0
+],
+"bastards-girls-neutral": [
+"neutral-land",
+1,
+0
+],
+"flayed-men-neutral": [
+"neutral-land",
+2,
+0
+],
+"blackguards-neutral": [
+"neutral-land",
+3,
+0
+],
+"hedge-knights": [
+"neutral-land",
+4,
+0
+],
+"bloody-mummer-skirmishers-neutral": [
+"neutral-land",
+0,
+1
+],
+"bloody-mummer-zorse-riders-neutral": [
+"neutral-land",
+1,
+1
+],
+"stormcrow-mercenaries": [
+"neutral-land",
+2,
+1
+],
+"stormcrow-archers": [
+"neutral-land",
+3,
+1
+],
+"stormcrow-dervishes": [
+"neutral-land",
+4,
+1
+],
+"golden-company-swordsmen": [
+"neutral-land",
+0,
+2
+],
+"golden-company-crossbowmen": [
+"neutral-land",
+1,
+2
+],
+"golden-company-war-elephant": [
+"neutral-land",
+2,
+2
+],
+"lysene-sellswords": [
+"neutral-land",
+3,
+2
+],
+"stone-crows": [
+"neutral-land",
+4,
+2
+],
+"dreadfort-captain-neutral": [
+"neutral-port",
+0,
+0
+],
+"bolton-flayer-neutral": [
+"neutral-port",
+1,
+0
+],
+"ramsay-snow-sadist-neutral": [
+"neutral-port",
+2,
+0
+],
+"theon-greyjoy-reek-neutral": [
+"neutral-port",
+3,
+0
+],
+"fortune-seeker": [
+"neutral-port",
+4,
+0
+],
+"glory-seeker": [
+"neutral-port",
+5,
+0
+],
+"vargo-hoat-the-crippler-neutral": [
+"neutral-port",
+6,
+0
+],
+"daario-naharis-reckless-mercenary-neutral": [
+"neutral-port",
+7,
+0
+],
+"jaqen-hghar-unnamed-neutral": [
+"neutral-port",
+0,
+1
+],
+"brienne-neutral": [
+"neutral-port",
+1,
+1
+],
+"bronn-neutral": [
+"neutral-port",
+2,
+1
+],
+"stormcrow-lieutenant": [
+"neutral-port",
+3,
+1
+],
+"arya-stark-neutral": [
+"neutral-port",
+4,
+1
+],
+"sandor-clegane-neutral": [
+"neutral-port",
+5,
+1
+],
+"rorge-neutral": [
+"neutral-port",
+6,
+1
+],
+"biter-neutral": [
+"neutral-port",
+7,
+1
+],
+"the-widower-stormcrow-captain-neutral": [
+"neutral-port",
+0,
+2
+],
+"jokin-archer-captain-neutral": [
+"neutral-port",
+1,
+2
+],
+"the-widower-second-in-command-neutral": [
+"neutral-port",
+2,
+2
+],
+"golden-company-officer": [
+"neutral-port",
+3,
+2
+],
+"lysene-bosun": [
+"neutral-port",
+4,
+2
+],
+"jaqen-hghar-follower-of-the-red-god-neutral": [
+"neutral-port",
+5,
+2
+],
+"lord-varys-neutral": [
+"neutral-port",
+6,
+2
+],
+"petyr-baelish-neutral": [
+"neutral-port",
+7,
+2
+],
+"roose-bolton-calculating-and-cruel-neutral": [
+"neutral-port",
+0,
+3
+],
+"shae-neutral": [
+"neutral-port",
+1,
+3
+],
+"the-high-seneschal-neutral": [
+"neutral-port",
+2,
+3
+],
+"tycho-nestoris-neutral": [
+"neutral-port",
+3,
+3
+],
+"walder-frey-neutral": [
+"neutral-port",
+4,
+3
+],
+"ramsay-snow-the-bastard-of-bolton-neutral": [
+"neutral-port",
+5,
+3
+],
+"roosebolton-neutral": [
+"neutral-port",
+6,
+3
+],
+"vargohoat-neutral": [
+"neutral-port",
+7,
+3
+],
+"daarionaharis-neutral": [
+"neutral-port",
+0,
+4
+],
+"jokin-stormcrow-captain-neutral": [
+"neutral-port",
+1,
+4
+],
+"baratheon-wardens": [
+"baratheon-land",
+0,
+0
+],
+"baratheon-sentinels": [
+"baratheon-land",
+1,
+0
+],
+"stag-knights": [
+"baratheon-land",
+2,
+0
+],
+"champions-of-the-stag": [
+"baratheon-land",
+3,
+0
+],
+"kings-men": [
+"baratheon-land",
+4,
+0
+],
+"rhllor-queens-men": [
+"baratheon-land",
+0,
+1
+],
+"rhllor-lightbringers": [
+"baratheon-land",
+1,
+1
+],
+"rhllor-faithful": [
+"baratheon-land",
+2,
+1
+],
+"rose-knights": [
+"baratheon-land",
+3,
+1
+],
+"thorn-watch": [
+"baratheon-land",
+4,
+1
+],
+"riders-of-highgarden": [
+"baratheon-land",
+0,
+2
+],
+"highgarden-pikemen": [
+"baratheon-land",
+1,
+2
+],
+"dragonstone-noble": [
+"baratheon-land",
+2,
+2
+],
+"baratheon-halberdiers": [
+"baratheon-land",
+3,
+2
+],
+"crownland-scouts": [
+"baratheon-land",
+4,
+2
+],
+"rainbow-guard": [
+"baratheon-land",
+0,
+3
+],
+"master-warden": [
+"baratheon-port",
+0,
+0
+],
+"stag-knight-noble": [
+"baratheon-port",
+1,
+0
+],
+"red-priestess": [
+"baratheon-port",
+2,
+0
+],
+"andrew-estermont-true-loyalist": [
+"baratheon-port",
+3,
+0
+],
+"axell-florent-fanatical-devotee": [
+"baratheon-port",
+4,
+0
+],
+"davos-seaworth-onion-knight": [
+"baratheon-port",
+5,
+0
+],
+"devan-seaworth": [
+"baratheon-port",
+6,
+0
+],
+"brienne-the-blue": [
+"baratheon-port",
+7,
+0
+],
+"cortnay-penrose-loyal-tactician": [
+"baratheon-port",
+0,
+1
+],
+"loras-tyrell-kings-squire": [
+"baratheon-port",
+1,
+1
+],
+"thorn-watch-sentinel": [
+"baratheon-port",
+2,
+1
+],
+"pikeman-captain": [
+"baratheon-port",
+3,
+1
+],
+"bryen-farring": [
+"baratheon-port",
+4,
+1
+],
+"dale-seaworth": [
+"baratheon-port",
+5,
+1
+],
+"justin-massey-cunning-follower": [
+"baratheon-port",
+6,
+1
+],
+"dragonstone-noble-attachment": [
+"baratheon-port",
+7,
+1
+],
+"brienne-rainbow-guard": [
+"baratheon-port",
+0,
+2
+],
+"bryce-caron": [
+"baratheon-port",
+1,
+2
+],
+"emmon-cuy": [
+"baratheon-port",
+2,
+2
+],
+"guyard-morrigen": [
+"baratheon-port",
+3,
+2
+],
+"loras-tyrell-lord-commander-of-the-rainbow-guard": [
+"baratheon-port",
+4,
+2
+],
+"parmen-crane": [
+"baratheon-port",
+5,
+2
+],
+"robar-royce": [
+"baratheon-port",
+6,
+2
+],
+"alester-florent": [
+"baratheon-port",
+7,
+2
+],
+"axell-florent-hand-of-the-queen": [
+"baratheon-port",
+0,
+3
+],
+"cortnay-penrose-reliable-castellan": [
+"baratheon-port",
+1,
+3
+],
+"cressen": [
+"baratheon-port",
+2,
+3
+],
+"davos-seaworth-hand-of-the-true-king": [
+"baratheon-port",
+3,
+3
+],
+"eldon-estermont-venerable-knight": [
+"baratheon-port",
+4,
+3
+],
+"margaery-tyrell": [
+"baratheon-port",
+5,
+3
+],
+"melisandre": [
+"baratheon-port",
+6,
+3
+],
+"olenna-tyrell": [
+"baratheon-port",
+7,
+3
+],
+"patchface": [
+"baratheon-port",
+0,
+4
+],
+"selyse-and-shireen": [
+"baratheon-port",
+1,
+4
+],
+"shyra-errol": [
+"baratheon-port",
+2,
+4
+],
+"renlybaratheoncharismaticheir": [
+"baratheon-port",
+3,
+4
+],
+"stannisbaratheontherightfulheir": [
+"baratheon-port",
+4,
+4
+],
+"andrewestermont": [
+"baratheon-port",
+5,
+4
+],
+"axellflorent": [
+"baratheon-port",
+6,
+4
+],
+"davosseaworth": [
+"baratheon-port",
+7,
+4
+],
+"stannisbaratheononetrueking": [
+"baratheon-port",
+0,
+5
+],
+"cortnaypenrose": [
+"baratheon-port",
+1,
+5
+],
+"eldonestermont": [
+"baratheon-port",
+2,
+5
+],
+"lorastyrell": [
+"baratheon-port",
+3,
+5
+],
+"renlybaratheonlordparamount": [
+"baratheon-port",
+4,
+5
+],
+"justinmassey": [
+"baratheon-port",
+5,
+5
+],
+"stannisbaratheonkingatthewall": [
+"baratheon-port",
+6,
+5
+],
+"renlybaratheonkinginthesouth": [
+"baratheon-port",
+7,
+5
+],
+"peasant-levy": [
+"brotherhood-land",
+0,
+0
+],
+"men-at-arms": [
+"brotherhood-land",
+1,
+0
+],
+"brotherhood-archers": [
+"brotherhood-land",
+2,
+0
+],
+"brotherhood-sworn-knights": [
+"brotherhood-land",
+3,
+0
+],
+"beric-dondarrion-azor-ahai": [
+"brotherhood-port",
+0,
+0
+],
+"thoros-of-myr-faithful-believer": [
+"brotherhood-port",
+1,
+0
+],
+"lem-lemoncloak": [
+"brotherhood-port",
+2,
+0
+],
+"tom-sevenstringers": [
+"brotherhood-port",
+3,
+0
+],
+"anguy": [
+"brotherhood-port",
+4,
+0
+],
+"edric-dayne": [
+"brotherhood-port",
+5,
+0
+],
+"hot-pie": [
+"brotherhood-port",
+6,
+0
+],
+"gendry": [
+"brotherhood-port",
+7,
+0
+],
+"catelyn-stark-the-hangwoman": [
+"brotherhood-port",
+0,
+1
+],
+"ghost-of-high-heart": [
+"brotherhood-port",
+1,
+1
+],
+"ravella-smallwood": [
+"brotherhood-port",
+2,
+1
+],
+"thoros-of-myr-the-ember": [
+"brotherhood-port",
+3,
+1
+],
+"bericdondarrion": [
+"brotherhood-port",
+4,
+1
+],
+"thorosofmyr": [
+"brotherhood-port",
+5,
+1
+],
+"catelynstarkladystoneheart": [
+"brotherhood-port",
+6,
+1
+],
+"free-folk-raiders": [
+"freefolk-land",
+0,
+0
+],
+"free-folk-trappers": [
+"freefolk-land",
+1,
+0
+],
+"savage-giant": [
+"freefolk-land",
+2,
+0
+],
+"bear": [
+"freefolk-land",
+3,
+0
+],
+"thenn-warriors": [
+"freefolk-land",
+4,
+0
+],
+"spearwives": [
+"freefolk-land",
+0,
+1
+],
+"followers-of-bone": [
+"freefolk-land",
+1,
+1
+],
+"cave-dweller-savages": [
+"freefolk-land",
+2,
+1
+],
+"the-bonelords-chosen": [
+"freefolk-land",
+3,
+1
+],
+"mag-the-mighty": [
+"freefolk-land",
+4,
+1
+],
+"wun-wun": [
+"freefolk-land",
+0,
+2
+],
+"frozen-shore-chariots": [
+"freefolk-land",
+1,
+2
+],
+"war-mammoth": [
+"freefolk-land",
+2,
+2
+],
+"frozen-shore-hunters": [
+"freefolk-land",
+3,
+2
+],
+"frozen-shore-bear-riders": [
+"freefolk-land",
+4,
+2
+],
+"borroqs-boar": [
+"freefolk-land",
+0,
+3
+],
+"shadowcat": [
+"freefolk-land",
+1,
+3
+],
+"varamyr-sixskins": [
+"freefolk-land",
+2,
+3
+],
+"wolf-pack": [
+"freefolk-land",
+3,
+3
+],
+"giant-spear-throwers": [
+"freefolk-land",
+4,
+3
+],
+"harmas-vanguard": [
+"freefolk-land",
+0,
+4
+],
+"tormund-giantsbane-tall-talker": [
+"freefolk-port",
+0,
+0
+],
+"raid-leader": [
+"freefolk-port",
+1,
+0
+],
+"skinchanger": [
+"freefolk-port",
+2,
+0
+],
+"chosen-of-styr": [
+"freefolk-port",
+3,
+0
+],
+"spearwife-matriarch": [
+"freefolk-port",
+4,
+0
+],
+"champion-of-bone": [
+"freefolk-port",
+5,
+0
+],
+"cave-dweller-alpha": [
+"freefolk-port",
+6,
+0
+],
+"harma-the-dogshead": [
+"freefolk-port",
+7,
+0
+],
+"harmas-bannerman": [
+"freefolk-port",
+0,
+1
+],
+"jarl-advance-raid-leader": [
+"freefolk-port",
+1,
+1
+],
+"rattleshirt-ruthless-slaughterer": [
+"freefolk-port",
+2,
+1
+],
+"the-weeper-cruel-tyrant": [
+"freefolk-port",
+3,
+1
+],
+"ygritte-spearwife-archer": [
+"freefolk-port",
+4,
+1
+],
+"walrus-clan-chieftain": [
+"freefolk-port",
+5,
+1
+],
+"borroq-boar-skinchanger": [
+"freefolk-port",
+6,
+1
+],
+"jon-snow-the-crow-come-over": [
+"freefolk-port",
+7,
+1
+],
+"mance-rayder-abel-the-bard": [
+"freefolk-port",
+0,
+2
+],
+"the-great-walrus-steeled-through-ice-and-snow": [
+"freefolk-port",
+1,
+2
+],
+"craster-ally-of-convenience": [
+"freefolk-port",
+2,
+2
+],
+"jon-snow-turncloak-crow": [
+"freefolk-port",
+3,
+2
+],
+"lady-dalla": [
+"freefolk-port",
+4,
+2
+],
+"lady-val": [
+"freefolk-port",
+5,
+2
+],
+"mance-rayder-artful-tactician": [
+"freefolk-port",
+6,
+2
+],
+"mance-rayder-deceptive-bard": [
+"freefolk-port",
+7,
+2
+],
+"styr-iron-fisted-tyrant": [
+"freefolk-port",
+0,
+3
+],
+"ygritte-kissed-by-fire": [
+"freefolk-port",
+1,
+3
+],
+"mancerayder": [
+"freefolk-port",
+2,
+3
+],
+"tormundgiantsbane": [
+"freefolk-port",
+3,
+3
+],
+"harma": [
+"freefolk-port",
+4,
+3
+],
+"rattleshirt": [
+"freefolk-port",
+5,
+3
+],
+"styr": [
+"freefolk-port",
+6,
+3
+],
+"theweeper": [
+"freefolk-port",
+7,
+3
+],
+"thegreatwalrus": [
+"freefolk-port",
+0,
+4
+],
+"ironborn-reavers": [
+"greyjoy-land",
+0,
+0
+],
+"ironborn-bowmen": [
+"greyjoy-land",
+1,
+0
+],
+"house-harlaw-reapers": [
+"greyjoy-land",
+2,
+0
+],
+"ironmakers": [
+"greyjoy-land",
+3,
+0
+],
+"ironborn-trappers": [
+"greyjoy-land",
+4,
+0
+],
+"blacktyde-chosen": [
+"greyjoy-land",
+0,
+1
+],
+"drowned-men": [
+"greyjoy-land",
+1,
+1
+],
+"silenced-men": [
+"greyjoy-land",
+2,
+1
+],
+"stony-shore-pillagers": [
+"greyjoy-land",
+3,
+1
+],
+"iron-victory-crew": [
+"greyjoy-land",
+4,
+1
+],
+"asha-greyjoy-captain-of-the-black-wind": [
+"greyjoy-port",
+0,
+0
+],
+"victarion-greyjoy-master-of-the-iron-victory": [
+"greyjoy-port",
+1,
+0
+],
+"warsworn": [
+"greyjoy-port",
+2,
+0
+],
+"reaver-captain": [
+"greyjoy-port",
+3,
+0
+],
+"drowned-prophet": [
+"greyjoy-port",
+4,
+0
+],
+"euron-greyjoy-crows-eye": [
+"greyjoy-port",
+5,
+0
+],
+"nute": [
+"greyjoy-port",
+6,
+0
+],
+"qarl-ashas-champion": [
+"greyjoy-port",
+7,
+0
+],
+"qarl-the-maid": [
+"greyjoy-port",
+0,
+1
+],
+"theon-greyjoy-kinslayer": [
+"greyjoy-port",
+1,
+1
+],
+"asha-greyjoy-lady-greyjoy": [
+"greyjoy-port",
+2,
+1
+],
+"baelor-blacktyde-captain-of-the-nightflyer": [
+"greyjoy-port",
+3,
+1
+],
+"dagmer-cleftjaw-captain-of-the-foamdrinker": [
+"greyjoy-port",
+4,
+1
+],
+"moqorro-slave-of-rhllor": [
+"greyjoy-port",
+5,
+1
+],
+"sunset-sea-brave": [
+"greyjoy-port",
+6,
+1
+],
+"aeron-greyjoy": [
+"greyjoy-port",
+7,
+1
+],
+"asha-greyjoy-would-be-queen": [
+"greyjoy-port",
+0,
+2
+],
+"balon-greyjoy-king-of-salt-and-rock": [
+"greyjoy-port",
+1,
+2
+],
+"beron-blacktyde": [
+"greyjoy-port",
+2,
+2
+],
+"erik-ironmaker-the-just": [
+"greyjoy-port",
+3,
+2
+],
+"moqorro-the-black-flame": [
+"greyjoy-port",
+4,
+2
+],
+"rodrik-harlaw": [
+"greyjoy-port",
+5,
+2
+],
+"tristifer-botley": [
+"greyjoy-port",
+6,
+2
+],
+"wendamyr": [
+"greyjoy-port",
+7,
+2
+],
+"ashagreyjoy": [
+"greyjoy-port",
+0,
+3
+],
+"victariongreyjoy": [
+"greyjoy-port",
+1,
+3
+],
+"balongreyjoy": [
+"greyjoy-port",
+2,
+3
+],
+"erikironmaker": [
+"greyjoy-port",
+3,
+3
+],
+"eurongreyjoy": [
+"greyjoy-port",
+4,
+3
+],
+"theongreyjoy": [
+"greyjoy-port",
+5,
+3
+],
+"baelorblacktyde": [
+"greyjoy-port",
+6,
+3
+],
+"dagmercleftjaw": [
+"greyjoy-port",
+7,
+3
+],
+"lannister-guardsmen": [
+"lannister-land",
+0,
+0
+],
+"lannister-halberdiers": [
+"lannister-land",
+1,
+0
+],
+"house-clegane-mountains-men": [
+"lannister-land",
+2,
+0
+],
+"house-clegane-brigands": [
+"lannister-land",
+3,
+0
+],
+"pyromancers": [
+"lannister-land",
+4,
+0
+],
+"knights-of-casterly-rock": [
+"lannister-land",
+0,
+1
+],
+"lannister-crossbowmen": [
+"lannister-land",
+1,
+1
+],
+"the-warriors-sons": [
+"lannister-land",
+2,
+1
+],
+"poor-fellows": [
+"lannister-land",
+3,
+1
+],
+"kingsguard": [
+"lannister-land",
+4,
+1
+],
+"red-cloaks": [
+"lannister-land",
+0,
+2
+],
+"lannisport-city-watch": [
+"lannister-land",
+1,
+2
+],
+"casterly-rock-honor-guard": [
+"lannister-land",
+2,
+2
+],
+"gregor-clegane": [
+"lannister-land",
+3,
+2
+],
+"gold-cloaks": [
+"lannister-land",
+4,
+2
+],
+"stone-crows-lannister": [
+"lannister-land",
+0,
+3
+],
+"gregor-clegane-lord-tywins-mad-dog": [
+"lannister-port",
+0,
+0
+],
+"jaime-lannister-the-young-lion": [
+"lannister-port",
+1,
+0
+],
+"guard-captain": [
+"lannister-port",
+2,
+0
+],
+"assault-veteran": [
+"lannister-port",
+3,
+0
+],
+"champion-of-the-faith": [
+"lannister-port",
+4,
+0
+],
+"sandor-clegane-the-hound": [
+"lannister-port",
+5,
+0
+],
+"tyrion-lannister-the-giant-of-lannister": [
+"lannister-port",
+6,
+0
+],
+"arys-oakheart-kingsguard": [
+"lannister-port",
+7,
+0
+],
+"barristan-selmy": [
+"lannister-port",
+0,
+1
+],
+"boros-blount": [
+"lannister-port",
+1,
+1
+],
+"jaime-lannister-kingsguard": [
+"lannister-port",
+2,
+1
+],
+"mandon-moore": [
+"lannister-port",
+3,
+1
+],
+"meryn-trant": [
+"lannister-port",
+4,
+1
+],
+"preston-greenfield": [
+"lannister-port",
+5,
+1
+],
+"sentinel-enforcer": [
+"lannister-port",
+6,
+1
+],
+"addam-marbrand-trusted-bannerman": [
+"lannister-port",
+7,
+1
+],
+"qyburn-forbidden-knowledge": [
+"lannister-port",
+0,
+2
+],
+"ser-robert-strong": [
+"lannister-port",
+1,
+2
+],
+"gregor-clegane-mounted-behemoth": [
+"lannister-port",
+2,
+2
+],
+"jaime-lannister-maimed-hostage": [
+"lannister-port",
+3,
+2
+],
+"clegane-butcher": [
+"lannister-port",
+4,
+2
+],
+"turncoat": [
+"lannister-port",
+5,
+2
+],
+"gate-warden": [
+"lannister-port",
+6,
+2
+],
+"cersei-lannister": [
+"lannister-port",
+7,
+2
+],
+"joffrey-baratheon-lord-of-the-seven-kingdoms": [
+"lannister-port",
+0,
+3
+],
+"kevan-lannister-master-of-law": [
+"lannister-port",
+1,
+3
+],
+"pycelle": [
+"lannister-port",
+2,
+3
+],
+"qyburn-master-of-whisperers": [
+"lannister-port",
+3,
+3
+],
+"the-high-sparrow-father-of-the-faithful": [
+"lannister-port",
+4,
+3
+],
+"tommen-baratheon-next-in-succession": [
+"lannister-port",
+5,
+3
+],
+"tyrion-lannister-the-imp": [
+"lannister-port",
+6,
+3
+],
+"tywin-lannister-the-great-lion": [
+"lannister-port",
+7,
+3
+],
+"gregorclegane": [
+"lannister-port",
+0,
+4
+],
+"jaimelannister": [
+"lannister-port",
+1,
+4
+],
+"thehighsparrow": [
+"lannister-port",
+2,
+4
+],
+"tyrionlannister": [
+"lannister-port",
+3,
+4
+],
+"tywinlannister": [
+"lannister-port",
+4,
+4
+],
+"joffreybaratheon": [
+"lannister-port",
+5,
+4
+],
+"addammarbrand": [
+"lannister-port",
+6,
+4
+],
+"kevanlannister": [
+"lannister-port",
+7,
+4
+],
+"sand-skirmishers": [
+"martell-land",
+0,
+0
+],
+"sunspear-dervishes": [
+"martell-land",
+1,
+0
+],
+"martell-spearmen": [
+"martell-land",
+2,
+0
+],
+"sunspear-royal-guard": [
+"martell-land",
+3,
+0
+],
+"dune-vipers": [
+"martell-land",
+4,
+0
+],
+"starfall-outriders": [
+"martell-land",
+0,
+1
+],
+"starfall-knights": [
+"martell-land",
+1,
+1
+],
+"darkstar-retinue": [
+"martell-land",
+2,
+1
+],
+"skyreach-bowmen": [
+"martell-land",
+3,
+1
+],
+"areo-hotah-dutiful-juggernaut": [
+"martell-port",
+0,
+0
+],
+"dervish-captain": [
+"martell-port",
+1,
+0
+],
+"oberyn-martell-the-snake": [
+"martell-port",
+2,
+0
+],
+"spearmen-captain": [
+"martell-port",
+3,
+0
+],
+"spearlord": [
+"martell-port",
+4,
+0
+],
+"high-hermitage-sentinel": [
+"martell-port",
+5,
+0
+],
+"elia-sand": [
+"martell-port",
+6,
+0
+],
+"harmen-uller-dornish-envoy": [
+"martell-port",
+7,
+0
+],
+"nymeria-sand-sand-snake": [
+"martell-port",
+0,
+1
+],
+"obara-sand-sand-snake": [
+"martell-port",
+1,
+1
+],
+"arys-oakheart-the-white-knight": [
+"martell-port",
+2,
+1
+],
+"daemon-sand-bastard-of-godsgrace": [
+"martell-port",
+3,
+1
+],
+"edric-dayne-lord-of-starfall": [
+"martell-port",
+4,
+1
+],
+"gerold-dayne-knight-of-high-hermitage": [
+"martell-port",
+5,
+1
+],
+"quentyn-martell": [
+"martell-port",
+6,
+1
+],
+"arianne-martell": [
+"martell-port",
+7,
+1
+],
+"arys-oakheart-crowns-ambassador": [
+"martell-port",
+0,
+2
+],
+"doran-martell-prince-of-dorne": [
+"martell-port",
+1,
+2
+],
+"ellaria-sand": [
+"martell-port",
+2,
+2
+],
+"nymeria-sand-lady-nym": [
+"martell-port",
+3,
+2
+],
+"oberyn-martell-red-viper": [
+"martell-port",
+4,
+2
+],
+"tyene-sand": [
+"martell-port",
+5,
+2
+],
+"doranmartell": [
+"martell-port",
+6,
+2
+],
+"areohotah": [
+"martell-port",
+7,
+2
+],
+"oberynmartell": [
+"martell-port",
+0,
+3
+],
+"harmenuller": [
+"martell-port",
+1,
+3
+],
+"obarasand": [
+"martell-port",
+2,
+3
+],
+"daemonsand": [
+"martell-port",
+3,
+3
+],
+"gerolddayne": [
+"martell-port",
+4,
+3
+],
+"ghost": [
+"nightswatch-land",
+0,
+0
+],
+"sworn-brothers": [
+"nightswatch-land",
+1,
+0
+],
+"ranger-trackers": [
+"nightswatch-land",
+2,
+0
+],
+"veterans-of-the-watch": [
+"nightswatch-land",
+3,
+0
+],
+"builder-crossbowmen": [
+"nightswatch-land",
+4,
+0
+],
+"ranger-hunters": [
+"nightswatch-land",
+0,
+1
+],
+"builder-scorpion-crew": [
+"nightswatch-land",
+1,
+1
+],
+"builder-stone-thrower": [
+"nightswatch-land",
+2,
+1
+],
+"conscripts": [
+"nightswatch-land",
+3,
+1
+],
+"coldhands": [
+"nightswatch-land",
+4,
+1
+],
+"ranger-vanguards": [
+"nightswatch-land",
+0,
+2
+],
+"shadow-tower-spearmen": [
+"nightswatch-land",
+1,
+2
+],
+"watch-marshal": [
+"nightswatch-land",
+2,
+2
+],
+"watch-captain": [
+"nightswatch-port",
+0,
+0
+],
+"watch-recruiter": [
+"nightswatch-port",
+1,
+0
+],
+"alliser-thorne-vindictive-overseer": [
+"nightswatch-port",
+2,
+0
+],
+"grenn-aurochs": [
+"nightswatch-port",
+3,
+0
+],
+"othell-yarwyck-spotter": [
+"nightswatch-port",
+4,
+0
+],
+"pypar-monkey": [
+"nightswatch-port",
+5,
+0
+],
+"qhorin-halfhand-grizzled-ranger": [
+"nightswatch-port",
+6,
+0
+],
+"scorpion-modifications-othell-yarwyck": [
+"nightswatch-port",
+7,
+0
+],
+"benjen-stark-wolf-of-the-wall": [
+"nightswatch-port",
+0,
+1
+],
+"coldhands-enigmatic-guide": [
+"nightswatch-port",
+1,
+1
+],
+"coldhands-former-crow": [
+"nightswatch-port",
+2,
+1
+],
+"samwell-tarly-sam-the-slayer": [
+"nightswatch-port",
+3,
+1
+],
+"cotter-pyke-ironborn-brother": [
+"nightswatch-port",
+4,
+1
+],
+"eddison-tollett-dolorous-edd": [
+"nightswatch-port",
+5,
+1
+],
+"satin-brave-recruit": [
+"nightswatch-port",
+6,
+1
+],
+"satin-commanders-steward": [
+"nightswatch-port",
+7,
+1
+],
+"yoren-harsh-recruiter": [
+"nightswatch-port",
+0,
+2
+],
+"hardened-ranger": [
+"nightswatch-port",
+1,
+2
+],
+"scorpion-modifications-builder": [
+"nightswatch-port",
+2,
+2
+],
+"senior-builder": [
+"nightswatch-port",
+3,
+2
+],
+"watch-marshal-attachment": [
+"nightswatch-port",
+4,
+2
+],
+"aemon": [
+"nightswatch-port",
+5,
+2
+],
+"bowen-marsh": [
+"nightswatch-port",
+6,
+2
+],
+"craster-ally-of-the-watch": [
+"nightswatch-port",
+7,
+2
+],
+"donal-noye-expert-blacksmith": [
+"nightswatch-port",
+0,
+3
+],
+"gilly": [
+"nightswatch-port",
+1,
+3
+],
+"jeor-mormont-the-old-bear": [
+"nightswatch-port",
+2,
+3
+],
+"othell-yarwyck-warmachine-specialist": [
+"nightswatch-port",
+3,
+3
+],
+"qhorin-halfhand-unwavering-ranger": [
+"nightswatch-port",
+4,
+3
+],
+"samwell-tarly-craven-scholar": [
+"nightswatch-port",
+5,
+3
+],
+"ser-denys-mallister-honorable-brother": [
+"nightswatch-port",
+6,
+3
+],
+"yoren-wandering-crow": [
+"nightswatch-port",
+7,
+3
+],
+"jeormormont": [
+"nightswatch-port",
+0,
+4
+],
+"jonsnow": [
+"nightswatch-port",
+1,
+4
+],
+"alliserthorne": [
+"nightswatch-port",
+2,
+4
+],
+"donalnoye": [
+"nightswatch-port",
+3,
+4
+],
+"othellyarwyck": [
+"nightswatch-port",
+4,
+4
+],
+"benjenstarkfirstranger": [
+"nightswatch-port",
+5,
+4
+],
+"benjenstarkbeyondthewall": [
+"nightswatch-port",
+6,
+4
+],
+"cotterpyke": [
+"nightswatch-port",
+7,
+4
+],
+"serdenysmallister": [
+"nightswatch-port",
+0,
+5
+],
+"grey-wind": [
+"stark-land",
+0,
+0
+],
+"stark-sworn-swords": [
+"stark-land",
+1,
+0
+],
+"house-umber-berserkers": [
+"stark-land",
+2,
+0
+],
+"stark-outriders": [
+"stark-land",
+3,
+0
+],
+"house-karstark-spearmen": [
+"stark-land",
+4,
+0
+],
+"house-umber-greataxes": [
+"stark-land",
+0,
+1
+],
+"house-tully-sworn-shield": [
+"stark-land",
+1,
+1
+],
+"stark-bowmen": [
+"stark-land",
+2,
+1
+],
+"crannogman-trackers": [
+"stark-land",
+3,
+1
+],
+"house-tully-cavaliers": [
+"stark-land",
+4,
+1
+],
+"eddards-honor-guard": [
+"stark-land",
+0,
+2
+],
+"summer": [
+"stark-land",
+1,
+2
+],
+"shaggydog": [
+"stark-land",
+2,
+2
+],
+"house-mormont-she-bears": [
+"stark-land",
+3,
+2
+],
+"house-mormont-bruisers": [
+"stark-land",
+4,
+2
+],
+"house-karstark-loyalists": [
+"stark-land",
+0,
+3
+],
+"crannogman-bog-devils": [
+"stark-land",
+1,
+3
+],
+"house-umber-ravagers": [
+"stark-land",
+2,
+3
+],
+"winterfell-guard": [
+"stark-land",
+3,
+3
+],
+"greatjon-umber-fierce-bannerman": [
+"stark-port",
+0,
+0
+],
+"robb-stark-the-young-wolf": [
+"stark-port",
+1,
+0
+],
+"sworn-sword-captain": [
+"stark-port",
+2,
+0
+],
+"umber-champion": [
+"stark-port",
+3,
+0
+],
+"crannogman-warden": [
+"stark-port",
+4,
+0
+],
+"bran-and-hodor-protector-and-ward": [
+"stark-port",
+5,
+0
+],
+"brynden-tully-unyielding-knight": [
+"stark-port",
+6,
+0
+],
+"eddard-stark-lord-of-winterfell": [
+"stark-port",
+7,
+0
+],
+"howland-reed-lord-of-the-crannogs": [
+"stark-port",
+0,
+1
+],
+"rodrik-cassel-master-at-arms": [
+"stark-port",
+1,
+1
+],
+"jojen-reed-greensight": [
+"stark-port",
+2,
+1
+],
+"meera-reed-cunning-trapper": [
+"stark-port",
+3,
+1
+],
+"osha-spearwife-guardian": [
+"stark-port",
+4,
+1
+],
+"rickon-stark-prince-of-winterfell": [
+"stark-port",
+5,
+1
+],
+"syrio-forel-first-blade-of-braavos": [
+"stark-port",
+6,
+1
+],
+"mormont-veteran": [
+"stark-port",
+7,
+1
+],
+"loyalist-captain": [
+"stark-port",
+0,
+2
+],
+"rickard-karstark-vengeful-bannerman": [
+"stark-port",
+1,
+2
+],
+"brynden-tully-vanguard-infiltrator": [
+"stark-port",
+2,
+2
+],
+"maege-mormont-the-she-bear": [
+"stark-port",
+3,
+2
+],
+"crannogman-survivalist": [
+"stark-port",
+4,
+2
+],
+"winterfell-guardian": [
+"stark-port",
+5,
+2
+],
+"winterfell-champion": [
+"stark-port",
+6,
+2
+],
+"jaqen-hghar-mysterious-prisoner": [
+"stark-port",
+7,
+2
+],
+"arya-stark-the-wolf-girl": [
+"stark-port",
+0,
+3
+],
+"catelyn-stark-lady-of-winterfell": [
+"stark-port",
+1,
+3
+],
+"eddard-stark-hand-of-the-king": [
+"stark-port",
+2,
+3
+],
+"eddard-stark-warden-of-the-north": [
+"stark-port",
+3,
+3
+],
+"howland-reed-protector-of-the-neck": [
+"stark-port",
+4,
+3
+],
+"lyanna-mormont": [
+"stark-port",
+5,
+3
+],
+"robb-stark-king-in-the-north": [
+"stark-port",
+6,
+3
+],
+"rodrik-cassel-combat-veteran": [
+"stark-port",
+7,
+3
+],
+"sansa-stark": [
+"stark-port",
+0,
+4
+],
+"greatjonumber": [
+"stark-port",
+1,
+4
+],
+"robbstark": [
+"stark-port",
+2,
+4
+],
+"bryndentullytheblackfish": [
+"stark-port",
+3,
+4
+],
+"eddardstark": [
+"stark-port",
+4,
+4
+],
+"howlandreed": [
+"stark-port",
+5,
+4
+],
+"rodrikcassel": [
+"stark-port",
+6,
+4
+],
+"maegemormont": [
+"stark-port",
+7,
+4
+],
+"rickardkarstark": [
+"stark-port",
+0,
+5
+],
+"bryndentullyoutridercommander": [
+"stark-port",
+1,
+5
+],
+"jorah-mormont": [
+"targaryen-land",
+0,
+0
+],
+"dothraki-screamers": [
+"targaryen-land",
+1,
+0
+],
+"dothraki-veterans": [
+"targaryen-land",
+2,
+0
+],
+"dothraki-outriders": [
+"targaryen-land",
+3,
+0
+],
+"stormcrow-mercenaries-targaryen": [
+"targaryen-land",
+4,
+0
+],
+"stormcrow-archers-targaryen": [
+"targaryen-land",
+0,
+1
+],
+"stormcrow-dervishes-targaryen": [
+"targaryen-land",
+1,
+1
+],
+"dothraki-hrakkars": [
+"targaryen-land",
+2,
+1
+],
+"freedmen": [
+"targaryen-land",
+3,
+1
+],
+"unsullied-pikemen": [
+"targaryen-land",
+4,
+1
+],
+"unsullied-swordmasters": [
+"targaryen-land",
+0,
+2
+],
+"drogon": [
+"targaryen-land",
+1,
+2
+],
+"rhaegal": [
+"targaryen-land",
+2,
+2
+],
+"viserion": [
+"targaryen-land",
+3,
+2
+],
+"drogos-bloodriders": [
+"targaryen-land",
+4,
+2
+],
+"brazen-beasts": [
+"targaryen-land",
+0,
+3
+],
+"pit-fighters": [
+"targaryen-land",
+1,
+3
+],
+"jorah-mormont-the-exiled-knight": [
+"targaryen-port",
+0,
+0
+],
+"outrider-ko": [
+"targaryen-port",
+1,
+0
+],
+"screamer-ko": [
+"targaryen-port",
+2,
+0
+],
+"daario-naharis-reckless-mercenary": [
+"targaryen-port",
+3,
+0
+],
+"stormcrow-lieutenant-targaryen": [
+"targaryen-port",
+4,
+0
+],
+"unsullied-officer": [
+"targaryen-port",
+5,
+0
+],
+"belwas-veteran-pit-fighter": [
+"targaryen-port",
+6,
+0
+],
+"grey-worm-freed-by-the-dragon": [
+"targaryen-port",
+7,
+0
+],
+"jorah-mormont-penitent-betrayer": [
+"targaryen-port",
+0,
+1
+],
+"jorah-mormont-the-andal": [
+"targaryen-port",
+1,
+1
+],
+"cohollo": [
+"targaryen-port",
+2,
+1
+],
+"haggo": [
+"targaryen-port",
+3,
+1
+],
+"qotho": [
+"targaryen-port",
+4,
+1
+],
+"rakharo": [
+"targaryen-port",
+5,
+1
+],
+"brazen-beasts-captain": [
+"targaryen-port",
+6,
+1
+],
+"marselen-unsullied-captain": [
+"targaryen-port",
+7,
+1
+],
+"mirri-maz-duur-resentful-healer": [
+"targaryen-port",
+0,
+2
+],
+"skahaz-mo-kandaq-merciless-ghiscari": [
+"targaryen-port",
+1,
+2
+],
+"alicent-hightower": [
+"targaryen-port",
+2,
+2
+],
+"barristan-selmy-advisor-to-the-dragon": [
+"targaryen-port",
+3,
+2
+],
+"daenerys-targaryen-khaleesi": [
+"targaryen-port",
+4,
+2
+],
+"daenerys-targaryen-the-unburnt": [
+"targaryen-port",
+5,
+2
+],
+"hizdahr-zo-loraq": [
+"targaryen-port",
+6,
+2
+],
+"illyrio-mopatis": [
+"targaryen-port",
+7,
+2
+],
+"mirri-maz-duur-godswife": [
+"targaryen-port",
+0,
+3
+],
+"missandei": [
+"targaryen-port",
+1,
+3
+],
+"pyat-pree": [
+"targaryen-port",
+2,
+3
+],
+"quaithe": [
+"targaryen-port",
+3,
+3
+],
+"rhaenyra-targaryen": [
+"targaryen-port",
+4,
+3
+],
+"xaro-xhoan-daxos": [
+"targaryen-port",
+5,
+3
+],
+"jorahmormont": [
+"targaryen-port",
+6,
+3
+],
+"khaldrogo": [
+"targaryen-port",
+7,
+3
+],
+"daarionaharis": [
+"targaryen-port",
+0,
+4
+],
+"daenerystargaryenmotherofdragons": [
+"targaryen-port",
+1,
+4
+],
+"daenerystargaryenqueenofmeereen": [
+"targaryen-port",
+2,
+4
+],
+"barristanselmy": [
+"targaryen-port",
+3,
+4
+],
+"belwas": [
+"targaryen-port",
+4,
+4
+],
+"greyworm": [
+"targaryen-port",
+5,
+4
+],
+"marselen": [
+"targaryen-port",
+6,
+4
+],
+"skahazmokandaq": [
+"targaryen-port",
+7,
+4
+],
+"jon-snow-lord-snow": [
+"nightswatch-port",
+1,
+5
+]
+}
+}

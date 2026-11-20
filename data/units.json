@@ -1,0 +1,8184 @@
+[
+  {
+    "id": "dreadfort-spearmen",
+    "name": "Dreadfort Spearmen",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-set-for-charge",
+      "impaling-spear"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dreadfort-archers",
+    "name": "Dreadfort Archers",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-mark-target",
+      "ruthless-volley"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "cutthroats",
+    "name": "Cutthroats",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "ruthless-aggression",
+      "prey-on-fear"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "blackguards",
+    "name": "Blackguards",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "flail-and-shield",
+      "horrific-visage"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bastards-girls",
+    "name": "Bastard's Girls",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-charging-volley",
+      "trackers-bow",
+      "blade-and-fang"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bloody-mummer-skirmishers",
+    "name": "Bloody Mummer Skirmishers",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "mummers-tricks",
+      "skirmisher"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "flayed-men",
+    "name": "Flayed Men",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "order-spread-fear",
+      "heavy-war-flail"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bloody-mummer-zorse-riders",
+    "name": "Bloody Mummer Zorse Riders",
+    "class": "combat_unit",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "mummers-tools",
+      "harassment-tactics"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dreadfort-captain",
+    "name": "Dreadfort Captain",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "fueled-by-slaughter",
+      "exploit-fear"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "dreadfort-flayer",
+    "name": "Dreadfort Flayer",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-spread-fear",
+      "ferocious-assault"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "ramsay-snow-sadist",
+    "name": "Ramsay Snow",
+    "nickname": "Sadist",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "sadistic-exhilaration",
+      "cruel-indulgence"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "roose-bolton-lord-of-the-dreadfort",
+    "name": "Roose Bolton",
+    "nickname": "Lord of the Dreadfort",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "calculated-cruelty",
+      "intimidating-reputation"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "theon-greyjoy-reek",
+    "name": "Theon Greyjoy",
+    "nickname": "Reek",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 0,
+    "traits": [
+      "my-name-is-reek"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "ramsay-snow-sadist",
+        "ramsay-snow-the-bastard-of-bolton"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "ben-bones",
+    "name": "Ben Bones",
+    "nickname": "Bastard's Boy",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "sic-em"
+    ],
+    "tags": [
+      "bastards-boy"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "limits": [
+      {
+        "max": 1,
+        "perUnit": true,
+        "tag": "bastards-boy"
+      }
+    ]
+  },
+  {
+    "id": "damon-dance-for-me",
+    "name": "Damon Dance-for-Me",
+    "nickname": "Bastard's Boy",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-dance"
+    ],
+    "tags": [
+      "bastards-boy"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "limits": [
+      {
+        "max": 1,
+        "perUnit": true,
+        "tag": "bastards-boy"
+      }
+    ]
+  },
+  {
+    "id": "skinner",
+    "name": "Skinner",
+    "nickname": "Bastard's Boy",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "master-flayer"
+    ],
+    "tags": [
+      "bastards-boy"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "limits": [
+      {
+        "max": 1,
+        "perUnit": true,
+        "tag": "bastards-boy"
+      }
+    ]
+  },
+  {
+    "id": "grunt",
+    "name": "Grunt",
+    "nickname": "Bastard's Boy",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "sadistic-toughness"
+    ],
+    "tags": [
+      "bastards-boy"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "limits": [
+      {
+        "max": 1,
+        "perUnit": true,
+        "tag": "bastards-boy"
+      }
+    ]
+  },
+  {
+    "id": "sour-alyn",
+    "name": "Sour Alyn",
+    "nickname": "Bastard's Boy",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "opportunistic-brutality"
+    ],
+    "tags": [
+      "bastards-boy"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "limits": [
+      {
+        "max": 1,
+        "perUnit": true,
+        "tag": "bastards-boy"
+      }
+    ]
+  },
+  {
+    "id": "steelshanks-walton-relentless-soldier",
+    "name": "Steelshanks Walton",
+    "nickname": "Relentless Soldier",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "seasoned-brutality",
+      "battle-hardened",
+      "loyalty-in-service"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "vargo-hoat-the-crippler",
+    "name": "Vargo Hoat",
+    "nickname": "The Crippler",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "cruel-mutilation",
+      "weakened-resolve"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "rorge",
+    "name": "Rorge",
+    "nickname": "The Mad Dog of Saltpans",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "exploit-weakness",
+      "mad-dogs-ferocity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "biter",
+    "name": "Biter",
+    "nickname": "Rorge's Mad Dog",
+    "class": "attachment",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 0,
+    "traits": [
+      "feral-rage"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "rorge"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "jeyne-poole",
+    "name": "Jeyne Poole",
+    "nickname": "Arya Stark",
+    "class": "ncu",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "ramsay-snow-red-helm",
+    "name": "Ramsay Snow",
+    "nickname": "Red Helm",
+    "class": "ncu",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "roose-bolton-calculating-and-cruel",
+    "name": "Roose Bolton",
+    "nickname": "Calculating and Cruel",
+    "class": "ncu",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "tybald",
+    "name": "Tybald",
+    "nickname": "Maester of the Dreadfort",
+    "class": "ncu",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "walda-frey",
+    "name": "Walda Frey",
+    "nickname": "Fat Walda",
+    "class": "ncu",
+    "faction": "bolton",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "cutthroats-neutral",
+    "name": "House Bolton Cutthroats",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "ruthless-aggression"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bastards-girls-neutral",
+    "name": "House Bolton Bastard's Girls",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-charging-volley",
+      "trackers-bow",
+      "blade-and-fang"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "flayed-men-neutral",
+    "name": "House Bolton Flayed Men",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "war-flail",
+      "intimidating-presence"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "blackguards-neutral",
+    "name": "House Bolton Blackguards",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "spiked-flail",
+      "horrific-visage"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "hedge-knights",
+    "name": "Hedge Knights",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "knights-blade",
+      "loyalty-through-coin"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bloody-mummer-skirmishers-neutral",
+    "name": "Bloody Mummer Skirmishers",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "mummers-blade",
+      "counterstrike",
+      "disrupt"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bloody-mummer-zorse-riders-neutral",
+    "name": "Bloody Mummer Zorse Riders",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "motley-armaments",
+      "elusive-escape"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stormcrow-mercenaries",
+    "name": "Stormcrow Mercenaries",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "targaryen"
+    ],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "motivated-by-coin"
+    ],
+    "adaptive": {
+      "attachmentCostReduction": 1,
+      "attachmentsAffected": 1
+    },
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stormcrow-archers",
+    "name": "Stormcrow Archers",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "targaryen"
+    ],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "mercenarys-longbow",
+      "loyalty-through-coin"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stormcrow-dervishes",
+    "name": "Stormcrow Dervishes",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [
+      "targaryen"
+    ],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "ambush",
+      "swift-strike",
+      "motivated-by-coin"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "golden-company-swordsmen",
+    "name": "Golden Company Swordsmen",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "type": "infantry",
+    "tags": [
+      "golden-company"
+    ],
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "mastercraft-longsword",
+      "golden-reputation"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "golden-company-crossbowmen",
+    "name": "Golden Company Crossbowmen",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "type": "infantry",
+    "tags": [
+      "golden-company"
+    ],
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-sentinel",
+      "crossbow",
+      "iron-resolve"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "golden-company-war-elephant",
+    "name": "Golden Company War Elephant",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "war-elephant",
+      "trampling-stomp"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "limits": [
+      {
+        "max": 1,
+        "per": {
+          "tag": "golden-company",
+          "type": "infantry"
+        }
+      }
+    ]
+  },
+  {
+    "id": "lysene-sellswords",
+    "name": "Lysene Sellswords",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "raiders-of-the-free-cities",
+      "pirates-blades"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stone-crows",
+    "name": "Stone Crows",
+    "class": "combat_unit",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-incite",
+      "disorganized",
+      "recruiting-from-the-hills"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dreadfort-captain-neutral",
+    "name": "Dreadfort Captain",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 1,
+    "traits": [
+      "fueled-by-slaughter"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "bolton-flayer-neutral",
+    "name": "Bolton Flayer",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 1,
+    "traits": [
+      "order-spread-fear",
+      "exploit-fear"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "ramsay-snow-sadist-neutral",
+    "name": "Ramsay Snow",
+    "nickname": "Sadist",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 2,
+    "traits": [
+      "fueled-by-slaughter",
+      "intimidating-presence"
+    ],
+    "grantsKeyword": "Affiliation: House Bolton",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "theon-greyjoy-reek-neutral",
+    "name": "Theon Greyjoy",
+    "nickname": "Reek",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 0,
+    "traits": [
+      "order-set-an-example"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "ramsay-snow-sadist-neutral",
+        "ramsay-snow-the-bastard-of-bolton-neutral"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "fortune-seeker",
+    "name": "Fortune Seeker",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dauntless",
+      "motivated-by-coin"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "glory-seeker",
+    "name": "Glory Seeker",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "iron-resolve",
+      "stubborn-tenacity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "vargo-hoat-the-crippler-neutral",
+    "name": "Vargo Hoat",
+    "nickname": "The Crippler",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 2,
+    "traits": [
+      "sadistic-mutilation",
+      "vicious",
+      "weaken-resolve"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "daario-naharis-reckless-mercenary-neutral",
+    "name": "Daario Naharis",
+    "nickname": "Reckless Mercenary",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "reckless-strikes",
+      "dauntless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jaqen-hghar-unnamed-neutral",
+    "name": "Jaqen H'ghar",
+    "nickname": "Unnamed",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-taking-a-new-name"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "brienne-neutral",
+    "name": "Brienne",
+    "nickname": "Maiden of Tarth",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "knightly-vow",
+      "stalwart"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "bronn-neutral",
+    "name": "Bronn",
+    "nickname": "The Sellsword",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "loyalty-through-coin",
+      "motivated-by-coin"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "stormcrow-lieutenant",
+    "name": "Stormcrow Lieutenant",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "targaryen"
+    ],
+    "points": 1,
+    "traits": [
+      "improved-armaments"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "arya-stark-neutral",
+    "name": "Arya Stark",
+    "nickname": "Fugitive Princess",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "names-on-the-list"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "sandor-clegane-neutral"
+    ]
+  },
+  {
+    "id": "sandor-clegane-neutral",
+    "name": "Sandor Clegane",
+    "nickname": "Fugitive Bodyguard",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-threaten"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "rorge-neutral",
+    "name": "Rorge",
+    "nickname": "The Mad Dog of Saltpans",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 2,
+    "traits": [
+      "order-incite",
+      "elusive-escape"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "biter-neutral",
+    "name": "Biter",
+    "nickname": "Rorge's Mad Dog",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 0,
+    "traits": [
+      "gang-up"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "rorge-neutral"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "the-widower-stormcrow-captain-neutral",
+    "name": "The Widower",
+    "nickname": "Stormcrow Captain",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 0,
+    "traits": [
+      "order-hold-the-line",
+      "jokins-vassal",
+      "sundering"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "jokin-stormcrow-captain-neutral"
+    ]
+  },
+  {
+    "id": "jokin-archer-captain-neutral",
+    "name": "Jokin",
+    "nickname": "Archer Captain",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "acute-precision"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "the-widower-second-in-command-neutral",
+    "name": "The Widower",
+    "nickname": "Second in Command",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 0,
+    "traits": [
+      "sundering",
+      "jokins-protector"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "jokin-archer-captain-neutral"
+    ]
+  },
+  {
+    "id": "golden-company-officer",
+    "name": "Golden Company Officer",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "boisterous-charisma"
+    ],
+    "grantsKeyword": "Affiliation: Golden Company",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "lysene-bosun",
+    "name": "Lysene Bosun",
+    "class": "attachment",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "interrogate",
+      "domineering-pride"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jaqen-hghar-follower-of-the-red-god-neutral",
+    "name": "Jaqen H'ghar",
+    "nickname": "Follower of the Red God",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "lord-varys-neutral",
+    "name": "Lord Varys",
+    "nickname": "The Spider",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "petyr-baelish-neutral",
+    "name": "Petyr Baelish",
+    "nickname": "Littlefinger",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "roose-bolton-calculating-and-cruel-neutral",
+    "name": "Roose Bolton",
+    "nickname": "Calculating and Cruel",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [
+      "bolton"
+    ],
+    "points": 4
+  },
+  {
+    "id": "shae-neutral",
+    "name": "Shae",
+    "nickname": "Hidden in Court",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "the-high-seneschal-neutral",
+    "name": "The High Seneschal",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 0
+  },
+  {
+    "id": "tycho-nestoris-neutral",
+    "name": "Tycho Nestoris",
+    "nickname": "Iron Banker",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "walder-frey-neutral",
+    "name": "Walder Frey",
+    "nickname": "Lord of the Crossing",
+    "class": "ncu",
+    "faction": "neutral",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "baratheon-wardens",
+    "name": "Baratheon Wardens",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-hold-the-line",
+      "war-hammer",
+      "counterstrike"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "baratheon-sentinels",
+    "name": "Baratheon Sentinels",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-sentinel",
+      "double-hammers",
+      "go-down-fighting"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stag-knights",
+    "name": "Stag Knights",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "stags-fury",
+      "stags-mettle"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "champions-of-the-stag",
+    "name": "Champions of the Stag",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "champions-wrath",
+      "punish-cowardice"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 2,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "kings-men",
+    "name": "King's Men",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "to-the-last",
+      "kings-blade"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "rhllor-queens-men",
+    "name": "R'hllor Queen's Men",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-hold-the-line",
+      "to-the-last",
+      "queens-blade"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "rhllor-lightbringers",
+    "name": "R'hllor Lightbringers",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "rhllors-fire",
+      "light-of-the-lord"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "rhllor-faithful",
+    "name": "R'hllor Faithful",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "faithful",
+      "sword-of-the-faith"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 4
+    },
+    "soloUnit": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "rose-knights",
+    "name": "Rose Knights",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "perseverance-and-valor",
+      "deadly-bloom"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "thorn-watch",
+    "name": "Thorn Watch",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "highgarden-crossbow",
+      "skirmisher",
+      "unyielding"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "riders-of-highgarden",
+    "name": "Riders of Highgarden",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-swift-retreat",
+      "cavalry",
+      "lance"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "highgarden-pikemen",
+    "name": "Highgarden Pikemen",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "perseverance-and-valor",
+      "coordinated-assault"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "dragonstone-noble",
+    "name": "Dragonstone Noble",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 4,
+    "maxPerList": 2,
+    "traits": [
+      "order-nobles-bolster",
+      "solo-rider",
+      "mastercraft-warhammer"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 2,
+      "morale": 3
+    },
+    "soloUnit": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "baratheon-halberdiers",
+    "name": "Baratheon Halberdiers",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-advance-the-line",
+      "order-taunt",
+      "halberd"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "crownland-scouts",
+    "name": "Crownland Scouts",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-mark-target",
+      "order-tactical-reposition",
+      "cavalry"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "rainbow-guard",
+    "name": "Rainbow Guard",
+    "class": "combat_unit",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "rainbow-guard",
+      "rally-cry"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 4
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "renlybaratheonkinginthesouth"
+    ],
+    "mustHost": [
+      "renlybaratheonkinginthesouth"
+    ],
+    "forbiddenWith": [
+      "loras-tyrell-kings-squire",
+      "loras-tyrell-lord-commander-of-the-rainbow-guard",
+      "lorastyrell",
+      "brienne-neutral",
+      "brienne-the-blue",
+      "brienne-rainbow-guard"
+    ]
+  },
+  {
+    "id": "master-warden",
+    "name": "Master Warden",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-hold-the-line"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "stag-knight-noble",
+    "name": "Stag Knight Noble",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "go-down-fighting",
+      "iron-resolve"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "red-priestess",
+    "name": "Red Priestess",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "divine-sacrifices"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "andrew-estermont-true-loyalist",
+    "name": "Andrew Estermont",
+    "nickname": "True Loyalist",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-incite",
+      "true-conviction"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "axell-florent-fanatical-devotee",
+    "name": "Axell Florent",
+    "nickname": "Fanatical Devotee",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "zealous-fanaticism",
+      "intimidating-presence"
+    ],
+    "grantsKeyword": "Affiliation: R'hllor",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "davos-seaworth-onion-knight",
+    "name": "Davos Seaworth",
+    "nickname": "Onion Knight",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-supply-aid",
+      "true-conviction"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "devan-seaworth",
+    "name": "Devan Seaworth",
+    "nickname": "King's Squire",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-reckless-heroism",
+      "true-conviction"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "brienne-the-blue",
+    "name": "Brienne",
+    "nickname": "The Blue",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "renlys-protector"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "cortnay-penrose-loyal-tactician",
+    "name": "Cortnay Penrose",
+    "nickname": "Loyal Tactician",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-tactical-reposition",
+      "might-of-the-throne"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "loras-tyrell-kings-squire",
+    "name": "Loras Tyrell",
+    "nickname": "King's Squire",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "expert-duelist"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "thorn-watch-sentinel",
+    "name": "Thorn Watch Sentinel",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "furious-charge",
+      "dauntless",
+      "pathfinder"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "pikeman-captain",
+    "name": "Pikeman Captain",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "boldness-and-courage",
+      "leadership-follower"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "bryen-farring",
+    "name": "Bryen Farring",
+    "nickname": "King's Squire",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "true-conviction",
+      "protection-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "dale-seaworth",
+    "name": "Dale Seaworth",
+    "nickname": "Captain of the Wrath",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "davos-vassal",
+      "counterstrike"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "justin-massey-cunning-follower",
+    "name": "Justin Massey",
+    "nickname": "Cunning Follower",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-battle-plan",
+      "order-threaten"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "dragonstone-noble-attachment",
+    "name": "Dragonstone Noble",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-sentinel"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "brienne-rainbow-guard",
+    "name": "Brienne",
+    "nickname": "Rainbow Guard",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "battle-scars"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "bryce-caron",
+    "name": "Bryce Caron",
+    "nickname": "Bryce the Orange",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-taunt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "emmon-cuy",
+    "name": "Emmon Cuy",
+    "nickname": "Emmon the Yellow",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "vengeance-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "guyard-morrigen",
+    "name": "Guyard Morrigen",
+    "nickname": "Guyard the Green",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "counterstrike",
+      "dauntless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "loras-tyrell-lord-commander-of-the-rainbow-guard",
+    "name": "Loras Tyrell",
+    "nickname": "Lord Commander of the Rainbow Guard",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "deadly-bloom"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "parmen-crane",
+    "name": "Parmen Crane",
+    "nickname": "Parmen the Purple",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "rally-cry"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "robar-royce",
+    "name": "Robar Royce",
+    "nickname": "Robar the Red",
+    "class": "attachment",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "furious-charge",
+      "reckless-strikes"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "alester-florent",
+    "name": "Alester Florent",
+    "nickname": "Lord of Brightwater",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "axell-florent-hand-of-the-queen",
+    "name": "Axell Florent",
+    "nickname": "Hand of the Queen",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4,
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "cortnay-penrose-reliable-castellan",
+    "name": "Cortnay Penrose",
+    "nickname": "Reliable Castellan",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4,
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "cressen",
+    "name": "Cressen",
+    "nickname": "Maester at Dragonstone",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 5,
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "davos-seaworth-hand-of-the-true-king",
+    "name": "Davos Seaworth",
+    "nickname": "Hand of the True King",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4,
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "eldon-estermont-venerable-knight",
+    "name": "Eldon Estermont",
+    "nickname": "Venerable Knight",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4,
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "margaery-tyrell",
+    "name": "Margaery Tyrell",
+    "nickname": "Little Rose",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4,
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "melisandre",
+    "name": "Melisandre",
+    "nickname": "The Red Woman",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 5,
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "olenna-tyrell",
+    "name": "Olenna Tyrell",
+    "nickname": "Queen of Thorns",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 5,
+    "loyalty": "renly-baratheon"
+  },
+  {
+    "id": "patchface",
+    "name": "Patchface",
+    "nickname": "Patches",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4,
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "selyse-and-shireen",
+    "name": "Selyse & Shireen",
+    "nickname": "Queen and Princess",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 5,
+    "loyalty": "stannis-baratheon"
+  },
+  {
+    "id": "shyra-errol",
+    "name": "Shyra Errol",
+    "nickname": "Lady of Haystack Hall",
+    "class": "ncu",
+    "faction": "baratheon",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "peasant-levy",
+    "name": "Peasant Levy",
+    "class": "combat_unit",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "disrupt",
+      "gang-up"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 6,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "men-at-arms",
+    "name": "Men-at-Arms",
+    "class": "combat_unit",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "ambush",
+      "brotherhood-armaments"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "brotherhood-archers",
+    "name": "Brotherhood Archers",
+    "class": "combat_unit",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-deceitful-reposition",
+      "hidden-shot"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "brotherhood-sworn-knights",
+    "name": "Brotherhood Sworn Knights",
+    "class": "combat_unit",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "knightly-armaments",
+      "rally-the-smallfolk"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "beric-dondarrion-azor-ahai",
+    "name": "Beric Dondarrion",
+    "nickname": "Azor Ahai",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "lightbringer"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "thoros-of-myr-faithful-believer",
+    "name": "Thoros of Myr",
+    "nickname": "Faithful Believer",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "reinforcements",
+      "order-relentless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "lem-lemoncloak",
+    "name": "Lem Lemoncloak",
+    "nickname": "The Lemon",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "battle-scars"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "tom-sevenstringers",
+    "name": "Tom Sevenstringers",
+    "nickname": "O'Sevens",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-taunt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "anguy",
+    "name": "Anguy",
+    "nickname": "The Archer",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-swift-retreat",
+      "outflank"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "edric-dayne",
+    "name": "Edric Dayne",
+    "nickname": "Loyal Squire",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "berics-vassal",
+      "regroup"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "thoros-of-myr-faithful-believer",
+        "thorosofmyr"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "hot-pie",
+    "name": "Hot Pie",
+    "nickname": "The Baker",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "hot-pies"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "gendry",
+    "name": "Gendry",
+    "nickname": "The Bull",
+    "class": "attachment",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-resilience",
+      "improved-defenses"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "catelyn-stark-the-hangwoman",
+    "name": "Catelyn Stark",
+    "nickname": "The Hangwoman",
+    "class": "ncu",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "ghost-of-high-heart",
+    "name": "Ghost of High Heart",
+    "nickname": "The Wood's Witch",
+    "class": "ncu",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "ravella-smallwood",
+    "name": "Ravella Smallwood",
+    "nickname": "Lady of Acorn Hall",
+    "class": "ncu",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "thoros-of-myr-the-ember",
+    "name": "Thoros of Myr",
+    "nickname": "The Ember",
+    "class": "ncu",
+    "faction": "brotherhood",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "free-folk-raiders",
+    "name": "Free Folk Raiders",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "disorganized"
+    ],
+    "adaptive": {
+      "attachmentCostReduction": 1,
+      "attachmentsAffected": 1
+    },
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "free-folk-trappers",
+    "name": "Free Folk Trappers",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "order-hidden-traps"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 8
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "savage-giant",
+    "name": "Savage Giant",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "giant",
+      "mighty-swing"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "bear",
+    "name": "Bear",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 0,
+    "maxPerList": [],
+    "traits": [
+      "bonded-bear",
+      "savage-mauling"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 3
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "thenn-warriors",
+    "name": "Thenn Warriors",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-hold-the-line",
+      "order-taunt"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "spearwives",
+    "name": "Spearwives",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-charging-volley",
+      "furious-charge"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "followers-of-bone",
+    "name": "Followers of Bone",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "jagged-weapons",
+      "horrific-visage"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "cave-dweller-savages",
+    "name": "Cave Dweller Savages",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "frenzied-swings"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "the-bonelords-chosen",
+    "name": "The Bonelord's Chosen",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "jagged-weapons",
+      "horrific-visage",
+      "prey-on-fear"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "rattleshirt-ruthless-slaughterer",
+      "rattleshirt"
+    ],
+    "mustHost": [
+      "rattleshirt-ruthless-slaughterer",
+      "rattleshirt"
+    ]
+  },
+  {
+    "id": "mag-the-mighty",
+    "name": "Mag the Mighty",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 9,
+    "maxPerList": 1,
+    "traits": [
+      "giant",
+      "chieftains-fury"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 3
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "wun-wun",
+    "name": "Wun Wun",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 9,
+    "maxPerList": 1,
+    "traits": [
+      "giant",
+      "indomitable-might"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "frozen-shore-chariots",
+    "name": "Frozen Shore Chariots",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "war-machine",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "chariot",
+      "order-swift-retreat",
+      "deadly-impact"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "war-mammoth",
+    "name": "War Mammoth",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 6,
+    "maxPerList": 2,
+    "traits": [
+      "mammoth",
+      "rampage"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "frozen-shore-hunters",
+    "name": "Frozen Shore Hunters",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-mark-target",
+      "harpoon"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "frozen-shore-bear-riders",
+    "name": "Frozen Shore Bear Riders",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "order-mark-target",
+      "bear-cavalry",
+      "spear-and-maul"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "borroqs-boar",
+    "name": "Borroq's Boar",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 0,
+    "maxPerList": 1,
+    "traits": [
+      "bonded-boar",
+      "gore-and-feed"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "borroq-boar-skinchanger"
+    ]
+  },
+  {
+    "id": "shadowcat",
+    "name": "Shadowcat",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 2,
+    "maxPerList": 1,
+    "traits": [
+      "varamyrs-shadowcat",
+      "disrupt"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "varamyr-sixskins",
+      "varamyrsixskins"
+    ]
+  },
+  {
+    "id": "varamyr-sixskins",
+    "name": "Varamyr Sixskins",
+    "nickname": "Master Skinchanger",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 3,
+    "maxPerList": 1,
+    "traits": [
+      "master-skinchanger",
+      "vicious-mauling"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "wolf-pack",
+    "name": "Wolf Pack",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 3,
+    "maxPerList": [],
+    "traits": [
+      "varamyrs-wolf-pack",
+      "distract"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "varamyr-sixskins",
+      "varamyrsixskins"
+    ]
+  },
+  {
+    "id": "giant-spear-throwers",
+    "name": "Giant Spear Throwers",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "giant",
+      "giants-spear"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "harmas-vanguard",
+    "name": "Harma's Vanguard",
+    "class": "combat_unit",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-planned-approach",
+      "order-tactical-reposition",
+      "cavalry"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "tormund-giantsbane-tall-talker",
+    "name": "Tormund Giantsbane",
+    "nickname": "Tall-Talker, Horn-Blower, Breaker of Ice",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-war-cry",
+      "stalwart"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "raid-leader",
+    "name": "Raid Leader",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "gang-up"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "skinchanger",
+    "name": "Skinchanger",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "bonded-skinchanger"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "chosen-of-styr",
+    "name": "Chosen of Styr",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "furious-charge",
+      "go-down-fighting"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "spearwife-matriarch",
+    "name": "Spearwife Matriarch",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-swift-retreat"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "champion-of-bone",
+    "name": "Champion of Bone",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "intimidating-presence"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "cave-dweller-alpha",
+    "name": "Cave Dweller Alpha",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-incite"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "harma-the-dogshead",
+    "name": "Harma",
+    "nickname": "The Dogshead",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-sentinel",
+      "enhanced-mobility"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "harmas-bannerman",
+    "name": "Harma's Bannerman",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-tactical-reposition",
+      "harmas-vassal",
+      "regroup"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "requiresInArmy": [
+      "harma",
+      "harma-the-dogshead"
+    ]
+  },
+  {
+    "id": "jarl-advance-raid-leader",
+    "name": "Jarl",
+    "nickname": "Advance Raid Leader",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "outflank"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "rattleshirt-ruthless-slaughterer",
+    "name": "Rattleshirt",
+    "nickname": "Ruthless Slaughterer",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "fueled-by-slaughter",
+      "intimidating-presence"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "the-weeper-cruel-tyrant",
+    "name": "The Weeper",
+    "nickname": "Cruel Tyrant",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-grisly-example",
+      "vicious"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "ygritte-spearwife-archer",
+    "name": "Ygritte",
+    "nickname": "Spearwife Archer",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-mark-target",
+      "disrupt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "walrus-clan-chieftain",
+    "name": "Walrus Clan Chieftain",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "hardened",
+      "iron-resolve"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "borroq-boar-skinchanger",
+    "name": "Borroq",
+    "nickname": "Boar Skinchanger",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-hidden-traps",
+      "stalwart"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jon-snow-the-crow-come-over",
+    "name": "Jon Snow",
+    "nickname": "The Crow-Come-Over",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-reckless-heroism",
+      "southern-knowledge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "mance-rayder-abel-the-bard",
+    "attachesToEnemy": true,
+    "name": "Mance Rayder",
+    "nickname": "Abel the Bard",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "camp-followers",
+      "sabotage-and-subvert"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "the-great-walrus-steeled-through-ice-and-snow",
+    "name": "The Great Walrus",
+    "nickname": "Steeled Through Ice and Snow",
+    "class": "attachment",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "battle-scars"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "craster-ally-of-convenience",
+    "name": "Craster",
+    "nickname": "Ally of Convenience",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "jon-snow-turncloak-crow",
+    "name": "Jon Snow",
+    "nickname": "Turncloak Crow",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "lady-dalla",
+    "name": "Lady Dalla",
+    "nickname": "Wife and Council",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "lady-val",
+    "name": "Lady Val",
+    "nickname": "The Wildling Princess",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "mance-rayder-artful-tactician",
+    "name": "Mance Rayder",
+    "nickname": "Artful Tactician",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "mance-rayder-deceptive-bard",
+    "name": "Mance Rayder",
+    "nickname": "Deceptive Bard",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "styr-iron-fisted-tyrant",
+    "name": "Styr",
+    "nickname": "Iron-Fisted Tyrant",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "ygritte-kissed-by-fire",
+    "name": "Ygritte",
+    "nickname": "Kissed by Fire",
+    "class": "ncu",
+    "faction": "freefolk",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "ironborn-reavers",
+    "name": "Ironborn Reavers",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "reaver-axes",
+      "furious-charge"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "ironborn-bowmen",
+    "name": "Ironborn Bowmen",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "order-divide-the-spoils",
+      "ironborn-arrows"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 6,
+      "morale": 8
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-harlaw-reapers",
+    "name": "House Harlaw Reapers",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "bardiche",
+      "reapers-fervor",
+      "prey-on-fear"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "ironmakers",
+    "name": "Ironmakers",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "great-hammer",
+      "raided-armaments"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "ironborn-trappers",
+    "name": "Ironborn Trappers",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "order-trappers-tools",
+      "disrupt"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 8
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "blacktyde-chosen",
+    "name": "Blacktyde Chosen",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-sentinel",
+      "order-shield-wall"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "drowned-men",
+    "name": "Drowned Men",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "order-drowned-gods-blessing",
+      "drowned-gods-fanatics"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 6,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "silenced-men",
+    "name": "Silenced Men",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "great-axe",
+      "dauntless",
+      "the-silences-infamy"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stony-shore-pillagers",
+    "name": "Stony Shore Pillagers",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-scavenge",
+      "abundant-promises"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "iron-victory-crew",
+    "name": "Iron Victory Crew",
+    "class": "combat_unit",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "boarding-axe",
+      "captains-men",
+      "domineering-pride"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "asha-greyjoy-captain-of-the-black-wind",
+    "name": "Asha Greyjoy",
+    "nickname": "Captain of the Black Wind",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-war-cry",
+      "iron-resolve"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "victarion-greyjoy-master-of-the-iron-victory",
+    "name": "Victarion Greyjoy",
+    "nickname": "Master of the Iron Victory",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "furious-charge",
+      "order-relentless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "warsworn",
+    "name": "Warsworn",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "fueled-by-slaughter"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "reaver-captain",
+    "name": "Reaver Captain",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "outflank"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "factions": [
+        "greyjoy"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "drowned-prophet",
+    "name": "Drowned Prophet",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-resilience"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "euron-greyjoy-crows-eye",
+    "name": "Euron Greyjoy",
+    "nickname": "Crow's Eye",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-strange-relics",
+      "poisoned-gifts"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "nute",
+    "name": "Nute",
+    "nickname": "The Barber",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "victarions-vassal",
+      "furious-charge",
+      "motivated-by-coin"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "qarl-ashas-champion",
+    "name": "Qarl",
+    "nickname": "Asha's Champion",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "expert-duelist"
+    ],
+    "maxPerList": 1,
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "ignoresLimitsWith": {
+      "limit": "attachment-limits",
+      "models": [
+        "ashagreyjoy",
+        "asha-greyjoy-captain-of-the-black-wind",
+        "asha-greyjoy-lady-greyjoy"
+      ]
+    }
+  },
+  {
+    "id": "qarl-the-maid",
+    "name": "Qarl",
+    "nickname": "The Maid",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "expert-duelist",
+      "stalwart"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "theon-greyjoy-kinslayer",
+    "name": "Theon Greyjoy",
+    "nickname": "Kinslayer",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-reckless-heroism",
+      "swift-strike"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "asha-greyjoy-lady-greyjoy",
+    "name": "Asha Greyjoy",
+    "nickname": "\"Lady Greyjoy\"",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-sentinel",
+      "gang-up"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "baelor-blacktyde-captain-of-the-nightflyer",
+    "name": "Baelor Blacktyde",
+    "nickname": "Captain of the Nightflyer",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "boldness-and-courage",
+      "unyielding"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "dagmer-cleftjaw-captain-of-the-foamdrinker",
+    "name": "Dagmer Cleftjaw",
+    "nickname": "Captain of the Foamdrinker",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "battle-scars"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "moqorro-slave-of-rhllor",
+    "name": "Moqorro",
+    "nickname": "Slave of R'hllor",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-incite",
+      "order-supply-aid"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "sunset-sea-brave",
+    "name": "Sunset Sea Brave",
+    "class": "attachment",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "iron-credit"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "aeron-greyjoy",
+    "name": "Aeron Greyjoy",
+    "nickname": "The Damphair",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "asha-greyjoy-would-be-queen",
+    "name": "Asha Greyjoy",
+    "nickname": "Would-Be Queen",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "balon-greyjoy-king-of-salt-and-rock",
+    "name": "Balon Greyjoy",
+    "nickname": "King of Salt and Rock",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 6
+  },
+  {
+    "id": "beron-blacktyde",
+    "name": "Beron Blacktyde",
+    "nickname": "Blind Beron",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "erik-ironmaker-the-just",
+    "name": "Erik Ironmaker",
+    "nickname": "The Just",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "moqorro-the-black-flame",
+    "name": "Moqorro",
+    "nickname": "The Black Flame",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "rodrik-harlaw",
+    "name": "Rodrik Harlaw",
+    "nickname": "The Reader",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "tristifer-botley",
+    "name": "Tristifer Botley",
+    "nickname": "Lord of Lordsport",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "wendamyr",
+    "name": "Wendamyr",
+    "nickname": "Maester of the House Greyjoy",
+    "class": "ncu",
+    "faction": "greyjoy",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "lannister-guardsmen",
+    "name": "Lannister Guardsmen",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-lannister-supremacy",
+      "lannister-steel"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 3,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "lannister-halberdiers",
+    "name": "Lannister Halberdiers",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-set-for-charge",
+      "halberd"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-clegane-mountains-men",
+    "name": "House Clegane Mountain's Men",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "marauders-blade",
+      "prey-on-fear"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-clegane-brigands",
+    "name": "House Clegane Brigands",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "brutal-armaments"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "pyromancers",
+    "name": "Pyromancers",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "wildfire",
+      "horrific-visage"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 6,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "knights-of-casterly-rock",
+    "name": "Knights of Casterly Rock",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "order-lannister-supremacy",
+      "cavalry",
+      "lance"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "lannister-crossbowmen",
+    "name": "Lannister Crossbowmen",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "crossbow"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "the-warriors-sons",
+    "name": "The Warrior's Sons",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "battle-prayer"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "poor-fellows",
+    "name": "Poor Fellows",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "fanatical-zeal",
+      "zealous-resurgence"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 6,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "kingsguard",
+    "name": "Kingsguard",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "kingsguard",
+      "masterwork-blade",
+      "counterstrike"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "joffreybaratheon"
+    ],
+    "mustHost": [
+      "joffreybaratheon"
+    ],
+    "forbiddenWith": [
+      "jaime-lannister-the-young-lion",
+      "jaime-lannister-kingsguard",
+      "jaime-lannister-maimed-hostage",
+      "jaimelannister"
+    ]
+  },
+  {
+    "id": "red-cloaks",
+    "name": "Red Cloaks",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "fearless-avarice",
+      "lannister-justice"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "lannisport-city-watch",
+    "name": "Lannisport City Watch",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-sentinel",
+      "lannisport-spears",
+      "watchful-eye"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "casterly-rock-honor-guard",
+    "name": "Casterly Rock Honor Guard",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "lannister-oppression"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "gregor-clegane",
+    "name": "Gregor Clegane",
+    "nickname": "The Mountain That Rides",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 4,
+    "maxPerList": 1,
+    "traits": [
+      "the-mountain-that-rides",
+      "cleaving-blows",
+      "intimidating-presence"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 2,
+      "morale": 4
+    },
+    "soloUnit": true
+  },
+  {
+    "id": "gold-cloaks",
+    "name": "Gold Cloaks",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-laws-of-the-realm",
+      "oppressive-peacekeeping"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stone-crows-lannister",
+    "name": "Stone Crows",
+    "class": "combat_unit",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-incite",
+      "disorganized",
+      "recruiting-from-the-hills"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 7
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "tyrion-lannister-the-giant-of-lannister",
+      "tyrion-lannister-the-imp",
+      "tyrionlannister"
+    ],
+    "freeAttachments": [
+      "tyrion-lannister-the-giant-of-lannister"
+    ]
+  },
+  {
+    "id": "gregor-clegane-lord-tywins-mad-dog",
+    "name": "Gregor Clegane",
+    "nickname": "Lord Tywin's Mad Dog",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "unstoppable-wrath",
+      "uncontrolled-rage"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jaime-lannister-the-young-lion",
+    "name": "Jaime Lannister",
+    "nickname": "The Young Lion",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-martial-training",
+      "stalwart"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "guard-captain",
+    "name": "Guard Captain",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-hold-the-line"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "assault-veteran",
+    "name": "Assault Veteran",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "intimidating-presence"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "champion-of-the-faith",
+    "name": "Champion of the Faith",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-war-cry"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "sandor-clegane-the-hound",
+    "name": "Sandor Clegane",
+    "nickname": "The Hound",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "fueled-by-slaughter",
+      "furious-charge"
+    ],
+    "grantsKeyword": "Affiliation: House Clegane",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "tyrion-lannister-the-giant-of-lannister",
+    "name": "Tyrion Lannister",
+    "nickname": "The Giant of Lannister",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-battle-plan",
+      "order-counterstrategy"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "arys-oakheart-kingsguard",
+    "name": "Arys Oakheart",
+    "nickname": "Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "protection-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "barristan-selmy",
+    "name": "Barristan Selmy",
+    "nickname": "Lord Commander of the Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "duty-to-the-crown",
+      "stalwart"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "boros-blount",
+    "name": "Boros Blount",
+    "nickname": "Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "vengeance-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jaime-lannister-kingsguard",
+    "name": "Jaime Lannister",
+    "nickname": "Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "expert-duelist",
+      "counterstrike"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "mandon-moore",
+    "name": "Mandon Moore",
+    "nickname": "Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dominance-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "meryn-trant",
+    "name": "Meryn Trant",
+    "nickname": "Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "intimidation-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "preston-greenfield",
+    "name": "Preston Greenfield",
+    "nickname": "Kingsguard",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "orders-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "sentinel-enforcer",
+    "name": "Sentinel Enforcer",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-taunt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "addam-marbrand-trusted-bannerman",
+    "name": "Addam Marbrand",
+    "nickname": "Trusted Bannerman",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-sentinel",
+      "jaimes-vassal"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "qyburn-forbidden-knowledge",
+    "name": "Qyburn",
+    "nickname": "Forbidden Knowledge",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "experiment-enhancements",
+      "violent-reactions"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "ser-robert-strong",
+    "name": "Ser Robert Strong",
+    "nickname": "The Silent Giant",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-resilience",
+      "unstoppable-wrath"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "qyburn-forbidden-knowledge",
+      "qyburn-master-of-whisperers",
+      "tommen-baratheon-next-in-succession"
+    ],
+    "forbiddenWith": [
+      "gregorclegane",
+      "gregor-clegane",
+      "gregor-clegane-lord-tywins-mad-dog",
+      "gregor-clegane-mounted-behemoth"
+    ]
+  },
+  {
+    "id": "gregor-clegane-mounted-behemoth",
+    "name": "Gregor Clegane",
+    "nickname": "Mounted Behemoth",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 3,
+    "traits": [
+      "indomitable",
+      "ferocious-assault",
+      "intimidating-presence"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jaime-lannister-maimed-hostage",
+    "attachesToEnemy": true,
+    "name": "Jaime Lannister",
+    "nickname": "Maimed Hostage",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "valuable-captive",
+      "vengeful-captive"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "clegane-butcher",
+    "name": "Clegane Butcher",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "fueled-by-slaughter"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "turncoat",
+    "attachesToEnemy": true,
+    "name": "Turncoat",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "sabotage-and-subvert"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "gate-warden",
+    "name": "Gate Warden",
+    "class": "attachment",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "superior-numbers",
+      "reinforcements"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "cersei-lannister",
+    "name": "Cersei Lannister",
+    "nickname": "Queen Regent",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "joffrey-baratheon-lord-of-the-seven-kingdoms",
+    "name": "Joffrey Baratheon",
+    "nickname": "Lord of the Seven Kingdoms",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "kevan-lannister-master-of-law",
+    "name": "Kevan Lannister",
+    "nickname": "Master of Law",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "pycelle",
+    "name": "Pycelle",
+    "nickname": "Grand Maester",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "qyburn-master-of-whisperers",
+    "name": "Qyburn",
+    "nickname": "Master of Whisperers",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "the-high-sparrow-father-of-the-faithful",
+    "name": "The High Sparrow",
+    "nickname": "Father of the Faithful",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "tommen-baratheon-next-in-succession",
+    "name": "Tommen Baratheon",
+    "nickname": "Next in Succession",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "tyrion-lannister-the-imp",
+    "name": "Tyrion Lannister",
+    "nickname": "The Imp",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "tywin-lannister-the-great-lion",
+    "name": "Tywin Lannister",
+    "nickname": "The Great Lion",
+    "class": "ncu",
+    "faction": "lannister",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "sand-skirmishers",
+    "name": "Sand Skirmishers",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-quick-fire",
+      "skirmisher",
+      "pathfinder"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "sunspear-dervishes",
+    "name": "Sunspear Dervishes",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-swift-retreat",
+      "dervish-blades",
+      "elusive-escape"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "martell-spearmen",
+    "name": "Martell Spearmen",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-set-for-charge",
+      "order-tactical-reposition"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "sunspear-royal-guard",
+    "name": "Sunspear Royal Guard",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-martial-training",
+      "order-shield-wall"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dune-vipers",
+    "name": "Dune Vipers",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "spear-and-net",
+      "disrupt",
+      "gang-up"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "starfall-outriders",
+    "name": "Starfall Outriders",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "scimitar",
+      "rally-cry"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "starfall-knights",
+    "name": "Starfall Knights",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "starfall-lance"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "darkstar-retinue",
+    "name": "Darkstar Retinue",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-overrun",
+      "fueled-by-slaughter",
+      "heavy-scimitar"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "skyreach-bowmen",
+    "name": "Skyreach Bowmen",
+    "class": "combat_unit",
+    "faction": "martell",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "desert-marksmen",
+      "outflank"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "areo-hotah-dutiful-juggernaut",
+    "name": "Areo Hotah",
+    "nickname": "Dutiful Juggernaut",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-battle-plan",
+      "order-mark-target"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "doran-martell-prince-of-dorne"
+    ]
+  },
+  {
+    "id": "dervish-captain",
+    "name": "Dervish Captain",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-sow-discord",
+      "disrupt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "oberyn-martell-the-snake",
+    "name": "Oberyn Martell",
+    "nickname": "The Snake",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "expert-duelist",
+      "vipers-fangs"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "spearmen-captain",
+    "name": "Spearmen Captain",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-threaten"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "spearlord",
+    "name": "Spearlord",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "boldness-and-courage"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "high-hermitage-sentinel",
+    "name": "High Hermitage Sentinel",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "ambush",
+      "enhanced-mobility"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "elia-sand",
+    "name": "Elia Sand",
+    "nickname": "Sand Snake",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "boisterous-charisma",
+      "precision"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "harmen-uller-dornish-envoy",
+    "name": "Harmen Uller",
+    "nickname": "Dornish Envoy",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dornish-conviction",
+      "reinforcements"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "nymeria-sand-sand-snake",
+    "name": "Nymeria Sand",
+    "nickname": "Sand Snake",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "advantage-strike",
+      "dornish-vengeance"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "obara-sand-sand-snake",
+    "name": "Obara Sand",
+    "nickname": "Sand Snake",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "furious-charge",
+      "sundering",
+      "uncontrolled-rage"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "arys-oakheart-the-white-knight",
+    "name": "Arys Oakheart",
+    "nickname": "The White Knight",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "protection-of-the-crown"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "daemon-sand-bastard-of-godsgrace",
+    "name": "Daemon Sand",
+    "nickname": "Bastard of Godsgrace",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-unsuspecting-charge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "edric-dayne-lord-of-starfall",
+    "name": "Edric Dayne",
+    "nickname": "Lord of Starfall",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "true-conviction",
+      "dauntless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "thoros-of-myr-faithful-believer",
+        "thorosofmyr"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "gerold-dayne-knight-of-high-hermitage",
+    "name": "Gerold Dayne",
+    "nickname": "Knight of High Hermitage",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-incite",
+      "furious-charge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "quentyn-martell",
+    "name": "Quentyn Martell",
+    "nickname": "Prince of Dorne",
+    "class": "attachment",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "outflank"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "arianne-martell",
+    "name": "Arianne Martell",
+    "nickname": "Heiress to Dorne",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "arys-oakheart-crowns-ambassador",
+    "name": "Arys Oakheart",
+    "nickname": "Crown's Ambassador",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "doran-martell-prince-of-dorne",
+    "name": "Doran Martell",
+    "nickname": "Prince of Dorne",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "ellaria-sand",
+    "name": "Ellaria Sand",
+    "nickname": "Viper's Paramour",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "nymeria-sand-lady-nym",
+    "name": "Nymeria Sand",
+    "nickname": "Lady Nym",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "oberyn-martell-red-viper",
+    "name": "Oberyn Martell",
+    "nickname": "Red Viper",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "tyene-sand",
+    "name": "Tyene Sand",
+    "nickname": "Septa's Daughter",
+    "class": "ncu",
+    "faction": "martell",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "ghost",
+    "name": "Ghost",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 3,
+    "maxPerList": 1,
+    "traits": [
+      "direwolf",
+      "true-bond",
+      "tooth-and-claw"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "jon-snow-lord-snow",
+      "jonsnow",
+      "jon-snow-the-crow-come-over",
+      "jon-snow-turncloak-crow"
+    ]
+  },
+  {
+    "id": "sworn-brothers",
+    "name": "Sworn Brothers",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-martial-training",
+      "greatsword"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "ranger-trackers",
+    "name": "Ranger Trackers",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-mark-target",
+      "cavalry",
+      "pathfinder"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "veterans-of-the-watch",
+    "name": "Veterans of the Watch",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "dual-weapons",
+      "life-and-honor-to-the-watch",
+      "veterans-prowess"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "builder-crossbowmen",
+    "name": "Builder Crossbowmen",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-ready-aim-release",
+      "crossbow"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "ranger-hunters",
+    "name": "Ranger Hunters",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-quick-fire",
+      "swift-strike",
+      "skirmisher"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "builder-scorpion-crew",
+    "name": "Builder Scorpion Crew",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "war-machine",
+    "points": 5,
+    "maxPerList": 2,
+    "traits": [
+      "war-machine",
+      "bolt-thrower"
+    ],
+    "stats": {
+      "speed": 4,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "builder-stone-thrower",
+    "name": "Builder Stone Thrower",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "war-machine",
+    "points": 6,
+    "maxPerList": 2,
+    "traits": [
+      "war-machine",
+      "rock-volley"
+    ],
+    "stats": {
+      "speed": 1,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "conscripts",
+    "name": "Conscripts",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 4,
+    "maxPerList": [],
+    "traits": [
+      "order-supply-aid",
+      "disorganized"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "coldhands",
+    "name": "Coldhands",
+    "nickname": "Mysterious Ally",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 5,
+    "maxPerList": 1,
+    "traits": [
+      "order-raven-flock",
+      "eye-of-the-crow"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 3
+    },
+    "soloUnit": [],
+    "forbiddenWith": [
+      "benjen-stark-wolf-of-the-wall",
+      "benjenstarkfirstranger",
+      "benjenstarkbeyondthewall"
+    ]
+  },
+  {
+    "id": "ranger-vanguards",
+    "name": "Ranger Vanguards",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "ambush",
+      "outflank"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "shadow-tower-spearmen",
+    "name": "Shadow Tower Spearmen",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-set-for-charge",
+      "unyielding"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "watch-marshal",
+    "name": "Watch Marshal",
+    "class": "combat_unit",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 3,
+    "maxPerList": 2,
+    "traits": [
+      "order-tactical-reposition",
+      "marshal"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 3
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "watch-captain",
+    "name": "Watch Captain",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "boldness-and-courage",
+      "order-relentless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "watch-recruiter",
+    "name": "Watch Recruiter",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-incite",
+      "reinforcements"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "alliser-thorne-vindictive-overseer",
+    "name": "Alliser Thorne",
+    "nickname": "Vindictive Overseer",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "iron-resolve",
+      "stubborn-tenacity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "grenn-aurochs",
+    "name": "Grenn",
+    "nickname": "Aurochs",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-taunt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "othell-yarwyck-spotter",
+    "name": "Othell Yarwyck",
+    "nickname": "Spotter",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "improved-defenses",
+      "spotter"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "pypar-monkey",
+    "name": "Pypar",
+    "nickname": "Monkey",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-swift-retreat"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "grenn-aurochs"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "qhorin-halfhand-grizzled-ranger",
+    "name": "Qhorin Halfhand",
+    "nickname": "Grizzled Ranger",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "battle-scars",
+      "go-down-fighting"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "scorpion-modifications-othell-yarwyck",
+    "name": "Scorpion Modifications",
+    "nickname": "(Othell Yarwyck)",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "stake-mountings"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "war-machine"
+      ],
+      "units": [
+        "builder-scorpion-crew"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "othellyarwyck",
+      "othell-yarwyck-spotter",
+      "othell-yarwyck-warmachine-specialist"
+    ]
+  },
+  {
+    "id": "benjen-stark-wolf-of-the-wall",
+    "name": "Benjen Stark",
+    "nickname": "Wolf of the Wall",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-sentinel",
+      "ambush"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "coldhands-enigmatic-guide",
+    "name": "Coldhands",
+    "nickname": "Enigmatic Guide",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "outflank",
+      "pathfinder"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "coldhands-former-crow",
+    "name": "Coldhands",
+    "nickname": "Former Crow",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-sentinel",
+      "intimidating-presence"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "samwell-tarly-sam-the-slayer",
+    "name": "Samwell Tarly",
+    "nickname": "Sam the Slayer",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-battle-plan",
+      "bookkeeping"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "cotter-pyke-ironborn-brother",
+    "name": "Cotter Pyke",
+    "nickname": "Ironborn Brother",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-reckless-heroism",
+      "furious-charge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "eddison-tollett-dolorous-edd",
+    "name": "Eddison Tollett",
+    "nickname": "Dolorous Edd",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "gallows-humor"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "satin-brave-recruit",
+    "name": "Satin",
+    "nickname": "Brave Recruit",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dauntless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "satin-commanders-steward",
+    "name": "Satin",
+    "nickname": "Commander's Steward",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "commanders-vassal"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "yoren-harsh-recruiter",
+    "name": "Yoren",
+    "nickname": "Harsh Recruiter",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-incite",
+      "intimidating-presence",
+      "reinforcements"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "hardened-ranger",
+    "name": "Hardened Ranger",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "furious-charge",
+      "elusive-escape"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "scorpion-modifications-builder",
+    "name": "Scorpion Modifications",
+    "nickname": "(Builder)",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-overwatch"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "war-machine"
+      ],
+      "units": [
+        "builder-scorpion-crew"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "senior-builder"
+    ]
+  },
+  {
+    "id": "senior-builder",
+    "name": "Senior Builder",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "improved-defenses",
+      "stake-building"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "watch-marshal-attachment",
+    "name": "Watch Marshal",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-adaptive-planning",
+      "order-swift-retreat"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jon-snow-lord-snow",
+    "name": "Jon Snow",
+    "nickname": "\"Lord Snow\"",
+    "class": "attachment",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-reckless-heroism",
+      "order-war-cry"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "aemon",
+    "name": "Aemon",
+    "nickname": "Maester of Castle Black",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "bowen-marsh",
+    "name": "Bowen Marsh",
+    "nickname": "First Steward",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "craster-ally-of-the-watch",
+    "name": "Craster",
+    "nickname": "Ally of the Watch",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "donal-noye-expert-blacksmith",
+    "name": "Donal Noye",
+    "nickname": "Expert Blacksmith",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "gilly",
+    "name": "Gilly",
+    "nickname": "The Wildling Girl",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 1
+  },
+  {
+    "id": "jeor-mormont-the-old-bear",
+    "name": "Jeor Mormont",
+    "nickname": "The Old Bear",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "othell-yarwyck-warmachine-specialist",
+    "name": "Othell Yarwyck",
+    "nickname": "Warmachine Specialist",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "qhorin-halfhand-unwavering-ranger",
+    "name": "Qhorin Halfhand",
+    "nickname": "Unwavering Ranger",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "samwell-tarly-craven-scholar",
+    "name": "Samwell Tarly",
+    "nickname": "Craven Scholar",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "ser-denys-mallister-honorable-brother",
+    "name": "Ser Denys Mallister",
+    "nickname": "Honorable Brother",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "yoren-wandering-crow",
+    "name": "Yoren",
+    "nickname": "Wandering Crow",
+    "class": "ncu",
+    "faction": "nightswatch",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "grey-wind",
+    "name": "Grey Wind",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 3,
+    "maxPerList": 1,
+    "traits": [
+      "direwolf",
+      "tooth-and-claw",
+      "disrupt"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "robb-stark-the-young-wolf",
+      "robb-stark-king-in-the-north",
+      "robbstark"
+    ]
+  },
+  {
+    "id": "stark-sworn-swords",
+    "name": "Stark Sworn Swords",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-at-any-cost",
+      "winters-bite",
+      "go-down-fighting"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-umber-berserkers",
+    "name": "House Umber Berserkers",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "berserkers-fervor",
+      "berserkers-axes",
+      "ferocious-assault"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stark-outriders",
+    "name": "Stark Outriders",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-scout-terrain",
+      "order-tactical-reposition",
+      "cavalry"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-karstark-spearmen",
+    "name": "House Karstark Spearmen",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-hold-the-line",
+      "stand-your-ground"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-umber-greataxes",
+    "name": "House Umber Greataxes",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "executioners-fury",
+      "prey-on-fear"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-tully-sworn-shield",
+    "name": "House Tully Sworn Shield",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-shield-wall",
+      "stubborn-tenacity"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stark-bowmen",
+    "name": "Stark Bowmen",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-suppressive-volley",
+      "hunters-volley"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 6,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "crannogman-trackers",
+    "name": "Crannogman Trackers",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-hidden-traps",
+      "order-mark-target"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-tully-cavaliers",
+    "name": "House Tully Cavaliers",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "lance",
+      "stubborn-tenacity"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "eddards-honor-guard",
+    "name": "Eddard's Honor Guard",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-at-any-cost",
+      "winters-bite",
+      "go-down-fighting"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 6
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "eddard-stark-lord-of-winterfell",
+      "eddardstark"
+    ],
+    "mustHost": [
+      "eddard-stark-lord-of-winterfell",
+      "eddardstark"
+    ]
+  },
+  {
+    "id": "summer",
+    "name": "Summer",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 3,
+    "maxPerList": 1,
+    "traits": [
+      "direwolf",
+      "tooth-and-claw",
+      "brans-protector"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "bran-and-hodor-protector-and-ward"
+    ]
+  },
+  {
+    "id": "shaggydog",
+    "name": "Shaggydog",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 3,
+    "maxPerList": 1,
+    "traits": [
+      "direwolf",
+      "vicious-mauling"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "rickon-stark-prince-of-winterfell"
+    ]
+  },
+  {
+    "id": "house-mormont-she-bears",
+    "name": "House Mormont She-Bears",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "order-she-bears-fury",
+      "resolute-strikes"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-mormont-bruisers",
+    "name": "House Mormont Bruisers",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "mace-and-spike",
+      "disrupt"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-karstark-loyalists",
+    "name": "House Karstark Loyalists",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "ferocious-assault",
+      "flail",
+      "unleashed-ferocity"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "crannogman-bog-devils",
+    "name": "Crannogman Bog Devils",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-scout-openings",
+      "order-swift-retreat",
+      "poisoned-tridents"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "house-umber-ravagers",
+    "name": "House Umber Ravagers",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "executioners-axe"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "winterfell-guard",
+    "name": "Winterfell Guard",
+    "class": "combat_unit",
+    "faction": "stark",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "winterfell-supplies",
+      "improved-defenses"
+    ],
+    "adaptive": {
+      "attachmentCostReduction": 1,
+      "attachmentsAffected": 1
+    },
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "greatjon-umber-fierce-bannerman",
+    "name": "Greatjon Umber",
+    "nickname": "Fierce Bannerman",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "to-the-last",
+      "furious-charge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "robb-stark-the-young-wolf",
+    "name": "Robb Stark",
+    "nickname": "The Young Wolf",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-swift-retreat",
+      "enhanced-mobility"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "sworn-sword-captain",
+    "name": "Sworn Sword Captain",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-martial-training"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "umber-champion",
+    "name": "Umber Champion",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-incite",
+      "furious-charge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "crannogman-warden",
+    "name": "Crannogman Warden",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-overwatch"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "bran-and-hodor-protector-and-ward",
+    "name": "Bran and Hodor",
+    "nickname": "Protector and Ward",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "hodor",
+      "hodor-hodor-hodor"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "brynden-tully-unyielding-knight",
+    "name": "Brynden Tully",
+    "nickname": "Unyielding Knight",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dauntless",
+      "iron-resolve"
+    ],
+    "grantsKeyword": "Affiliation: House Tully",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "eddard-stark-lord-of-winterfell",
+    "name": "Eddard Stark",
+    "nickname": "Lord of Winterfell",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "rally-cry",
+      "iron-resolve"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "howland-reed-lord-of-the-crannogs",
+    "name": "Howland Reed",
+    "nickname": "Lord of the Crannogs",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-superior-flanking",
+      "disrupt"
+    ],
+    "grantsKeyword": "Affiliation: Crannogman",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "rodrik-cassel-master-at-arms",
+    "name": "Rodrik Cassel",
+    "nickname": "Master-at-Arms",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-mark-target",
+      "boldness-and-courage"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jojen-reed-greensight",
+    "name": "Jojen Reed",
+    "nickname": "Greensight",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "jojens-greensight"
+    ],
+    "grantsKeyword": "Affiliation: Crannogman",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "meera-reed-cunning-trapper",
+    "name": "Meera Reed",
+    "nickname": "Cunning Trapper",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-hidden-traps"
+    ],
+    "grantsKeyword": "Affiliation: Crannogman",
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "osha-spearwife-guardian",
+    "name": "Osha",
+    "nickname": "Spearwife Guardian",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 0,
+    "traits": [
+      "counterstrike",
+      "stubborn-tenacity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "rickon-stark-prince-of-winterfell"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "rickon-stark-prince-of-winterfell",
+    "name": "Rickon Stark",
+    "nickname": "Prince of Winterfell",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "valuable-captive"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "syrio-forel-first-blade-of-braavos",
+    "name": "Syrio Forel",
+    "nickname": "First Blade of Braavos",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "precision",
+      "water-dance"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [],
+    "requiresInArmy": [
+      "eddardstark",
+      "eddard-stark-lord-of-winterfell",
+      "eddard-stark-hand-of-the-king",
+      "eddard-stark-warden-of-the-north",
+      "arya-stark-the-wolf-girl"
+    ]
+  },
+  {
+    "id": "mormont-veteran",
+    "name": "Mormont Veteran",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "hardened"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "loyalist-captain",
+    "name": "Loyalist Captain",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "furious-charge",
+      "superior-numbers"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "rickard-karstark-vengeful-bannerman",
+    "name": "Rickard Karstark",
+    "nickname": "Vengeful Bannerman",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-stark-fury",
+      "uncontrolled-rage"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "brynden-tully-vanguard-infiltrator",
+    "name": "Brynden Tully",
+    "nickname": "Vanguard Infiltrator",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-mark-target",
+      "outflank"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "maege-mormont-the-she-bear",
+    "name": "Maege Mormont",
+    "nickname": "The She-Bear",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "go-down-fighting",
+      "unyielding"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "crannogman-survivalist",
+    "name": "Crannogman Survivalist",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "elusive-escape",
+      "pathfinder"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "winterfell-guardian",
+    "name": "Winterfell Guardian",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dauntless",
+      "stubborn-tenacity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "winterfell-champion",
+    "name": "Winterfell Champion",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "winterfells-wrath"
+    ],
+    "maxPerList": 2,
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jaqen-hghar-mysterious-prisoner",
+    "attachesToEnemy": true,
+    "name": "Jaqen H'ghar",
+    "nickname": "Mysterious Prisoner",
+    "class": "attachment",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "a-man-freed-a-name-owed"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ],
+    "requiresInArmy": [
+      "arya-stark-neutral",
+      "arya-stark-the-wolf-girl"
+    ]
+  },
+  {
+    "id": "arya-stark-the-wolf-girl",
+    "name": "Arya Stark",
+    "nickname": "The Wolf Girl",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "catelyn-stark-lady-of-winterfell",
+    "name": "Catelyn Stark",
+    "nickname": "Lady of Winterfell",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "eddard-stark-hand-of-the-king",
+    "name": "Eddard Stark",
+    "nickname": "Hand of the King",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "eddard-stark-warden-of-the-north",
+    "name": "Eddard Stark",
+    "nickname": "Warden of the North",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 6
+  },
+  {
+    "id": "howland-reed-protector-of-the-neck",
+    "name": "Howland Reed",
+    "nickname": "Protector of the Neck",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "lyanna-mormont",
+    "name": "Lyanna Mormont",
+    "nickname": "Youngest She-Bear",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "robb-stark-king-in-the-north",
+    "name": "Robb Stark",
+    "nickname": "King in the North",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "rodrik-cassel-combat-veteran",
+    "name": "Rodrik Cassel",
+    "nickname": "Combat Veteran",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "sansa-stark",
+    "name": "Sansa Stark",
+    "nickname": "Little Bird",
+    "class": "ncu",
+    "faction": "stark",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "jorah-mormont",
+    "name": "Jorah Mormont",
+    "nickname": "The Wandering Knight",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 3,
+    "maxPerList": 1,
+    "traits": [
+      "order-scout-openings",
+      "westerosi-rider"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 3
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dothraki-screamers",
+    "name": "Dothraki Screamers",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "screamers-arakh"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dothraki-veterans",
+    "name": "Dothraki Veterans",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "order-swift-retreat",
+      "order-quick-fire",
+      "cavalry"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dothraki-outriders",
+    "name": "Dothraki Outriders",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "cavalry",
+      "outriders-bow"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stormcrow-mercenaries-targaryen",
+    "name": "Stormcrow Mercenaries",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "motivated-by-coin"
+    ],
+    "adaptive": {
+      "attachmentCostReduction": 1,
+      "attachmentsAffected": 1
+    },
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stormcrow-archers-targaryen",
+    "name": "Stormcrow Archers",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 6,
+    "maxPerList": [],
+    "traits": [
+      "mercenarys-longbow",
+      "loyalty-through-coin"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 5,
+      "morale": 7
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "stormcrow-dervishes-targaryen",
+    "name": "Stormcrow Dervishes",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "ambush",
+      "swift-strike",
+      "motivated-by-coin"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "dothraki-hrakkars",
+    "name": "Dothraki Hrakkars",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 4,
+    "maxPerList": 2,
+    "traits": [
+      "hrakkars-and-tamers",
+      "claw-and-blade",
+      "outflank"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 5
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "freedmen",
+    "name": "Freedmen",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 3,
+    "maxPerList": [],
+    "traits": [
+      "untrained-masses",
+      "gang-up"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 6,
+      "morale": 8
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "unsullied-pikemen",
+    "name": "Unsullied Pikemen",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "order-set-for-charge",
+      "order-shield-wall",
+      "unyielding"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "unsullied-swordmasters",
+    "name": "Unsullied Swordmasters",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 7,
+    "maxPerList": [],
+    "traits": [
+      "unsullied-prowess",
+      "counterstrike"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 3,
+      "morale": 4
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "drogon",
+    "name": "Drogon",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 7,
+    "maxPerList": 1,
+    "traits": [
+      "juvenile-dragon",
+      "black-fire"
+    ],
+    "stats": {
+      "speed": 5,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "daenerys-targaryen-khaleesi",
+      "daenerys-targaryen-the-unburnt",
+      "daenerystargaryenmotherofdragons",
+      "daenerystargaryenqueenofmeereen"
+    ]
+  },
+  {
+    "id": "rhaegal",
+    "name": "Rhaegal",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 7,
+    "maxPerList": 1,
+    "traits": [
+      "juvenile-dragon",
+      "jade-fire"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "daenerys-targaryen-khaleesi",
+      "daenerys-targaryen-the-unburnt",
+      "daenerystargaryenmotherofdragons",
+      "daenerystargaryenqueenofmeereen"
+    ]
+  },
+  {
+    "id": "viserion",
+    "name": "Viserion",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "monster",
+    "points": 7,
+    "maxPerList": 1,
+    "traits": [
+      "juvenile-dragon",
+      "golden-fire"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 2
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "daenerys-targaryen-khaleesi",
+      "daenerys-targaryen-the-unburnt",
+      "daenerystargaryenmotherofdragons",
+      "daenerystargaryenqueenofmeereen"
+    ]
+  },
+  {
+    "id": "drogos-bloodriders",
+    "name": "Drogo's Bloodriders",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "cavalry",
+    "points": 8,
+    "maxPerList": [],
+    "traits": [
+      "order-war-cry",
+      "drogos-bloodriders",
+      "bloodriders-arakh"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 4,
+      "morale": 5
+    },
+    "soloUnit": [],
+    "requiresInArmy": [
+      "khaldrogo"
+    ],
+    "mustHost": [
+      "khaldrogo"
+    ]
+  },
+  {
+    "id": "brazen-beasts",
+    "name": "Brazen Beasts",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-sentinel",
+      "motley-armaments"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "pit-fighters",
+    "name": "Pit Fighters",
+    "class": "combat_unit",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "type": "infantry",
+    "points": 5,
+    "maxPerList": [],
+    "traits": [
+      "order-pit-fighter-rage",
+      "fighters-armaments",
+      "unyielding"
+    ],
+    "stats": {
+      "speed": 6,
+      "defense": 5,
+      "morale": 6
+    },
+    "soloUnit": []
+  },
+  {
+    "id": "jorah-mormont-the-exiled-knight",
+    "name": "Jorah Mormont",
+    "nickname": "The Exiled Knight",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-tactical-reposition",
+      "stubborn-tenacity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "outrider-ko",
+    "name": "Outrider Ko",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "disrupt"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ],
+      "factions": [
+        "targaryen"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "screamer-ko",
+    "name": "Screamer Ko",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-martial-training"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ],
+      "factions": [
+        "targaryen"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "daario-naharis-reckless-mercenary",
+    "name": "Daario Naharis",
+    "nickname": "Reckless Mercenary",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "reckless-strikes",
+      "dauntless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "stormcrow-lieutenant-targaryen",
+    "name": "Stormcrow Lieutenant",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "improved-armaments"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "unsullied-officer",
+    "name": "Unsullied Officer",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "go-down-fighting",
+      "order-relentless"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "belwas-veteran-pit-fighter",
+    "name": "Belwas",
+    "nickname": "Veteran Pit-Fighter",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "battle-scars"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "grey-worm-freed-by-the-dragon",
+    "name": "Grey Worm",
+    "nickname": "Freed by the Dragon",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "boldness-and-courage",
+      "rally-cry"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "jorah-mormont-penitent-betrayer",
+    "name": "Jorah Mormont",
+    "nickname": "Penitent Betrayer",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 0,
+    "traits": [
+      "whatever-may-come"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ],
+      "requiresAttachment": [
+        "daenerystargaryenmotherofdragons",
+        "daenerystargaryenqueenofmeereen"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "jorah-mormont-the-andal",
+    "name": "Jorah Mormont",
+    "nickname": "The Andal",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-martial-training",
+      "stand-your-ground"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "cohollo",
+    "name": "Cohollo",
+    "nickname": "Bloodrider",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "bloodrider",
+      "battle-scars"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "haggo",
+    "name": "Haggo",
+    "nickname": "Bloodrider",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "bloodrider",
+      "fueled-by-slaughter"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "qotho",
+    "name": "Qotho",
+    "nickname": "Bloodrider",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "bloodrider",
+      "intimidating-presence",
+      "prey-on-fear"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "rakharo",
+    "name": "Rakharo",
+    "nickname": "Bloodrider",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "bloodrider",
+      "order-sentinel",
+      "elusive-escape"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "cavalry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "brazen-beasts-captain",
+    "name": "Brazen Beasts Captain",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "order-incite",
+      "furious-charge"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "marselen-unsullied-captain",
+    "name": "Marselen",
+    "nickname": "Unsullied Captain",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "dauntless",
+      "embolden"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "mirri-maz-duur-resentful-healer",
+    "name": "Mirri Maz Duur",
+    "nickname": "Resentful Healer",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 1,
+    "traits": [
+      "maegis-healing",
+      "stubborn-tenacity"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": [
+      "attachment-limits"
+    ]
+  },
+  {
+    "id": "skahaz-mo-kandaq-merciless-ghiscari",
+    "name": "Skahaz mo Kandaq",
+    "nickname": "Merciless Ghiscari",
+    "class": "attachment",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 2,
+    "traits": [
+      "order-incite",
+      "fueled-by-slaughter"
+    ],
+    "maxPerList": [],
+    "attachesTo": {
+      "type": [
+        "infantry"
+      ]
+    },
+    "ignoresLimits": []
+  },
+  {
+    "id": "alicent-hightower",
+    "name": "Alicent Hightower",
+    "nickname": "Dowager Queen",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "barristan-selmy-advisor-to-the-dragon",
+    "name": "Barristan Selmy",
+    "nickname": "Advisor to the Dragon",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "daenerys-targaryen-khaleesi",
+    "name": "Daenerys Targaryen",
+    "nickname": "Khaleesi",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "daenerys-targaryen-the-unburnt",
+    "name": "Daenerys Targaryen",
+    "nickname": "The Unburnt",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 5
+  },
+  {
+    "id": "hizdahr-zo-loraq",
+    "name": "Hizdahr zo Loraq",
+    "nickname": "Fourteenth of That Noble Name",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "illyrio-mopatis",
+    "name": "Illyrio Mopatis",
+    "nickname": "Magister of Pentos",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "mirri-maz-duur-godswife",
+    "name": "Mirri Maz Duur",
+    "nickname": "Godswife",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "missandei",
+    "name": "Missandei",
+    "nickname": "Scribe",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "pyat-pree",
+    "name": "Pyat Pree",
+    "nickname": "Warlock of Qarth",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "quaithe",
+    "name": "Quaithe",
+    "nickname": "Of the Shadow",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "rhaenyra-targaryen",
+    "name": "Rhaenyra Targaryen",
+    "nickname": "Dragon Queen",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  },
+  {
+    "id": "xaro-xhoan-daxos",
+    "name": "Xaro Xhoan Daxos",
+    "nickname": "Merchant Prince of Qarth",
+    "class": "ncu",
+    "faction": "targaryen",
+    "excludedFactions": [],
+    "points": 4
+  }
+]
