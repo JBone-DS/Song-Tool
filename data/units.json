@@ -1813,6 +1813,7 @@
     "faction": "baratheon",
     "excludedFactions": [],
     "points": 1,
+    "loyalty": "stannis-baratheon",
     "traits": [
       "divine-sacrifices"
     ],
