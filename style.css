@@ -249,3 +249,37 @@ details.an-panel summary { cursor: pointer; font-weight: 600; }
 .radar-wrap .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; }
 .radar-wrap .legend li { margin: 0; }
 .an-panel > .meta { text-align: left; }
+
+/* tournament page */
+.an-table.tn th, .an-table.tn td { text-align: left; }
+.an-table.tn.stand th:nth-child(n+5), .an-table.tn.stand td:nth-child(n+5), .an-table.tn.stand th:first-child, .an-table.tn.stand td:first-child { text-align: center; }
+.an-table.tn tr.dropped td { color: var(--sub); text-decoration: line-through; }
+.an-table.tn td.ok { color: #7fc98f; }
+.an-table.tn td.meta { white-space: normal; }
+.an-table.rnd select { max-width: 200px; }
+.tn-actions { white-space: normal !important; }
+.tn-actions .row-btn { display: inline-block; margin: 2px 6px 2px 0; text-decoration: none; }
+.tn-bar .row-btn { display: inline-block; margin: 0; }
+.tn-msg { padding: 8px 14px; }
+.warn { color: #e0b07a; margin: 8px 0; }
+.an-pick input[type="date"], .an-pick input[type="number"] { background: var(--bg); color: var(--fg); border: 1px solid var(--edge); border-radius: 5px; padding: 5px 8px; }
+details > summary { cursor: pointer; margin: 10px 0 6px; font-weight: 600; }
+/* units destroyed checklist */
+.kills-row td { border-bottom: 1px solid var(--rule); padding-top: 0; }
+.kills-row .row-btn { display: inline-block; margin: 2px 0 6px; font-size: 0.85rem; color: var(--sub); }
+.kill-pair { display: flex; flex-wrap: wrap; gap: 16px 28px; margin: 4px 0 10px; white-space: normal; }
+.kill-box { flex: 1 1 320px; min-width: 0; }
+.kill-box h4 { margin: 0 0 6px; font-size: 0.95rem; white-space: normal; }
+.kill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.kill-tile { position: relative; aspect-ratio: 1; padding: 0; overflow: hidden; border: 2px solid var(--edge); border-radius: 10px; background: var(--card); color: var(--fg); cursor: pointer; }
+.kill-tile:disabled { cursor: default; opacity: 1; }
+.kill-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kill-tile.noart { display: flex; align-items: center; justify-content: center; padding: 6px; font-size: 0.8rem; }
+.kill-name { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 4px 12px; font-size: 0.7rem; background: rgba(0, 0, 0, 0.65); color: #fff; line-height: 1.1; }
+.kill-pts { position: absolute; left: 4px; bottom: 1px; font-size: 0.65rem; color: var(--accent); }
+.kill-tile:hover:not(:disabled) { border-color: var(--accent); }
+.kill-tile.dead { border-color: #b8504a; }
+.kill-tile.dead img { filter: grayscale(1) brightness(0.55); opacity: 0.45; }
+.kill-tile.dead::before, .kill-tile.dead::after { content: ""; position: absolute; left: 50%; top: 50%; width: 88%; height: 6px; margin-left: -44%; margin-top: -3px; background: #d9594f; border-radius: 3px; box-shadow: 0 0 3px #000; }
+.kill-tile.dead::before { transform: rotate(45deg); }
+.kill-tile.dead::after { transform: rotate(-45deg); }

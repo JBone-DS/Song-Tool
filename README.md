@@ -7,6 +7,8 @@ dependencies, so it runs on GitHub Pages as it is.
 - **Building** (`index.html`): pick a faction, commander, units, attachments and NCUs. Points, limits and rules are
   checked as you go. Lists can be saved, shared by link, exported as text, and printed as a card sheet.
 - **Analysis** (`analysis.html`): compares saved lists, units and factions using a simple dice-probability model.
+- **Tournament** (`tournament.html`): player profiles and a tournament manager. Register players with locked lists, draw
+  rounds (Swiss or random), enter results and see live standings. Data is stored in the browser for now (see below).
 
 ## Running it locally
 
@@ -31,11 +33,17 @@ combat numbers, decks of the wrong size). Run it from the repository root.
 | --- | --- |
 | `index.html`, `app.js` | The Building page. `app.js` holds the state, the rules and the screen drawing. |
 | `analysis.html`, `analysis.js` | The Analysis page. It loads `app.js` with `window.SONG_NO_UI = true` (so the Building screen does not start) and reuses its rules and helpers. |
-| `style.css` | Styles for both pages. |
+| `tournament.html`, `tournament.js` | The Tournament page: profiles, players, rules, rounds, standings, backup. Also loads `app.js` (for list checking) in the same way. |
+| `tournament-core.js` | The tournament maths with no page code: scoring, standings, pairings. `test-tournament.js` tests it in Node. |
+| `cloud.js`, `cloud-core.js`, `cloud-config.js` | Saving tournaments to the Supabase database: sign-in, uploading changes, the read-only public view. `cloud-core.js` (pure mapping, tested by `test-cloud.js`) turns the page's data into database rows; `cloud-config.js` holds the project URL and public key. |
+| `schema.sql` | The database tables and security rules. Paste into Supabase's SQL Editor to set up (or rebuild) the database. |
+| `style.css` | Styles for all pages. |
 | `data/` | All game data (see below). |
 | `images/cards/` | Card sheets (many cards per picture). `images/tactics/` holds the tactics-card sheets. Other folders hold faction logos and unit art. |
 | `sourcedata/` | The original card PDFs the card sheets were cut from. Not used by the site. |
 | `check-data.js` | Data checker (Node). |
+| `test-cloud.js` | Tests for the database mapping and upload logic against a fake database (Node). |
+| `test-tournament.js` | Tests for `tournament-core.js` (Node): runs 120 simulated events and checks there are no rematches or repeat byes. |
 | `backup/` | Old copies of `app.js` and `style.css` from before an earlier change. Not used; safe to delete. |
 
 ## How `app.js` works
@@ -133,6 +141,71 @@ change them there and the page follows. Bonuses that depend on Controlling a sym
 **`combat.json`**: numbers read off the combat unit cards, used only by the Analysis page: per unit
 the attack `plates` (type, to-hit, dice), `ranks` and wounds, and `tokens` for how often its cards cause
 Vulnerable, Weakened or Panicked.
+
+## The Tournament page
+
+Everything is held in one object, `db`, saved in this browser's localStorage under `song-tool-tournaments`:
+
+```
+db = { version: 1,
+       profiles:    [ { id, name, club, country, faction } ],
+       tournaments: [ { id, name, date, location, points, plannedRounds, status, rules, players, rounds } ] }
+players: [ { pid (a profile id), listCode (a share-link code), locked, dropped } ]
+rounds:  [ { n, done, tables: [ { id, a, b, result, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ]   // b = null is a bye
+rules:   { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: ["sos", "vpDiff", "destroyed"],
+           margins: { enabled, band, marginalWin, majorWin } }
+```
+
+- **Reading and writing goes through `tstore`** at the top of `tournament.js`. Moving to a shared database later means
+  replacing `tstore.load` and `tstore.save` (and making them asynchronous); nothing else reads storage.
+- **Backup:** the Backup tab exports and imports the whole of `db` as a JSON file. Because data lives only in one browser,
+  export after each round.
+- **List locking:** a player's list is a share-link code. Locking checks it with the same `validateList` the Building page
+  uses, and that it was built for the tournament's points. After round one starts lists cannot be unlocked.
+- **Pairing:** round one is random. Later Swiss rounds pair players by standings. No-one meets the same opponent twice and
+  clubmates are avoided when the rules say so, as long as that is possible; if not, the rule is relaxed one step at a time
+  and the page warns. An odd player gets a bye (a win with no victory points) and nobody gets a second one while others
+  have had none. Seats can be swapped by hand before any result is entered.
+- **Results:** enter victory points (the winner is worked out) or pick the result directly. Bonus points are added to
+  tournament points. Ties on every measure share a rank.
+- **How a game is decided:** by default the result follows the game record, and the organiser can override it per table
+  ("Automatic" in the result menu). Order: (1) an army with every unit destroyed loses automatically (a major win when
+  margins are on, whatever the VP); (2) more victory points wins; (3) if VP are level, more **points left on the
+  table** wins (army points, less NCU costs, less the points the enemy destroyed); (4) still level is a draw.
+  `decideResult` in `tournament-core.js` does this. Tournament points are set on their own line of the Rules tab:
+  "Pts per Win" (or "Pts per Marginal Win" and "Pts per Major Win" when margins are on), "Pts per Draw", "Pts per Loss".
+  Changing a table's seat clears its kills and result.
+- **Marginal and major victories (optional, Rules tab):** a win by `band` victory points or fewer (default 2) is
+  marginal, a bigger win (or a wipe-out) is major, and each is worth its own tournament points (defaults 2 and 3; the
+  plain win score is not used). Both players' victory points must be entered so the margin is known, unless an army was wiped out. A bye counts as a major
+  win. Standings show each player's major wins.
+- **Units destroyed:** every game has a checklist, one tile for each unit in the opposing locked list (its picture from
+  `images/units/<id>.jpg`, or its name if there is none). Click a tile to cross the unit off: it fades with a red
+  cross. `killedByA` holds the positions in B's list that A destroyed (and the reverse), so they stay correct as lists
+  are locked. The points of destroyed units become the tie-breakers "Enemy points destroyed" and "Points destroyed minus
+  points lost". A destroyed unit always counts with its attachments. Up to four tie-breakers
+  can be chosen, in order.
+- **Not built yet:** accounts and sign-in, shared live leaderboards for players on their own devices, per-round points
+  limits (escalation), team events, and rankings across events. These need a hosted database.
+
+## The database (Supabase)
+
+The Tournament page saves to a Supabase project (hosted Postgres). `schema.sql` creates five tables: `profiles`, `tournaments`,
+`tournament_players`, `rounds` and `games`, with row level security so an organiser can change only their own data and anyone
+can read a tournament marked public. The page still works on one in-memory `db` object; `cloud.js` compares it with the last
+copy the database is known to hold and sends only what changed, a moment after each edit. A copy is kept in the browser too,
+with a "dirty" flag, so changes made offline upload when the connection returns.
+
+- **Organisers** sign in with an email link (Supabase Authentication). Turn off "Allow new users to sign up" in the Supabase
+  dashboard once the organiser accounts exist.
+- **Players** need no account. A tournament's public link is `tournament.html?view=<tournament id>`: read-only standings and
+  rounds, updating live (Supabase Realtime). A tournament can be made private from its page.
+- **Keys:** `cloud-config.js` holds the project URL and the *publishable* key. Both are meant to be public; the security rules
+  protect the data. Never put the service-role or secret key in the site. Removing `cloud-config.js`'s values (`window.SONG_CLOUD = null`)
+  returns the page to browser-only storage.
+- **Old browser data:** the first sign-in on a browser holding earlier tournaments offers to upload it (short ids are converted to uuids).
+- **Changing the tables:** edit `schema.sql`, update the mapping in `cloud-core.js` and `node test-cloud.js`, then run the new SQL in Supabase.
+- **Limits:** if two devices edit the same tournament at once the last save wins. The free plan pauses a project after a week of no use.
 
 ## Common jobs
 
