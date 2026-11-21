@@ -1,3 +1,16 @@
+// Song Tool - army list builder for A Song of Ice and Fire (the Build page).
+//
+// How this file is laid out, top to bottom:
+//   1. state and data loading   - the globals below, loadData(), newList()
+//   2. list editing             - setUnit, addAttachment, commander helpers, dropOrphans
+//   3. "Rules" section          - costs, limits, loyalty, army requirements, validation (no DOM)
+//   4. "Interface" section      - tiles, pick menus, saving / sharing / export, then the renderX() functions
+//                                 (render() at the bottom rebuilds the whole page from `list`)
+//
+// The model: one global `list` (see newList) is the only state. Any change edits `list` and calls render().
+// Rules are written as functions of a list, and take it as a parameter `l` / `list` so analysis.js can reuse them.
+// Per-unit rules live in data/units.json, not here: see README.md for every field.
+
 let data;
 let list;
 let notice = null;   // a one-off message shown after an action (e.g. which attachments were removed with another)
@@ -10,13 +23,13 @@ let gallery = null;   // the tactics card viewer: { cards, index } when open
 let menu = null;   // which pick-menu is open: { kind: "unit" } | { kind: "ncu" } | { kind: "attachment", index }
 
 async function loadData() {
-  const names = ["season", "factions", "commanders", "units", "tactics", "cards", "combat"];
-  const [season, factions, commandersRaw, units, tactics, cards, combat] = await Promise.all(
+  const names = ["season", "factions", "commanders", "units", "tactics", "cards", "combat", "healing"];
+  const [season, factions, commandersRaw, units, tactics, cards, combat, healing] = await Promise.all(
     names.map(n => fetch(`data/${n}.json`).then(r => r.json()))
   );
   const commanders = commandersRaw.flatMap(group => Object.values(group).flat());
   return {
-    season, factions, commanders, units, tactics, cards, combat,
+    season, factions, commanders, units, tactics, cards, combat, healing,
     unitsById: new Map(units.map(u => [u.id, u])),
     commandersById: new Map(commanders.map(c => [c.id, c])),
     factionsById: new Map(factions.map(f => [f.id, f])),
@@ -108,7 +121,7 @@ function removeEnemyAttachment(i) { list.enemyAttachments.splice(i, 1); dropOrph
 function removeAttachment(i, j) { list.entries[i].attachments.splice(j, 1); dropOrphans(); tidy(); render(); }
 function addNcu(id) { list.ncus.push(id); render(); }
 function removeNcu(i) {
-  const c = list.commander ? data.commandersById.get(list.commander) : null;
+  const c = commanderOf(list);
   const goes = c && c.ncu && list.ncus[i] === c.ncu;   // Doran's NCU cannot stay without Doran as commander
   list.ncus.splice(i, 1);
   if (goes) { releaseUnitCommander(); list.commander = null; list.commanderUnit = null; }
@@ -116,21 +129,29 @@ function removeNcu(i) {
   if (goes) notice = `${notice ? notice + " " : ""}${c.name} is no longer the commander.`;
   tidy(); render();
 }
+// the list's commander (a data record), or null
+function commanderOf(l) {
+  return l.commander ? data.commandersById.get(l.commander) : null;
+}
+// ids of the commander models the list fields: the commander and, for Doran, Areo Hotah who stands on the unit
+function commanderIds(l) {
+  return [l.commander, fieldCommander(l)?.id].filter(Boolean);
+}
 // a few commanders (Mag the Mighty, Varamyr Sixskins) are units in themselves: they fill the big box of the
 // top row at their commander cost, and are not attached to anything
-function unitCommander(l = list) {
-  const c = l.commander ? data.commandersById.get(l.commander) : null;
+function unitCommander(l) {
+  const c = commanderOf(l);
   return c && c.unit ? c : null;
 }
 // Doran Martell is a commander who stays off the table: he is fielded as his NCU, and Areo Hotah goes on
 // the unit as the commander attachment. `ncu` is the NCU he adds, `field` the commander model on the unit.
-function fieldCommander(l = list) {
-  const c = l.commander ? data.commandersById.get(l.commander) : null;
+function fieldCommander(l) {
+  const c = commanderOf(l);
   return c && c.field ? data.commandersById.get(c.field) : null;
 }
 // takes away what the current commander brought with him (his NCU); returns a note for the person, or null
 function releaseCommanderExtras() {
-  const c = list.commander ? data.commandersById.get(list.commander) : null;
+  const c = commanderOf(list);
   if (!c || !c.ncu || !list.ncus.includes(c.ncu)) return null;
   list.ncus.splice(list.ncus.indexOf(c.ncu), 1);
   return `${data.unitsById.get(c.ncu).name} left the list with his commander.`;
@@ -141,7 +162,7 @@ function attachedCommander(l, i) {
 }
 // drop the row a unit commander occupies (the top row) before the commander changes or goes
 function releaseUnitCommander() {
-  if (unitCommander() && list.commanderUnit === 0) list.entries.shift();
+  if (unitCommander(list) && list.commanderUnit === 0) list.entries.shift();
 }
 
 // the commander takes the row's attachment slot, so any attachment on that row that counts toward the
@@ -167,9 +188,9 @@ function clearCommander() {
   render();
 }
 
-// rule functions
+// ==== Rules ================================================================
 
-//faction rules
+// ---- Factions -----------------------------------------------------------
 
 function isEligible(unit, faction) {
   if (unit.excludedFactions?.includes(faction.id)) return false;   // e.g. neutral Bolton copies
@@ -184,11 +205,11 @@ function borrowedCount(rule, list) {
   ).length;
 }
 
-//tactics deck rules
+// ---- Tactics deck -------------------------------------------------------
 
 function buildDeck(list) {
   // commander cards come first, then the faction cards; before a commander is chosen it is just the faction cards
-  const commander = list.commander ? data.commandersById.get(list.commander) : null;
+  const commander = commanderOf(list);
   const removed = commander?.removedFactionCards ?? [];
   const own = commander ? data.tactics.filter(c => c.owner === "commander" && c.ownerId === list.commander) : [];
   const faction = data.tactics.filter(c =>
@@ -205,13 +226,11 @@ function slotsUsed(list, index) {
   return used + (attachedCommander(list, index) ? 1 : 0);
 }
 
-//free attachments rules
+// ---- Attachments and costs ----------------------------------------------
 
 function freeAttachmentPoints(list) {
   return data.season.freeAttachmentPoints[list.gameSize] ?? 0;
 }
-
-// attachment cap rules
 
 function countsTowardCap(attachment, presentIds = []) {
   if ((attachment.ignoresLimits ?? []).includes("attachment-limits")) return false;
@@ -226,24 +245,24 @@ function usesFreePoints(attachment, list) {
   return attachment.faction === list.faction;
 }
 
-// the cost of each attachment on one unit, after any discount the unit gives
-// printed points less any discount that applies in this list
+// an attachment's points in this list: printed points less any discount that applies
 // (Cortnay Penrose, Loyal Tactician: 1 less while a form of Renly Baratheon is in the army)
-function modelPoints(model, l = list) {
+function modelPoints(model, l) {
   const d = model.discountIfInArmy;
-  return d && l && d.ids.some(id => armyIds(l).includes(id)) ? Math.max(0, model.points - d.amount) : model.points;
+  return d && l && armyHasAny(l, d.ids) ? Math.max(0, model.points - d.amount) : model.points;
 }
 
 // Brotherhood attachments (Gendry, Hot Pie...) that say "Reduce the cost of the first attachment included in your army by 1":
 // each one in the army takes that much off the first attachment, counting rows in order, then attachments on enemy units
-function firstAttachmentDiscount(l = list) {
+function firstAttachmentDiscount(l) {
   const all = [...l.entries.flatMap(e => e.attachments), ...l.enemyAttachments];
   const amount = all.reduce((s, id) => s + (data.unitsById.get(id)?.firstAttachmentDiscount ?? 0), 0);
   const row = l.entries.findIndex(e => e.attachments.length);
   return { amount, row, enemy: row < 0 && l.enemyAttachments.length > 0 };
 }
 
-function attachmentCosts(entry, l = list) {
+// the cost of each attachment on one unit, after every discount that applies to it
+function attachmentCosts(entry, l) {
   const unit = entry.unit ? data.unitsById.get(entry.unit) : null;
   const costs = entry.attachments.map(id => {
     const attachment = data.unitsById.get(id);
@@ -253,7 +272,7 @@ function attachmentCosts(entry, l = list) {
   // "the first X in your army is free while Y is in the army" (Crannogman Survivalist with Howland Reed)
   costs.forEach((c, j) => {
     const need = c.attachment.freeFirstIfInArmy;
-    if (need && need.some(id => armyIds(l).includes(id)) &&
+    if (need && armyHasAny(l, need) &&
         l.entries.findIndex(e => e.attachments.includes(c.attachment.id)) === l.entries.indexOf(entry) &&
         entry.attachments.indexOf(c.attachment.id) === j) c.cost = 0;
   });
@@ -293,13 +312,13 @@ function attachmentTotals(list) {
 
 // what an NCU costs in this list: Doran's NCU costs what his commander card says (4) while he leads
 function ncuCost(l, id) {
-  const c = l.commander ? data.commandersById.get(l.commander) : null;
+  const c = commanderOf(l);
   return c && c.ncu === id && c.points != null ? c.points : data.unitsById.get(id).points;
 }
 
 // NCUs that cheapen certain units (Daenerys, The Unburnt: one dragon costs 1 less):
 // returns the discount for each row, given to the first rows holding a listed unit
-function unitDiscounts(l = list) {
+function unitDiscounts(l) {
   const out = new Map();
   l.ncus.map(id => data.unitsById.get(id)?.discountsUnits).filter(Boolean).forEach(rule => {
     let left = rule.count ?? 1;
@@ -310,7 +329,7 @@ function unitDiscounts(l = list) {
   return out;
 }
 // whether a unit about to be picked would get such a discount
-function pickDiscount(model, l = list) {
+function pickDiscount(model, l) {
   if (model.class !== "combat_unit") return 0;
   const taken = unitDiscounts(l);
   for (const rule of l.ncus.map(id => data.unitsById.get(id)?.discountsUnits).filter(Boolean))
@@ -365,7 +384,7 @@ function validateNeutralLimit(list) {
   return used > limit ? [`Too many neutral points: ${used} of ${limit}`] : [];
 }
 
-//rules validation
+// ---- Validation helpers -------------------------------------------------
 
 // how a row is named in messages: its unit, or "Row 3" while it has no unit yet
 function rowName(list, index) {
@@ -375,7 +394,7 @@ function rowName(list, index) {
 
 function modelsOnUnit(list, index) {
   const ids = [...list.entries[index].attachments];
-  if (attachedCommander(list, index)) ids.push(list.commander, ...(fieldCommander() ? [fieldCommander().id] : []));
+  if (attachedCommander(list, index)) ids.push(...commanderIds(list));
   return ids;
 }
 
@@ -410,10 +429,15 @@ function validateLoyalty(l) {
   return found.length > 1 ? [`Different Loyalties in one army: ${found.map(loyaltyName).join(" and ")}`] : [];
 }
 
-// ---- army-wide rules ----------------------------------------------------
+// ---- Army-wide rules ----------------------------------------------------
 // every model id in the list, commander included
 function armyIds(list) {
-  return [...allModelIds(list), ...(list.commander ? [list.commander] : []), ...(fieldCommander(list) ? [fieldCommander(list).id] : [])];
+  return [...allModelIds(list), ...commanderIds(list)];
+}
+// is at least one of these models somewhere in the army?
+function armyHasAny(list, ids) {
+  const here = armyIds(list);
+  return ids.some(id => here.includes(id));
 }
 
 // a unit can stay in row i only while its character requirements hold: a required character is in the army,
@@ -440,7 +464,7 @@ function modelLabel(m) { return m.nickname ? `${m.name} - ${m.nickname}` : m.nam
 
 // "May only be fielded in an army containing X": at least one of the listed models must be somewhere in the list
 function armyRequirementMet(model, list) {
-  return !model.requiresInArmy || model.requiresInArmy.some(id => armyIds(list).includes(id));
+  return !model.requiresInArmy || armyHasAny(list, model.requiresInArmy);
 }
 
 // "May not be fielded in an army containing X": either side can forbid the other
@@ -459,15 +483,16 @@ function namesOf(ids, plain = false) {
 
 function validateRequirements(list) {
   const problems = [];
-  [...new Set(armyIds(list))].map(modelById).filter(Boolean).forEach(m => {
+  const ids = armyIds(list);
+  [...new Set(ids)].map(modelById).filter(Boolean).forEach(m => {
     if (!armyRequirementMet(m, list)) problems.push(`${modelLabel(m)} needs ${namesOf(m.requiresInArmy)} in the army`);
-    const clash = (m.forbiddenWith ?? []).filter(id => armyIds(list).includes(id));
+    const clash = (m.forbiddenWith ?? []).filter(id => ids.includes(id));
     if (clash.length) problems.push(`${modelLabel(m)} cannot be fielded with ${namesOf(clash, true)}`);
   });
   return problems;
 }
 
-// ---- which units can take attachments ----
+// ---- Which units can take attachments, and per-list limits ----
 // solo units (Gregor Clegane, solo riders) take nothing
 function isSolo(unit) { return unit.soloUnit === true || (unit.traits ?? []).includes("solo-rider"); }
 
@@ -529,7 +554,7 @@ function validatePerLimits(list) {
 
 function validateCommander(list) {
   if (!list.commander) return ["Choose a commander"];
-  const c = data.commandersById.get(list.commander);
+  const c = commanderOf(list);
   if (c.faction !== list.faction) return [`${c.name} does not belong to this faction`];
   if (c.unit) return list.entries[list.commanderUnit]?.unit === c.unit ? [] : [`${c.name} must lead the top row`];
   if (list.commanderUnit !== null && !list.entries[list.commanderUnit]?.unit) return [`Choose a unit for ${c.name} to join`];
@@ -558,7 +583,7 @@ function validateBorrowing(list) {
     .map(rule => `${faction.name} may take at most ${rule.max} ${rule.max === 1 ? "unit" : "units"} from ${rule.from.map(id => data.factionsById.get(id)?.name ?? id).join(" or ")}`);
 }
 
-function validatemaxPerList(list) {
+function validateMaxPerList(list) {
   const counts = {};
   allModelIds(list).forEach(id => { counts[id] = (counts[id] ?? 0) + 1; });
   return Object.entries(counts)
@@ -617,7 +642,7 @@ function validateList(list) {
     ...validateNeutralLimit(list),
     ...validateEligibility(list),
     ...validateBorrowing(list),
-    ...validatemaxPerList(list),
+    ...validateMaxPerList(list),
     ...validateAttachments(list),
     ...validateAttachmentCap(list),
     ...validateRequirements(list),
@@ -687,7 +712,7 @@ function characterNamesInList(list) {
     .map(id => data.unitsById.get(id))
     .filter(m => m.nickname)
     .map(m => m.name);
-  const commander = data.commandersById.get(list.commander);
+  const commander = commanderOf(list);
   // Doran stands in the list as his NCU, so the commander does not count a second time; Areo does take his place
   if (commander && !commander.ncu) names.push(commander.name);
   if (fieldCommander(list)) names.push(fieldCommander(list).name);
@@ -707,9 +732,7 @@ function validateUniqueCharacters(list) {
     .map(([name]) => `${name} appears more than once in the list`);
 }
 
-// ====================================================================
-// Interface
-// ====================================================================
+// ==== Interface ============================================================
 
 function el(tag, props = {}, ...children) {
   const node = Object.assign(document.createElement(tag), props);
@@ -755,7 +778,7 @@ function filledTile(model, size) {
   const tile = artTile(size === "small" ? ["attachments", "units"] : "units", model);
   tile.classList.add("filled", size);
   tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
-  tile.append(el("span", { className: "tile-points", textContent: modelPoints(model) }));
+  tile.append(el("span", { className: "tile-points", textContent: modelPoints(model, list) }));
   return tile;
 }
 
@@ -813,18 +836,18 @@ function borrowingFull(unit, faction, forList) {
 // units that can go into row `index` (a row number past the end means a new row)
 function unitOptions(index) {
   const faction = data.factionsById.get(list.faction);
-  const commander = data.commandersById.get(list.commander);
+  const commander = commanderOf(list);
   // when swapping, count the list as if the unit being replaced were already gone
   const without = {
     ...list,
     entries: list.entries.map((e, k) => (k === index ? { ...e, unit: null } : e))
   };
   return data.units.filter(u =>
-    u.class === "combat_unit" && isEligible(u, faction) && u.id !== unitCommander()?.unit &&
+    u.class === "combat_unit" && isEligible(u, faction) && u.id !== unitCommander(list)?.unit &&
     !borrowingFull(u, faction, without) && !atMaxPerList(without, u) &&
     !perLimitReached(without, u) && (!u.mustHost || hostRows(u, list).includes(index)) && armyRequirementMet(u, list) && !armyConflict(u, list) && !loyaltyClash(u, without) &&
     // the commander always sits in the top row, so that row only offers units he can join
-    !(index === 0 && commander && !commanderFitsUnit(fieldCommander() ?? commander, u)));
+    !(index === 0 && commander && !commanderFitsUnit(fieldCommander(list) ?? commander, u)));
 }
 
 function ncuOptions() {
@@ -854,7 +877,6 @@ function attachmentOptions(i) {
   });
 }
 
-// ---- setup: factions, game size, commander ----------------------------
 // ---- saving, sharing and exporting ---------------------------------------
 const STORE_CURRENT = "song-tool-current";   // the list being edited, restored when the page is reopened
 const STORE_SAVED = "song-tool-saved";       // lists saved by name: [{ name, saved, list }]
@@ -908,21 +930,19 @@ function shareUrl() {
   return `${location.origin}${location.pathname}#list=${encodeList(list)}`;
 }
 
-function modelLabel(m) { return m.nickname ? `${m.name} - ${m.nickname}` : m.name; }
-
 // the list as plain text, for pasting into a chat or printing
 function exportText() {
   const faction = data.factionsById.get(list.faction);
   if (!faction) return "";
-  const commander = list.commander ? data.commandersById.get(list.commander) : null;
+  const commander = commanderOf(list);
   const lines = [`${list.name} - ${faction.name.replace(/^House /, "")} - ${totalPoints(list)}/${list.gameSize} points`];
   if (commander) lines.push(`Commander: ${modelLabel(commander)}`);
   lines.push("");
   list.entries.forEach((e, i) => {
     const unit = e.unit ? data.unitsById.get(e.unit) : null;
-    const extras = e.attachments.map(id => data.unitsById.get(id)).map(a => `${modelLabel(a)} (${modelPoints(a)})`);
-    const asUnit = unitCommander() && list.commanderUnit === i;
-    if (commander && list.commanderUnit === i && !asUnit) extras.unshift(`${modelLabel(fieldCommander() ?? commander)} (Commander)`);
+    const extras = e.attachments.map(id => data.unitsById.get(id)).map(a => `${modelLabel(a)} (${modelPoints(a, list)})`);
+    const asUnit = unitCommander(list) && list.commanderUnit === i;
+    if (commander && list.commanderUnit === i && !asUnit) extras.unshift(`${modelLabel(fieldCommander(list) ?? commander)} (Commander)`);
     lines.push(`${i + 1}. ${unit ? `${unit.name} (${asUnit ? `${commander.points}, Commander` : rowCost(list, i)})` : "(no unit)"}${extras.length ? ` + ${extras.join(", ")}` : ""}`);
   });
   if (list.enemyAttachments.length)
@@ -1083,12 +1103,12 @@ function renderPrintSheet() {
   const box = el("section", { className: "print-sheet" });
   if (!list.faction) return box;
   const faction = data.factionsById.get(list.faction).name.replace(/^House /, "");
-  const commander = list.commander ? data.commandersById.get(list.commander) : null;
+  const commander = commanderOf(list);
   box.append(el("h1", { textContent: list.name }),
     el("p", { className: "print-sub", textContent:
       `${faction} - ${totalPoints(list)}/${list.gameSize} points` + (commander ? ` - Commander: ${modelLabel(commander)}` : "") }));
   list.entries.forEach((e, i) => {
-    const ids = [...(e.unit ? [e.unit] : []), ...e.attachments, ...(attachedCommander(list, i) ? [commander.id, ...(fieldCommander() ? [fieldCommander().id] : [])].filter(id => data.cards.cards[id]) : [])];
+    const ids = [...(e.unit ? [e.unit] : []), ...e.attachments, ...(attachedCommander(list, i) ? commanderIds(list).filter(id => data.cards.cards[id]) : [])];
     if (!ids.length) return;
     const unit = e.unit ? data.unitsById.get(e.unit) : null;
     box.append(el("div", { className: "print-row" },
@@ -1128,7 +1148,7 @@ function renderSetup() {
       releaseUnitCommander();
       const gone = releaseCommanderExtras();
       list.commander = e.target.value || null;
-      const uc = unitCommander();
+      const uc = unitCommander(list);
       if (uc) {
         // a unit commander leads a new top row of his own; any other copy of his unit leaves the list
         list.entries.forEach(en => { if (en.unit === uc.unit) en.unit = null; });
@@ -1141,7 +1161,7 @@ function renderSetup() {
         list.commanderUnit = 0;
         makeRoomForCommander(0);
       } else list.commanderUnit = null;
-      const picked = data.commandersById.get(list.commander);
+      const picked = commanderOf(list);
       if (picked?.ncu && !list.ncus.includes(picked.ncu)) list.ncus.push(picked.ncu);   // Doran joins as his NCU
       dropOrphans();
       if (gone) notice = `${notice ? notice + " " : ""}${gone}`;
@@ -1196,7 +1216,7 @@ function renderUnitInfo(entry, i) {
   if (u) {
     box.append(
       el("h3", { textContent: u.name }),
-      el("p", { className: "meta" }, el("span", { className: "cap", textContent: u.type }), ` · ${unitCommander() && list.commanderUnit === i ? `${unitCommander().points} pts as commander` : `${rowCost(list, i)} pts`}`));
+      el("p", { className: "meta" }, el("span", { className: "cap", textContent: u.type }), ` · ${unitCommander(list) && list.commanderUnit === i ? `${unitCommander(list).points} pts as commander` : `${rowCost(list, i)} pts`}`));
     if (u.stats)
       box.append(el("p", { textContent: `Speed ${u.stats.speed} · Defense ${u.stats.defense} · Morale ${u.stats.morale}` }));
   } else {
@@ -1213,7 +1233,7 @@ function renderUnitInfo(entry, i) {
   const keywords = [...new Set(modelsOnUnit(list, i).map(modelById).map(m => m?.grantsKeyword).filter(Boolean))];
   if (u && keywords.length)
     box.append(el("p", { className: "traits", textContent: keywords.join(", ") }));
-  const costs = attachmentCosts(entry);
+  const costs = attachmentCosts(entry, list);
   if (costs.length)
     box.append(el("p", { textContent: "Attachments: " + costs.map(c => `${c.attachment.name} (${c.cost})`).join(", ") }));
   if (rowCards(i).length)
@@ -1237,11 +1257,11 @@ function renderSlots() {
     if (entry.unit) {
       const tile = filledTile(data.unitsById.get(entry.unit), "big");
       tile.querySelector(".tile-points").textContent = rowCost(list, i);
-      if (unitCommander() && list.commanderUnit === i) {
+      if (unitCommander(list) && list.commanderUnit === i) {
         // a unit commander: shown as the unit, at his commander cost; the cross removes the commander
         tile.classList.add("commander");
-        tile.querySelector(".tile-points").textContent = unitCommander().points;
-        tile.title = `${modelLabel(unitCommander())} (commander)`;
+        tile.querySelector(".tile-points").textContent = unitCommander(list).points;
+        tile.title = `${modelLabel(unitCommander(list))} (commander)`;
         big = slotBox("big", tile, clearCommander, "Remove the commander");
       } else {
         tile.classList.add("swap");
@@ -1254,10 +1274,10 @@ function renderSlots() {
     }
 
     const attachCol = el("div", { className: "attach-col" });
-    const commander = data.commandersById.get(list.commander);
+    const commander = commanderOf(list);
     if (commander && attachedCommander(list, i))
-      attachCol.append(slotBox("small", commanderTile(fieldCommander() ?? commander), clearCommander, "Remove the commander"));
-    const rowCosts = attachmentCosts(entry);
+      attachCol.append(slotBox("small", commanderTile(fieldCommander(list) ?? commander), clearCommander, "Remove the commander"));
+    const rowCosts = attachmentCosts(entry, list);
     entry.attachments.forEach((id, j) => {
       const t = filledTile(data.unitsById.get(id), "small");
       if (rowCosts[j]) t.querySelector(".tile-points").textContent = rowCosts[j].cost;   // after any discount
@@ -1373,7 +1393,7 @@ function menuTile(model, onclick) {
   const tile = artTile(menu.kind === "unit" ? "units" : ["attachments", "units"], model, onclick);
   // * = cannot use the free attachment points
   const star = menu.kind === "attachment" && !usesFreePoints(model, list) ? "*" : "";
-  tile.append(el("span", { className: "tile-points", textContent: `${Math.max(0, modelPoints(model) - pickDiscount(model))}${star}` }));
+  tile.append(el("span", { className: "tile-points", textContent: `${Math.max(0, modelPoints(model, list) - pickDiscount(model, list))}${star}` }));
   tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
   return tile;
 }
@@ -1454,7 +1474,7 @@ function modelCard(id, label) {
 function extraCard(x, label) {
   const pos = data.cards.cards[x.id];
   const sheet = pos && data.cards.sheets[pos[0]];
-  return { name: x.name, label, extra: true, image: sheet ? { file: sheet.file, cols: sheet.cols, rows: sheet.rows, col: pos[1], row: pos[2], w: sheet.w, h: sheet.h } : null };
+  return { name: x.name, label, extra: x.id, image: sheet ? { file: sheet.file, cols: sheet.cols, rows: sheet.rows, col: pos[1], row: pos[2], w: sheet.w, h: sheet.h } : null };
 }
 
 // the cards on one row of the list: the unit, then its attachments, then the commander if he is there
@@ -1465,7 +1485,7 @@ function rowCards(i) {
     // cards that come with a unit without being a model of their own (Varamyr's Eagle)
     ...(e.unit ? (data.unitsById.get(e.unit).extraCards ?? []) : []).map(x => extraCard(x, `Row ${i + 1} - Unit`)),
     ...e.attachments.flatMap(id => [modelCard(id, `Row ${i + 1} - Attachment`), ...(data.unitsById.get(id)?.extraCards ?? []).map(x => extraCard(x, `Row ${i + 1} - Attachment`))]),
-    ...(attachedCommander(list, i) ? [list.commander, ...(fieldCommander() ? [fieldCommander().id] : [])].filter(id => data.cards.cards[id]).flatMap(id => [modelCard(id, `Row ${i + 1} - Commander`), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, `Row ${i + 1} - Commander`))]) : []),   // a commander who is his own unit (Mag, Varamyr) has no card of his own
+    ...(attachedCommander(list, i) ? commanderIds(list).filter(id => data.cards.cards[id]).flatMap(id => [modelCard(id, `Row ${i + 1} - Commander`), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, `Row ${i + 1} - Commander`))]) : []),   // a commander who is his own unit (Mag, Varamyr) has no card of his own
   ].filter(Boolean);
 }
 function allCards() {
@@ -1475,7 +1495,7 @@ function allCards() {
     ...list.ncus.flatMap(id => [modelCard(id, "Non-combatant unit"), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, "Non-combatant unit"))]),
   ].filter(Boolean)
     // a poison card or the like shared by several models is shown once
-    .filter((card, i, all) => !card.extra || all.findIndex(c => c.extra && c.name === card.name) === i);
+    .filter((card, i, all) => !card.extra || all.findIndex(c => c.extra === card.extra) === i);
 }
 function openCards(cards) { if (cards.length) { gallery = { cards, index: 0 }; render(); } }
 

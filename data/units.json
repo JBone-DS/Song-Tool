@@ -1746,6 +1746,7 @@
       "defense": 3,
       "morale": 4
     },
+    "extraCards": [{ "id": "baratheon-banners", "name": "Baratheon Banners" }],
     "soloUnit": [],
     "requiresInArmy": [
       "renlybaratheonkinginthesouth"
@@ -4335,6 +4336,7 @@
       "defense": 3,
       "morale": 5
     },
+    "extraCards": [{ "id": "lannister-banners", "name": "Baratheon Banners" }],
     "soloUnit": [],
     "requiresInArmy": [
       "joffreybaratheon"

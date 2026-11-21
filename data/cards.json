@@ -38,7 +38,7 @@
 "baratheon-port": {
 "file": "images/cards/baratheon-port.jpg",
 "cols": 8,
-"rows": 6,
+"rows": 7,
 "w": 450,
 "h": 630
 },
@@ -94,7 +94,7 @@
 "lannister-port": {
 "file": "images/cards/lannister-port.jpg",
 "cols": 8,
-"rows": 5,
+"rows": 6,
 "w": 450,
 "h": 630
 },
@@ -1065,6 +1065,16 @@
 "freefolk-port",
 2,
 4
+],
+"baratheon-banners": [
+"baratheon-port",
+0,
+6
+],
+"lannister-banners": [
+"lannister-port",
+0,
+5
 ],
 "crannog-poison": [
 "stark-port",

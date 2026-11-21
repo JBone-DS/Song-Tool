@@ -15,6 +15,7 @@ let baseline = "list";            // "list" = faction of list A, "all" = every u
 let factionMetric = "damagePerPoint";
 let typeFaction = "all";
 let pasteMsg = "";
+let healRounds = 3;               // rounds of healing counted into resilience (0 = ignore healing)
 let attackMode = "full";          // "full" = dice at full strength, "avg" = average over the unit's ranks
 let lab = { faction: "all", type: "all", text: "", minPts: "", maxPts: "", sort: "damagePerPoint", dir: -1, picks: [] };
 
@@ -34,18 +35,37 @@ function tokensOf(id) {
 }
 
 // one combat unit's numbers
+// ---- healing -------------------------------------------------------------
+// data/healing.json lists every model that restores Wounds. Each ability becomes an expected number of Wounds per round:
+// amount (+ a rank bonus where the card says "+1 per destroyed rank") x how often its trigger happens in a round.
+function healOf(id) {
+  const out = { self: 0, other: 0 };
+  (data.healing.sources[id] ?? []).forEach(s => {
+    const v = (s.amount + (s.rank ? data.healing.rankBonus : 0)) * data.healing.when[s.when].perRound;
+    out[s.who] += v;
+  });
+  return out;
+}
+const healOfAll = ids => ({ self: sum(ids, id => healOf(id).self), other: sum(ids, id => healOf(id).other) });
+
+const profileCache = new Map();   // "mode:id" -> profile; data never changes after load, so only the attack mode matters
 function unitProfile(id) {
+  const key = `${attackMode}:${healRounds}:${id}`;
+  if (!profileCache.has(key)) profileCache.set(key, buildProfile(id));
+  return profileCache.get(key);
+}
+function buildProfile(id) {
   const u = data.unitsById.get(id), c = data.combat.units[id];
   if (!u || !c) return null;
   const hits = type => sum(c.plates.filter(p => p.type === type), p => (attackMode === "avg" ? mean(p.dice) : p.dice[0]) * hitP(p.tohit));
   const melee = hits("melee"), ranged = hits("ranged");
   const save = hitP(u.stats.defense);
   const pool = c.woundsTotal ?? (c.woundsPerModel ?? 1) * c.ranks;
-  const t = tokensOf(id);
+  const t = tokensOf(id), h = healOf(id);
   return {
     id, name: u.name, nickname: u.nickname, faction: u.faction, type: u.type, points: u.points,
     speed: u.stats.speed, defense: u.stats.defense, morale: u.stats.morale, ranks: c.ranks,
-    melee, ranged, damage: melee + ranged, pool, effWounds: pool / (1 - save), save,
+    melee, ranged, damage: melee + ranged, pool, heal: h.self, support: h.other, effWounds: (pool + h.self * healRounds) / (1 - save), save,
     resolve: moraleP(u.stats.morale), tokens: t.total, vulnerable: t.vulnerable, weakened: t.weakened, panicked: t.panicked,
     orders: (u.traits ?? []).filter(x => x.startsWith("order-")).length,
   };
@@ -58,7 +78,7 @@ function averages(ps) {
     n: ps.length,
     points: mean(ps, p => p.points), melee: mean(ps, p => p.melee), ranged: mean(ps, p => p.ranged), damage: mean(ps, p => p.damage),
     effWounds: mean(ps, p => p.effWounds), speed: mean(ps, p => p.speed), defense: mean(ps, p => p.defense), resolve: mean(ps, p => p.resolve),
-    save: mean(ps, p => p.save), tokens: mean(ps, p => p.tokens),
+    save: mean(ps, p => p.save), tokens: mean(ps, p => p.tokens), heal: mean(ps, p => p.heal), support: mean(ps, p => p.support),
     damagePerPoint: sum(ps, p => p.damage) / pts, woundsPerPoint: sum(ps, p => p.effWounds) / pts, tokensPerPoint: sum(ps, p => p.tokens) / pts,
   };
 }
@@ -74,14 +94,14 @@ function listProfile(l) {
     const asCommander = uc && l.commanderUnit === i;
     const costs = attachmentCosts(e, l);
     const extraIds = [...e.attachments, ...(l.commander && l.commanderUnit === i && !uc ? [l.commander, ...(fc ? [fc.id] : [])] : [])];
-    const model = id => data.unitsById.get(id) ?? data.commandersById.get(id);
     rows.push({
       p, index: i, points: p ? rowCost(l, i) : 0,
       attachmentPoints: sum(costs, c => c.cost),
       attachments: e.attachments.map(id => data.unitsById.get(id)?.name).filter(Boolean),
-      commander: l.commander && l.commanderUnit === i && !uc ? data.commandersById.get(l.commander) : null,
+      commander: l.commander && l.commanderUnit === i && !uc ? commanderOf(l) : null,
       extraTokens: sum(extraIds, id => tokensOf(id).total),
-      extraOrders: sum(extraIds, id => (model(id)?.traits ?? []).filter(x => x.startsWith("order-")).length),
+      extraHeal: healOfAll(extraIds).self, extraSupport: healOfAll(extraIds).other,
+      extraOrders: sum(extraIds, id => (modelById(id)?.traits ?? []).filter(x => x.startsWith("order-")).length),
     });
   });
   const units = rows.filter(r => r.p);
@@ -95,6 +115,11 @@ function listProfile(l) {
   const orders = sum(ps, p => p.orders) + sum(rows, r => r.extraOrders)
     + sum(ncuIds, id => (data.unitsById.get(id).traits ?? []).filter(x => x.startsWith("order-")).length);
   const acts = activations(l);
+  // healing: what a unit's attachments and commander restore to it, and what the army can restore to other units
+  const ownHeal = sum(rows.filter(r => r.p), r => r.p.heal + r.extraHeal);
+  const support = sum(ps, p => p.support) + sum(rows, r => r.extraSupport) + healOfAll(ncuIds).other;
+  const extraWounds = sum(rows.filter(r => r.p), r => (r.extraHeal * healRounds) / (1 - r.p.save));
+  const supportWounds = (support * healRounds) / (1 - (mean(ps, p => p.save) || 0));
   const types = {};
   ps.forEach(p => { types[p.type] = (types[p.type] ?? 0) + 1; });
   return {
@@ -102,8 +127,8 @@ function listProfile(l) {
     attachments: sum(l.entries, e => e.attachments.length) + (l.commander && !uc ? 1 : 0) + l.enemyAttachments.length,
     unitPoints, types,
     melee: sum(ps, p => p.melee), ranged: sum(ps, p => p.ranged), damage: sum(ps, p => p.damage),
-    effWounds: sum(ps, p => p.effWounds),
-    damagePerPoint: sum(ps, p => p.damage) / unitPoints, woundsPerPoint: sum(ps, p => p.effWounds) / unitPoints,
+    effWounds: sum(ps, p => p.effWounds) + extraWounds + supportWounds, heal: ownHeal, support, healTotal: ownHeal + support,
+    damagePerPoint: sum(ps, p => p.damage) / unitPoints, woundsPerPoint: (sum(ps, p => p.effWounds) + extraWounds + supportWounds) / unitPoints,
     speed: mean(ps, p => p.speed), save: mean(ps, p => p.save), resolve: mean(ps, p => p.resolve),
     tokens, tokensPerActivation: tokens / (acts || 1), tokensPerUnit: tokens / (ps.length || 1),
     vulnerable: cond("vulnerable"), weakened: cond("weakened"), panicked: cond("panicked"),
@@ -201,6 +226,8 @@ const METRICS = [
   { group: "Defence" },
   { key: "effWounds", label: "Effective wounds (total)", fmt: r1, more: true },
   { key: "woundsPerPoint", label: "Effective wounds per unit point", fmt: r2, more: true, base: "woundsPerPoint" },
+  { key: "heal", label: "Healing per round (to their own unit)", fmt: r2, more: true, base: "heal" },
+  { key: "support", label: "Healing per round (to other units)", fmt: r2, more: true },
   { key: "save", label: "Average save chance", fmt: pct, more: true, base: "save" },
   { key: "resolve", label: "Average morale pass chance", fmt: pct, more: true, base: "resolve" },
   { group: "Mobility and control" },
@@ -228,6 +255,8 @@ function renderPicker(all) {
       el("label", {}, "List B ", sel("b", true)),
       el("label", {}, "Attacks ", el("select", { onchange: e => { attackMode = e.target.value; renderAnalysis(); } },
         opt("full", "Full strength (all ranks)", attackMode === "full"), opt("avg", "Average over ranks", attackMode === "avg"))),
+      el("label", {}, "Healing ", el("select", { onchange: e => { healRounds = +e.target.value; renderAnalysis(); } },
+        opt("0", "Ignore", healRounds === 0), ...[2, 3, 4, 6].map(n => opt(String(n), `Count ${n} rounds`, healRounds === n)))),
       el("label", {}, "Compare to ", el("select", { onchange: e => { baseline = e.target.value; renderAnalysis(); } },
         opt("list", "Faction of list A", baseline === "list"), opt("all", "All units", baseline === "all"),
         ...data.factions.filter(f => f.id !== "neutral" || true).map(f => opt(f.id, f.name.replace(/^House /, ""), baseline === f.id))))),
@@ -281,13 +310,14 @@ function renderRadar(A, B, base, a, b) {
 }
 
 function renderUnits(P, label, l) {
-  const head = ["Unit", "Pts", "Melee", "Ranged", "Eff. wounds", "Spd", "Def", "Mor", "Control", "Attachments"];
+  const head = ["Unit", "Pts", "Melee", "Ranged", "Eff. wounds", "Heal/rnd", "Spd", "Def", "Mor", "Control", "Attachments"];
   return el("section", { className: "an-panel" }, el("h2", { textContent: label }),
     el("div", { className: "table-wrap" }, el("table", { className: "an-table units" },
       el("thead", {}, el("tr", {}, ...head.map(h => el("th", { textContent: h })))),
       el("tbody", {}, ...P.rows.filter(r => r.p).map(r => el("tr", {},
         el("td", { textContent: r.p.name }), el("td", { textContent: r.points }), el("td", { textContent: r1(r.p.melee) }),
-        el("td", { textContent: r1(r.p.ranged) || "-" }), el("td", { textContent: r1(r.p.effWounds) }), el("td", { textContent: r.p.speed }),
+        el("td", { textContent: r1(r.p.ranged) || "-" }), el("td", { textContent: r1(r.p.effWounds + (r.extraHeal * healRounds) / (1 - r.p.save)) }),
+        el("td", { textContent: r1(r.p.heal + r.extraHeal) || "-" }), el("td", { textContent: r.p.speed }),
         el("td", { textContent: `${r.p.defense}+` }), el("td", { textContent: `${r.p.morale}+` }),
         el("td", { textContent: r.p.tokens + (r.extraTokens ? ` (+${r.extraTokens})` : "") }),
         el("td", { className: "meta", textContent: [r.commander ? `${r.commander.name} (Commander)` : "", ...r.attachments].filter(Boolean).join(", ") })))))),
@@ -298,12 +328,13 @@ function renderUnits(P, label, l) {
 // ---- unit lab: filter every combat unit, sort, and compare chosen units side by side ----
 const LAB_COLS = [
   ["Pts", "points", n => n], ["Melee", "melee", r2], ["Ranged", "ranged", r2], ["Hits", "damage", r2], ["Hits/pt", "damagePerPoint", r2],
-  ["Eff. wounds", "effWounds", r1], ["Wnds/pt", "woundsPerPoint", r2], ["Spd", "speed", n => n], ["Save", "save", pct], ["Morale", "resolve", pct], ["Control", "tokens", n => n],
+  ["Eff. wounds", "effWounds", r1], ["Wnds/pt", "woundsPerPoint", r2], ["Heal/rnd", "heal", r2], ["Spd", "speed", n => n], ["Save", "save", pct], ["Morale", "resolve", pct], ["Control", "tokens", n => n],
 ];
 const LAB_ROWS = [  // [label, key, format, higher is better (null = no judgement)]
   ["Points", "points", n => n, null], ["Speed", "speed", n => n, true], ["Defence", "defense", n => `${n}+`, false], ["Morale", "morale", n => n, false],
   ["Ranks", "ranks", n => n, null], ["Melee hits", "melee", r2, true], ["Ranged hits", "ranged", r2, true], ["Total hits", "damage", r2, true],
-  ["Hits per point", "damagePerPoint", r2, true], ["Wound pool", "pool", n => n, true], ["Effective wounds", "effWounds", r1, true],
+  ["Hits per point", "damagePerPoint", r2, true], ["Wound pool", "pool", n => n, true], ["Healing per round (own unit)", "heal", r2, true], ["Healing per round (to others)", "support", r2, true],
+  ["Effective wounds", "effWounds", r1, true],
   ["Effective wounds per point", "woundsPerPoint", r2, true], ["Save chance", "save", pct, true], ["Morale pass chance", "resolve", pct, true],
   ["Condition applications", "tokens", n => n, true], ["Orders", "orders", n => n, true],
 ];
@@ -376,7 +407,7 @@ function renderLabCompare(picked, ref) {
 
 const FACTION_METRICS = {
   damagePerPoint: ["Hits per point", r2], woundsPerPoint: ["Effective wounds per point", r2], damage: ["Hits per unit", r2],
-  melee: ["Melee hits per unit", r2], ranged: ["Ranged hits per unit", r2], effWounds: ["Effective wounds per unit", r1],
+  melee: ["Melee hits per unit", r2], ranged: ["Ranged hits per unit", r2], effWounds: ["Effective wounds per unit", r1], heal: ["Healing per unit per round", r2],
   speed: ["Average speed", r1], resolve: ["Morale pass chance", pct], tokens: ["Condition applications per unit", r2], points: ["Average unit cost", r1],
 };
 
@@ -388,11 +419,11 @@ function renderFactions(highlight) {
   const metricSel = el("select", { onchange: e => { factionMetric = e.target.value; renderAnalysis(); } },
     ...Object.entries(FACTION_METRICS).map(([k, [l]]) => el("option", { value: k, textContent: l, selected: k === factionMetric })));
   const cols = [["Units", "n", n => n], ["Avg pts", "points", r1], ["Melee", "melee", r2], ["Ranged", "ranged", r2], ["Hits/pt", "damagePerPoint", r2],
-    ["Eff. wounds/pt", "woundsPerPoint", r2], ["Speed", "speed", r1], ["Morale", "resolve", pct], ["Control", "tokens", r2]];
+    ["Eff. wounds/pt", "woundsPerPoint", r2], ["Heal/rnd", "heal", r2], ["Speed", "speed", r1], ["Morale", "resolve", pct], ["Control", "tokens", r2]];
   const typeFacs = typeFaction === "all" ? all : all.filter(p => p.faction === typeFaction);
   const types = [...new Set(typeFacs.map(p => p.type))].sort();
   const tcols = [["Units", "n", n => n], ["Avg pts", "points", r1], ["Melee", "melee", r2], ["Ranged", "ranged", r2], ["Hits/pt", "damagePerPoint", r2],
-    ["Eff. wounds", "effWounds", r1], ["Speed", "speed", r1], ["Def save", "save", pct], ["Morale", "resolve", pct], ["Control", "tokens", r2]];
+    ["Eff. wounds", "effWounds", r1], ["Heal/rnd", "heal", r2], ["Speed", "speed", r1], ["Def save", "save", pct], ["Morale", "resolve", pct], ["Control", "tokens", r2]];
   return el("section", { className: "an-panel" }, el("h2", { textContent: "Faction averages" }),
     el("p", { className: "meta", textContent: "Averages over every combat unit of the faction (neutral units count as the Neutral faction)." }),
     el("div", { className: "an-pick" }, el("label", {}, "Chart ", metricSel)),
@@ -416,8 +447,9 @@ function renderNotes() {
     el("ul", {},
       el("li", { textContent: "Hits per attack = attack dice (full strength = the first dice number on the unit card; average over ranks = the mean of all the dice numbers, for a unit that has lost ranks) x the chance of the attack roll (a 3+ hits on 4 of 6 faces). Melee and ranged are shown separately and added for the total." }),
       el("li", { textContent: "Save chance = the chance one die meets the Defence number (a 4+ is 3 of 6). Morale pass chance = the chance two dice total at least the Morale number (a 7 is 21 of 36). Effective wounds = the unit's wound pool divided by the chance a hit gets through. The pool is the wounds printed on the card, or ranks x wounds per model. It is a relative toughness number for comparing units, not an exact count." }),
+      el("li", { textContent: "Healing: every card that restores Wounds (data/healing.json) is turned into an expected number of Wounds per round: the Wounds it restores, times how often its trigger happens in a round (always-on abilities count once, 'after an attack that dealt Wounds' 0.75, 'when a unit passes a Morale Test' or 'when an enemy fails a Panic Test' 0.5, once per game 1/6, and so on), plus half a Wound for '+1 per destroyed rank'. Bonuses that need you to Control a symbol are left out. Your 'Healing' choice says how many rounds of that healing count: it is added to the unit's wound pool before the Defence adjustment. Healing that a unit, commander or NCU gives to others is added to the list as a whole, so it also raises the list's effective wounds per point and its Durability on the radar. Faction and unit averages use the combat units' own healing only, so NCU healing never counts toward them. Choose Ignore to leave healing out. These frequencies are estimates, not measured."  }),
       el("li", { textContent: "Control counts how many times a card says a target 'becomes' Vulnerable, Weakened or Panicked. When a card gives a choice between conditions it counts once. Attachments, commanders and NCUs add to the list's total." }),
-      el("li", { textContent: "Special rules, rerolls, Sundering, Precision, Orders and tactics cards are not in the damage or defence numbers. Attachments' own changes to the unit are not included either, only their condition applications and the number of Orders." }),
+      el("li", { textContent: "Special rules, rerolls, Sundering, Precision, Orders and tactics cards are not in the damage or defence numbers. Attachments' own changes to the unit are not included either, only their healing, condition applications and the number of Orders." }),
       el("li", { textContent: "Per-point numbers use the points of the combat units only, so attachments and NCUs do not dilute them. The tool treats your 'Compare to' choice as 100%." })));
 }
 

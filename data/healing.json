@@ -1,0 +1,865 @@
+{
+ "_about": "Which models restore Wounds, read from the card text. 'self' heals the unit the model is (or is attached to); 'other' heals other friendly units. 'amount' is Wounds per occurrence, 'rank' adds the average extra from '+1 Wound for each destroyed rank', 'when' picks a row of the 'when' table below. See README.md.",
+ "rankBonus": 0.5,
+ "when": {
+  "activate": {
+   "label": "Each time this unit activates",
+   "perRound": 1
+  },
+  "attack": {
+   "label": "Each time this unit makes a Melee Attack (or Ranged, where the card says so)",
+   "perRound": 1
+  },
+  "attackHit": {
+   "label": "After an attack that dealt Wounds or destroyed a rank",
+   "perRound": 0.75
+  },
+  "morale": {
+   "label": "When a unit passes a Morale Test",
+   "perRound": 0.5
+  },
+  "enemyPanic": {
+   "label": "When an engaged enemy fails a Panic Test",
+   "perRound": 0.5
+  },
+  "retreat": {
+   "label": "After completing a Retreat Action",
+   "perRound": 0.25
+  },
+  "condition": {
+   "label": "When an enemy gains a Condition token",
+   "perRound": 0.5
+  },
+  "activateCtl": {
+   "label": "On activation, but only while a Control condition holds",
+   "perRound": 0.5
+  },
+  "token": {
+   "label": "Costs a Faith, Pillage or Order token",
+   "perRound": 0.5
+  },
+  "order": {
+   "label": "An Order (uses an Order token)",
+   "perRound": 0.5
+  },
+  "zone": {
+   "label": "When an NCU claims a zone (it gives up the zone's normal effect)",
+   "perRound": 0.5
+  },
+  "oncePerGame": {
+   "label": "Once per game",
+   "perRound": 0.167
+  }
+ },
+ "sources": {
+  "borroqs-boar": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "note": "Sundering: after an attack that dealt Wounds"
+   }
+  ],
+  "brotherhood-sworn-knights": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attackHit",
+    "note": "Rally the Smallfolk: after an attack that destroyed a rank, 1 friendly Infantry unit"
+   }
+  ],
+  "conscripts": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "order",
+    "note": "Order: Supply Aid. This unit suffers up to 3 Wounds, another unit restores that many +1 (net gain 1)"
+   }
+  ],
+  "cutthroats": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "darkstar-retinue": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "drowned-men": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "order",
+    "note": "Order: Drowned God's Blessing, a friendly Greyjoy Infantry unit"
+   }
+  ],
+  "highgarden-pikemen": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attack",
+    "note": "Perseverance and Valor"
+   }
+  ],
+  "house-clegane-mountains-men": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "house-harlaw-reapers": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "house-mormont-she-bears": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "attack",
+    "note": "Resolute Strikes: 1 Wound or 1 Condition token to a friendly unit"
+   }
+  ],
+  "house-umber-greataxes": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "lysene-sellswords": [
+   {
+    "who": "self",
+    "amount": 1.5,
+    "when": "attack",
+    "note": "Pirate's Blades: 1 per Pillage token (about 1.5 assumed)"
+   }
+  ],
+  "poor-fellows": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "token",
+    "note": "Zealous Resurgence: expends a Faith token"
+   }
+  ],
+  "rainbow-guard": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attack",
+    "note": "Rally Cry"
+   }
+  ],
+  "rhllor-faithful": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "token",
+    "rank": true,
+    "note": "Expends a Faith token"
+   }
+  ],
+  "rhllor-lightbringers": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "attack",
+    "note": "Light of the Lord: after a Ranged Attack, 1 other friendly R'hllor unit"
+   }
+  ],
+  "rose-knights": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attack",
+    "note": "Perseverance and Valor"
+   }
+  ],
+  "silenced-men": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "starfall-outriders": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attack",
+    "note": "Rally Cry"
+   }
+  ],
+  "stone-crows": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "rank": true,
+    "note": "Recruiting from the Hills"
+   }
+  ],
+  "stone-crows-lannister": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "rank": true,
+    "note": "Recruiting from the Hills"
+   }
+  ],
+  "stony-shore-pillagers": [
+   {
+    "who": "self",
+    "amount": 1.5,
+    "when": "token",
+    "note": "Abundant Promises: 1 Wound for the first Pillage token removed, 2 for the second"
+   }
+  ],
+  "stormcrow-dervishes": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin: only while your opponent does not Control the symbol"
+   }
+  ],
+  "stormcrow-dervishes-targaryen": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin: only while your opponent does not Control the symbol"
+   }
+  ],
+  "stormcrow-mercenaries": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin: only while your opponent does not Control the symbol"
+   }
+  ],
+  "stormcrow-mercenaries-targaryen": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin: only while your opponent does not Control the symbol"
+   }
+  ],
+  "the-bonelords-chosen": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "wun-wun": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attack",
+    "note": "Indomitable Might: \"may\" restore 1 after the Attack"
+   }
+  ],
+  "davos-seaworth-onion-knight": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "order",
+    "note": "Order: Supply Aid (net gain 1)"
+   }
+  ],
+  "thorn-watch-sentinel": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "guyard-morrigen": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "parmen-crane": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attack",
+    "note": "Rally Cry"
+   }
+  ],
+  "dreadfort-captain": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "dreadfort-captain-neutral": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "ramsay-snow-sadist-neutral": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "haggo": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "skahaz-mo-kandaq-merciless-ghiscari": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "rattleshirt-ruthless-slaughterer": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "warsworn": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "thoros-of-myr-faithful-believer": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "note": "Reinforcements (the +1 for a Controlled symbol is not counted)"
+   }
+  ],
+  "edric-dayne": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "retreat",
+    "rank": true,
+    "note": "Regroup"
+   }
+  ],
+  "harmas-bannerman": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "retreat",
+    "rank": true,
+    "note": "Regroup"
+   }
+  ],
+  "hot-pie": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Hot Pies!: only if you Control the symbol"
+   }
+  ],
+  "moqorro-slave-of-rhllor": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "order",
+    "note": "Order: Supply Aid (net gain 1)"
+   }
+  ],
+  "barristan-selmy": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Duty to the Crown"
+   }
+  ],
+  "gate-warden": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "note": "Reinforcements"
+   }
+  ],
+  "harmen-uller-dornish-envoy": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "note": "Reinforcements"
+   }
+  ],
+  "watch-recruiter": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "note": "Reinforcements"
+   }
+  ],
+  "yoren-harsh-recruiter": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "note": "Reinforcements"
+   }
+  ],
+  "edric-dayne-lord-of-starfall": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "fortune-seeker": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   },
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin"
+   }
+  ],
+  "daario-naharis-reckless-mercenary-neutral": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "daario-naharis-reckless-mercenary": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "satin-brave-recruit": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "brynden-tully-unyielding-knight": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "marselen-unsullied-captain": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "bronn-neutral": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin"
+   }
+  ],
+  "nute": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin"
+   }
+  ],
+  "grey-worm-freed-by-the-dragon": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attack",
+    "note": "Rally Cry"
+   }
+  ],
+  "qotho": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "mirri-maz-duur-resentful-healer": [
+   {
+    "who": "self",
+    "amount": 0.5,
+    "when": "activate",
+    "note": "Maegi's Healing: a D3 roll gives 1, 2 or 0 choices, shared with removing a Condition token"
+   }
+  ],
+  "stannisbaratheononetrueking": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "lorastyrell": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "bericdondarrion": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Duty to the Crown"
+   }
+  ],
+  "areohotah": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Duty to the Crown"
+   }
+  ],
+  "marselen": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "morale",
+    "note": "Dauntless"
+   }
+  ],
+  "harmenuller": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activate",
+    "note": "Reinforcements"
+   }
+  ],
+  "obarasand": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "cotterpyke": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "rickardkarstark": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   }
+  ],
+  "balongreyjoy": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "attackHit",
+    "rank": true,
+    "note": "Fueled by Slaughter"
+   },
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "token",
+    "note": "The Kraken's Dues: spends a Pillage token"
+   }
+  ],
+  "ramsay-snow-the-bastard-of-bolton": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "condition",
+    "note": "Cruel Indulgence"
+   }
+  ],
+  "thorosofmyr": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Restores 1 per Wound the enemy suffered, up to 3"
+   }
+  ],
+  "daemonsand": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attack",
+    "note": "Rally Cry"
+   }
+  ],
+  "jeormormont": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "morale",
+    "rank": true,
+    "note": "Order: Stay at Your Posts, a friendly unit in Short Range"
+   }
+  ],
+  "alliserthorne": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "enemyPanic",
+    "note": "Prey on Fear"
+   }
+  ],
+  "robbstark": [
+   {
+    "who": "self",
+    "amount": 2,
+    "when": "retreat",
+    "rank": true,
+    "note": "Regroup"
+   }
+  ],
+  "eddardstark": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "attack",
+    "note": "Rally Cry"
+   }
+  ],
+  "daarionaharis-neutral": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin"
+   }
+  ],
+  "daarionaharis": [
+   {
+    "who": "self",
+    "amount": 1,
+    "when": "activateCtl",
+    "note": "Motivated by Coin"
+   }
+  ],
+  "cortnay-penrose-reliable-castellan": [
+   {
+    "who": "other",
+    "amount": 4,
+    "when": "zone",
+    "note": "Restore D3+2 Wounds in total across friendly Combat Units (average 4)"
+   }
+  ],
+  "ravella-smallwood": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "token",
+    "note": "Discards an Order token and a Tactics card"
+   }
+  ],
+  "thoros-of-myr-the-ember": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "zone",
+    "note": "Zone effect replaced: restore up to 2 Wounds (more by spending Order tokens)"
+   }
+  ],
+  "tyene-sand": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "zone",
+    "note": "Healing Hands"
+   }
+  ],
+  "eddard-stark-warden-of-the-north": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "token",
+    "rank": true,
+    "note": "Spends an Order token when a friendly unit passes a Panic Test"
+   }
+  ],
+  "hizdahr-zo-loraq": [
+   {
+    "who": "other",
+    "amount": 1.5,
+    "when": "zone",
+    "note": "Several friendly units restore 1 Wound or remove a Condition token"
+   }
+  ],
+  "illyrio-mopatis": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "zone",
+    "note": "One of three choices: restore 2 Wounds"
+   }
+  ],
+  "kevan-lannister-master-of-law": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "oncePerGame",
+    "note": "Unbiased Justice (one of several choices)"
+   }
+  ],
+  "the-high-sparrow-father-of-the-faithful": [
+   {
+    "who": "other",
+    "amount": 1.5,
+    "when": "enemyPanic",
+    "note": "Restores as many Wounds as the influenced enemy suffers from failed Panic Tests, up to 3"
+   }
+  ],
+  "aemon": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "zone",
+    "rank": true,
+    "note": "Maester's Healing"
+   }
+  ],
+  "walda-frey": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "zone",
+    "note": "Worth Her Weight in Silver (once per game she can restore more)"
+   }
+  ],
+  "aeron-greyjoy": [
+   {
+    "who": "other",
+    "amount": 1.5,
+    "when": "attack",
+    "note": "Restores 1 Wound before each Action and 1 per enemy rank destroyed by the influenced unit"
+   }
+  ],
+  "wendamyr": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "token",
+    "note": "Spends an Order token"
+   }
+  ],
+  "craster-ally-of-convenience": [
+   {
+    "who": "other",
+    "amount": 2,
+    "when": "zone",
+    "note": "Refuge and Supplies (once per game he can also heal at any Turn start)"
+   }
+  ],
+  "lord-varys-neutral": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "token",
+    "note": "Spends an Order token; the heal is one of several effects"
+   }
+  ],
+  "shae-neutral": [
+   {
+    "who": "other",
+    "amount": 1,
+    "when": "token",
+    "note": "One of three choices when Shae claims a zone"
+   }
+  ],
+  "tycho-nestoris-neutral": [
+   {
+    "who": "other",
+    "amount": 5,
+    "when": "oncePerGame",
+    "note": "Backing of the Iron Bank: 5 Wounds in total, once per game"
+   }
+  ]
+ }
+}
