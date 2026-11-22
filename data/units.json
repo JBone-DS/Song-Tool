@@ -1909,7 +1909,15 @@
       ]
     },
     "ignoresLimits": [],
-    "loyalty": "stannis-baratheon"
+    "loyalty": "stannis-baratheon",
+    "discountIfInArmy": {
+      "ids": [
+        "stannisbaratheontherightfulheir",
+        "stannisbaratheononetrueking",
+        "stannisbaratheonkingatthewall"
+      ],
+      "amount": 1
+    }
   },
   {
     "id": "brienne-the-blue",
