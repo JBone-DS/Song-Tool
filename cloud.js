@@ -67,7 +67,13 @@ const cloud = {
     const names = await this._all(() => this.client.from("profile_names").select("id,first_name,last_name").in("id", rows.map(r => r.id)).order("id"));
     return rows.map(r => ({ ...r, ...(names.find(n => n.id === r.id) ?? {}) }));
   },
-  async saveProfile(p) { this._check(await this.client.from("profiles").upsert(toProfileRow({ ...p, id: this.user.id }), { onConflict: "id" })); },
+  // not an upsert: the database lets nobody read real names from the profiles table, and an upsert needs to read the columns it replaces
+  async saveProfile(p) {
+    const row = toProfileRow({ ...p, id: this.user.id });
+    const exists = this._check(await this.client.from("profiles").select("id").eq("id", this.user.id)).length > 0;
+    if (exists) { const { id, ...changes } = row; this._check(await this.client.from("profiles").update(changes).eq("id", this.user.id)); }
+    else this._check(await this.client.from("profiles").insert(row));
+  },
   // a profile picture is a 256-pixel JPEG kept at avatars/<account id>/avatar.jpg; avatarAt busts the browser's cache when it changes
   avatarUrl(p) { return p?.avatarAt ? `${window.SONG_CLOUD.url}/storage/v1/object/public/avatars/${p.id}/avatar.jpg?v=${Date.parse(p.avatarAt) || 0}` : ""; },
   async setAvatar(blob) {
