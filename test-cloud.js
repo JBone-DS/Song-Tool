@@ -1,29 +1,32 @@
-// Checks the cloud mapping and the upload logic against a small fake database. Run from the repository root:  node test-cloud.js
+// Checks the cloud mapping and the organiser upload logic against a small fake database. Run from the repository root:  node test-cloud.js
+// (The database's own security rules are in schema.sql and need a real Postgres to test.)
 const assert = require("assert");
 const K = require("./cloud-core.js");
 Object.assign(globalThis, K);
 const mem = {};
 globalThis.window = { SONG_CLOUD: { url: "x", key: "y" } };
-globalThis.storeGet = (k, f) => (k in mem ? mem[k] : f);
+globalThis.storeGet = (k, f) => (mem[k] ?? f);
 globalThis.storeSet = (k, v) => { mem[k] = v; return true; };
 const { cloud } = require("./cloud.js");
 
 // ---- a fake of the few Supabase calls cloud.js makes ----
-const tables = { profiles: [], tournaments: [], tournament_players: [], rounds: [], games: [] };
-const keys = { profiles: ["id"], tournaments: ["id"], tournament_players: ["tournament_id", "profile_id"], rounds: ["tournament_id", "n"], games: ["round_id", "table_no"] };
+const tables = { profiles: [], tournaments: [], registrations: [], entry_lists: [], tournament_results: [], rounds: [], games: [], saved_lists: [], player_games: [], player_ratings: [], rating_ranks: [], rating_history: [] };
 const calls = [];
 function from(name) {
-  const rows = tables[name]; let filters = [], op = null, payload = null, opts = {}, wantOne = false;
+  const rows = name === "profile_names" ? tables.profiles : tables[name]; let filters = [], op = null, payload = null, opts = {}, wantOne = false;
   const q = {
-    select() { return q; }, single() { wantOne = true; return q; }, order() { return q; }, range() { return q; },
+    select() { return q; }, single() { wantOne = true; return q; }, order() { return q; }, range() { return q; }, limit() { return q; },
     upsert(p, o) { op = "upsert"; payload = [].concat(p); opts = o; return q; },
+    insert(p) { op = "insert"; payload = [].concat(p); return q; },
+    update(p) { op = "update"; payload = p; return q; },
     delete() { op = "delete"; return q; },
     eq(c, v) { filters.push(r => r[c] === v); return q; },
     in(c, v) { filters.push(r => v.includes(r[c])); return q; },
     not(c, _o, v) { const set = v.slice(1, -1).split(","); filters.push(r => !set.includes(String(r[c]))); return q; },
-    then(res, rej) { return Promise.resolve(run()).then(res, rej); },
+    then(res, rej) { return Promise.resolve().then(run).then(res, rej); },
   };
   function run() {
+    const hit = () => rows.filter(r => filters.every(f => f(r)));
     if (op === "upsert") {
       calls.push(`upsert ${name} ${payload.length}`);
       let last;
@@ -35,78 +38,175 @@ function from(name) {
       }
       return { data: wantOne ? { id: last.id } : null, error: null };
     }
+    if (op === "insert") { calls.push(`insert ${name}`); payload.forEach(p => rows.push({ id: p.id ?? K.newId(), ...p })); return { error: null }; }
+    if (op === "update") { calls.push(`update ${name}`); hit().forEach(r => Object.assign(r, payload)); return { error: null }; }
     if (op === "delete") {
       calls.push(`delete ${name}`);
-      const del = rows.filter(r => filters.every(f => f(r)));
-      del.forEach(d => rows.splice(rows.indexOf(d), 1));
-      if (name === "tournaments") for (const t of ["tournament_players", "rounds", "games"]) tables[t] = tables[t].filter(r => rows.some(x => x.id === r.tournament_id));
+      hit().forEach(d => rows.splice(rows.indexOf(d), 1));
+      if (name === "tournaments") for (const t of ["registrations", "entry_lists", "tournament_results", "rounds", "games"]) tables[t] = tables[t].filter(r => rows.some(x => x.id === r.tournament_id));
       return { error: null };
     }
-    return { data: rows.filter(r => filters.every(f => f(r))), error: null };
+    return { data: hit(), error: null };
   }
   return q;
 }
-cloud.client = { from };
-cloud.user = { id: "u1" };
+const uploads = [];
+cloud.client = { from, rpc: async name => { calls.push(`rpc ${name}`); return { data: null, error: null }; }, storage: { from: () => ({ upload: async (path, blob, o) => { uploads.push(['up', path, o.contentType, o.upsert]); return { error: null }; }, remove: async paths => { uploads.push(['rm', ...paths]); return { error: null }; } }) } };
+cloud.user = { id: "u-org" };
 
 (async () => {
-  const P = n => ({ id: K.newId(), name: n, club: "", country: "", faction: "" });
-  const a = P("A"), b = P("B"), c = P("C");
+  const org = K.newId(), p1 = K.newId(), p2 = K.newId(), p3 = K.newId();
+  const tid = K.newId();
   const t = {
-    id: K.newId(), name: "T", date: "2026-11-21", location: "", points: 40, plannedRounds: 3, status: "running", rules: { win: 3, margins: { enabled: true } },
-    players: [a, b, c].map(p => ({ pid: p.id, listCode: "abc", locked: true, dropped: false })),
-    rounds: [{ n: 1, done: false, tables: [
-      { id: 1, a: a.id, b: b.id, result: "a", manual: false, vpA: 5, vpB: 3, bonusA: 0, bonusB: 0, killedByA: [0, 2], killedByB: [] },
-      { id: 2, a: c.id, b: null, result: "a", vpA: null, vpB: null, bonusA: 0, bonusB: 0 }] }],
+    id: tid, owner: org, name: "Cup", date: "2026-11-21", location: "Leeds", description: "Hello", points: 40, plannedRounds: 3, status: "setup",
+    rules: { win: 3, margins: { enabled: true } }, visibility: "listed", registrationOpen: true, maxPlayers: 8, listsLocked: false, hideListsUntilRound1: true,
+    players: [], requests: [], rounds: [],
   };
-  const db = { version: 1, profiles: [a, b, c], tournaments: [t] };
 
-  // first upload sends everything, and what comes back is identical
-  await cloud._push(db);
-  assert.strictEqual(tables.games.length, 2);
-  const back = await (async () => { cloud.user = { id: "u1" }; return { version: 1, ...(await cloud._tournamentsFrom(tables.tournaments, tables.profiles)) }; })();
-  const norm = x => JSON.parse(JSON.stringify(x, (k, v) => (v === undefined ? null : v)));
-  const want = norm(db); want.tournaments[0].isPublic = true;
-  want.tournaments[0].rounds[0].tables.forEach(g => { g.manual = !!g.manual; g.killedByA ??= []; g.killedByB ??= []; });
-  assert.deepStrictEqual(norm(back).tournaments[0].rounds, want.tournaments[0].rounds);
-  assert.deepStrictEqual(norm(back).tournaments[0].players, want.tournaments[0].players);
-  assert.strictEqual(back.profiles.length, 3);
+  // creating a tournament, then players asking to join and setting lists (their own calls)
+  await cloud.createTournament(t);
+  assert.strictEqual(tables.tournaments[0].visibility, "listed");
+  assert.strictEqual(tables.tournaments[0].hide_lists_until_round1, true);
+  for (const p of [p1, p2, p3]) { cloud.user = { id: p }; await cloud.requestJoin(tid); await cloud.setList(tid, p, "code-" + p.slice(0, 4)); }
+  cloud.user = { id: org };
+  await cloud.setRegistration(tid, p1, { status: "approved" });
+  await cloud.setRegistration(tid, p2, { status: "approved" });
+  await cloud.setRegistration(tid, p3, { status: "declined" });
+
+  // reading it back: approved players vs requests, lists attached
+  let { t: back } = await cloud.load(tid);
+  assert.deepStrictEqual(back.players.map(p => p.pid).sort(), [p1, p2].sort());
+  assert.strictEqual(back.players[0].listCode.startsWith("code-"), true);
+  assert.deepStrictEqual(back.requests.map(r => [r.pid, r.status]), [[p3, "declined"]]);
+  assert.strictEqual(back.maxPlayers, 8); assert.strictEqual(back.registrationOpen, true); assert.strictEqual(back.description, "Hello");
+
+  // organiser edits: lock lists and draw round 1
+  cloud.baseline(back);
+  back.listsLocked = true;
+  back.rounds.push({ n: 1, done: false, tables: [{ id: 1, a: p1, b: p2, result: null, manual: false, vpA: null, vpB: null, bonusA: 0, bonusB: 0, killedByA: [], killedByB: [] }] });
+  cloud._latest = back; calls.length = 0; await cloud.flush();
+  assert.deepStrictEqual(calls.filter(c => !c.startsWith("select")), ["upsert tournaments 1", "upsert rounds 1", "upsert games 1", "delete games"]);
+  assert(back.rounds[0].tables[0].gid, "new game got its id");
+  assert.strictEqual(tables.tournaments[0].lists_locked, true);
+  assert.strictEqual(mem["song-tool-pending"], null);   // nothing left pending
 
   // nothing changed: nothing sent
-  calls.length = 0; await cloud._push(db); assert.deepStrictEqual(calls, []);
+  calls.length = 0; await cloud._push(back); assert.deepStrictEqual(calls, []);
 
-  // one result changed: only that round goes
-  t.rounds[0].tables[0].vpA = 9; calls.length = 0; await cloud._push(db);
-  assert.deepStrictEqual(calls, ["upsert rounds 1", "upsert games 2", "delete games"]);   // the delete prunes games no longer in the round
-  assert.strictEqual(tables.games.find(g => g.table_no === 1).vp_a, 9);
+  // a player reports their own game (an update by game id, only the report fields)
+  const g = back.rounds[0].tables[0];
+  cloud.user = { id: p1 };
+  cloud.reportGame({ ...g, vpA: 7, vpB: 2, result: "a", killedByA: [0, 1] });
+  await cloud._sendReports();
+  assert.strictEqual(tables.games[0].vp_a, 7); assert.deepStrictEqual(tables.games[0].killed_by_a, [0, 1]);
+  assert.strictEqual(tables.games[0].bonus_a, 0);
 
-  // a redrawn round with fewer tables removes the extra game
-  t.rounds[0].tables = [t.rounds[0].tables[0]]; await cloud._push(db);
+  // the organiser changes only a different field; the player's report is not overwritten with the organiser's stale copy
+  cloud.user = { id: org };
+  back.rounds[0].done = true;
+  calls.length = 0; await cloud._push(back);
+  assert.deepStrictEqual(calls, ["upsert rounds 1"]);
+  assert.strictEqual(tables.games[0].vp_a, 7);
+
+  // the organiser edits one game of two: only that game is sent
+  back.rounds[0].tables.push({ id: 2, a: p2, b: null, result: "a", manual: false, vpA: null, vpB: null, bonusA: 0, bonusB: 0, killedByA: [], killedByB: [] });
+  await cloud._push(back);
+  back.rounds[0].tables[1].bonusA = 1; calls.length = 0; await cloud._push(back);
+  assert.deepStrictEqual(calls.filter(c => c.startsWith("upsert games")), ["upsert games 1"]);
+
+  // a redraw with fewer tables removes the extra game
+  back.rounds[0].tables = [back.rounds[0].tables[0]]; await cloud._push(back);
   assert.strictEqual(tables.games.length, 1);
 
-  // a player removed, a round added
-  t.players = t.players.slice(0, 2); t.rounds.push({ n: 2, done: false, tables: [{ id: 1, a: b.id, b: a.id, result: null }] });
-  await cloud._push(db);
-  assert.strictEqual(tables.tournament_players.length, 2); assert.strictEqual(tables.rounds.length, 2);
-
-  // deleting a tournament and then its profile
-  db.tournaments = []; db.profiles = db.profiles.filter(p => p.id !== c.id); await cloud._push(db);
-  assert.strictEqual(tables.tournaments.length, 0); assert.strictEqual(tables.games.length, 0); assert.strictEqual(tables.profiles.length, 2);
-
   // a failed upload leaves `synced` alone, so the retry sends the same changes
-  const t2 = { ...t, id: K.newId(), players: [], rounds: [] };
-  db.tournaments = [t2];
+  back.status = "running";
   const real = cloud.client; cloud.client = { from: () => { throw new Error("offline"); } };
-  await assert.rejects(() => cloud._push(db)); cloud.client = real;
-  calls.length = 0; await cloud._push(db); assert.strictEqual(calls[0], "upsert tournaments 1");
+  await assert.rejects(() => cloud._push(back)); cloud.client = real;
+  calls.length = 0; await cloud._push(back); assert.deepStrictEqual(calls, ["upsert tournaments 1"]);
 
-  // old browser data gets proper uuids and keeps its links
-  const old = { version: 1, profiles: [{ id: "abc12345", name: "X" }, { id: "def67890", name: "Y" }], tournaments: [{ id: "tt111111", players: [{ pid: "abc12345" }, { pid: "def67890" }],
-    rounds: [{ n: 1, tables: [{ id: 1, a: "abc12345", b: "def67890" }, { id: 2, a: "abc12345", b: null }] }] }] };
-  const fixed = K.withUuids(old);
-  assert(K.isUuid(fixed.tournaments[0].id) && fixed.profiles.every(p => K.isUuid(p.id)));
-  assert.strictEqual(fixed.tournaments[0].rounds[0].tables[0].a, fixed.profiles[0].id);
-  assert.strictEqual(fixed.tournaments[0].rounds[0].tables[1].b, null);
-  assert.strictEqual(fixed.tournaments[0].players[1].pid, fixed.profiles[1].id);
+  // withdrawing, and removing a player, drop their list with them
+  cloud.user = { id: p2 }; await cloud.withdraw(tid);
+  assert.strictEqual(tables.registrations.some(r => r.profile_id === p2), false);
+
+  // directory search and counts
+  tables.tournaments.push({ id: K.newId(), owner: org, name: "Other", date: "", location: "York", points: 40, status: "setup", visibility: "listed", registration_open: true, lists_locked: false, planned_rounds: 3 });
+  const dir = await cloud._summaries(tables.tournaments);
+  assert.strictEqual(dir.find(d => d.id === tid).players, 1);
+
+  // names and initials
+  const sam = { id: p1, firstName: "Sam", lastName: "Reid", nickname: "The Kraken", club: "", country: "", avatarAt: null };
+  assert.strictEqual(K.displayName(sam), "The Kraken");                       // public name = nickname
+  assert.strictEqual(K.matchName(sam), "The Kraken (Sam Reid)");               // match-ups and game history add the real name
+  assert.strictEqual(K.matchName({ ...sam, firstName: "", lastName: "" }), "The Kraken");   // real name not visible to this viewer
+  assert.strictEqual(K.displayName({ ...sam, nickname: "" }), "Sam Reid");     // legacy fallback only
+  assert.strictEqual(K.initialsOf(sam), "TK");
+  assert.strictEqual(K.initialsOf({ ...sam, nickname: "Kraken" }), "KR");
+  assert.strictEqual(K.displayName(null), "");
+  assert.deepStrictEqual(K.fromProfileRow(K.toProfileRow(sam)), sam);
+
+  // real names come from the profile_names view and are merged in only where the database returned them
+  tables.profiles.push({ id: p3, first_name: "Zed", last_name: "Zane", nickname: "Zee", club: "", country: "" });
+  const got = await cloud._withNames([{ id: p3, nickname: "Zee" }, { id: "other", nickname: "Hidden" }]);
+  assert.deepStrictEqual(got.map(r => [r.nickname, r.first_name]), [["Zee", "Zed"], ["Hidden", undefined]]);
+  assert.strictEqual(K.matchName(K.fromProfileRow(got[1])), "Hidden");
+  tables.profiles.pop();
+
+  // saving a profile, a picture, and removing it
+  cloud.user = { id: p1 };
+  await cloud.saveProfile(sam);
+  assert.strictEqual(tables.profiles[0].first_name, "Sam");
+  const at = await cloud.setAvatar("blob");
+  assert.deepStrictEqual(uploads[0], ["up", `${p1}/avatar.jpg`, "image/jpeg", true]);
+  assert.strictEqual(tables.profiles[0].avatar_updated_at, at);
+  await cloud.saveProfile({ ...sam, nickname: "Kraken" });   // editing the profile must not wipe the picture
+  assert.strictEqual(tables.profiles[0].avatar_updated_at, at);
+  window.SONG_CLOUD.url = "https://x.supabase.co";
+  assert.strictEqual(cloud.avatarUrl({ id: p1, avatarAt: at }), `https://x.supabase.co/storage/v1/object/public/avatars/${p1}/avatar.jpg?v=${Date.parse(at)}`);
+  assert.strictEqual(cloud.avatarUrl({ id: p1, avatarAt: null }), "");
+  await cloud.removeAvatar();
+  assert.deepStrictEqual(uploads[1], ["rm", `${p1}/avatar.jpg`]); assert.strictEqual(tables.profiles[0].avatar_updated_at, null);
+
+  // final results rows from standings, saved and cleared
+  cloud.user = { id: org };
+  const st = [{ pid: p1, rank: 1, points: 6, played: 2, w: 2, d: 0, l: 0, byes: 0, majors: 1, vp: 12, vpAgainst: 3, destroyed: 40, lost: 5 },
+              { pid: p2, rank: 2, points: 0, played: 2, w: 0, d: 0, l: 2, byes: 0, majors: 0, vp: 3, vpAgainst: 12, destroyed: 5, lost: 40 }];
+  await cloud.saveResults(back, st);
+  assert.strictEqual(tables.tournament_results.length, 2);
+  const r1 = tables.tournament_results.find(r => r.profile_id === p1);
+  assert.deepStrictEqual([r1.rank, r1.field_size, r1.tournament_pts, r1.wins, r1.major_wins, r1.vp_for, r1.pts_destroyed], [1, 2, 6, 2, 1, 12, 40]);
+  await cloud.saveResults(back, st); assert.strictEqual(tables.tournament_results.length, 2);   // saving again replaces, not duplicates
+  await cloud.clearResults(back.id); assert.strictEqual(tables.tournament_results.length, 0);
+
+  // faction/commander/points travel with an entry; the organiser can re-sync them
+  cloud.user = { id: p1 };
+  await cloud.setList(tid, p1, "codeX", { faction: "stark", commander: "c1", points: 39 });
+  let e1 = tables.entry_lists.find(r => r.profile_id === p1);
+  assert.deepStrictEqual([e1.list_code, e1.faction, e1.commander, e1.points], ["codeX", "stark", "c1", 39]);
+  await cloud.setList(tid, p1, "codeY");   // no meta: stored as null, never undefined
+  e1 = tables.entry_lists.find(r => r.profile_id === p1); assert.deepStrictEqual([e1.faction, e1.points], [null, null]);
+  cloud.user = { id: org };
+  await cloud.syncEntryMeta(tid, [{ pid: p1, faction: "lannister", commander: "", points: 40 }]);
+  e1 = tables.entry_lists.find(r => r.profile_id === p1); assert.deepStrictEqual([e1.faction, e1.commander, e1.points], ["lannister", null, 40]);
+
+  // ratings: one call that rebuilds them on the server
+  await cloud.recomputeRatings(); assert.ok(calls.includes("rpc recompute_ratings"));
+
+  // the private saved-list library: put, read back, replace by name, delete
+  cloud.user = { id: p1 };
+  await cloud.putSavedList({ name: "My list", code: "abc", faction: "stark", points: 40, saved: "2026-11-01T10:00:00.000Z" });
+  await cloud.putSavedList({ name: "My list", code: "abc2", faction: "stark", points: 39, saved: "2026-11-02T10:00:00.000Z" });
+  assert.strictEqual(tables.saved_lists.length, 1);
+  assert.deepStrictEqual(await cloud.savedLists(), [{ name: "My list", code: "abc2", saved: "2026-11-02T10:00:00.000Z" }]);
+  assert.strictEqual(tables.saved_lists[0].owner, p1);
+  await cloud.deleteSavedList("My list"); assert.strictEqual(tables.saved_lists.length, 0);
+
+  // faction records from game history
+  const gs = [{ faction: "stark", opp_faction: "lannister", outcome: "win" }, { faction: "stark", opp_faction: "lannister", outcome: "loss" },
+              { faction: "stark", opp_faction: null, outcome: "draw" }, { faction: null, opp_faction: "stark", outcome: "win" }];
+  const fr = K.factionRecords(gs);
+  assert.deepStrictEqual(fr.mine.get("stark"), { games: 3, wins: 1, draws: 1, losses: 1 });
+  assert.deepStrictEqual(fr.versus.get("stark|lannister"), { games: 2, wins: 1, draws: 0, losses: 1 });
+  assert.strictEqual(K.isProvisional(4), true); assert.strictEqual(K.isProvisional(5), false); assert.strictEqual(K.isProvisional(2, "stark"), true); assert.strictEqual(K.isProvisional(3, "stark"), false);
+
   console.log("Cloud sync OK");
 })().catch(e => { console.error(e); process.exit(1); });

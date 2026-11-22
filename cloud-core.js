@@ -1,73 +1,106 @@
-// Cloud data mapping: turns the tournament page's `db` object into database rows and back. No network code here,
-// so it can be tested in Node (test-cloud.js). The network side is in cloud.js.
+// Cloud data mapping: turns database rows into the tournament object the page works with, and back. No network code
+// here, so it can be tested in Node (test-cloud.js). The network side is in cloud.js; the tables are in schema.sql.
 //
-// Local shape (see tournament.js):  db = { profiles: [...], tournaments: [ { ..., players: [...], rounds: [ { n, done, tables: [...] } ] } ] }
-// Database tables (see schema.sql): profiles, tournaments, tournament_players, rounds, games.
+// A tournament as the page sees it:
+//   { id, owner, name, date, location, description, points, plannedRounds, status, rules,
+//     visibility ("listed" | "link" | "private"), registrationOpen, maxPlayers, listsLocked, hideListsUntilRound1,
+//     players:  [ { pid, dropped, listCode } ]            approved players (listCode is null when the list is not visible to this viewer)
+//     requests: [ { pid, status, listCode } ]             people who asked to join and are waiting or were declined
+//     rounds:   [ { n, rid, done, tables: [ { id, gid, a, b, result, manual, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ] }
+// A person's id (pid) is their account id, which is also their profile's id.
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = s => typeof s === "string" && UUID_RE.test(s);
 const newId = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID()
   : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3) | 8).toString(16); }));
 
-// Browser data made before the database used short ids. Give everything a proper uuid, keeping every link between records.
-function withUuids(db) {
-  const map = new Map();
-  const fix = id => (id === null || id === undefined || isUuid(id) ? id : map.get(id) ?? (map.set(id, newId()), map.get(id)));
-  return {
-    ...db,
-    profiles: db.profiles.map(p => ({ ...p, id: fix(p.id) })),
-    tournaments: db.tournaments.map(t => ({
-      ...t, id: fix(t.id),
-      players: t.players.map(p => ({ ...p, pid: fix(p.pid) })),
-      rounds: t.rounds.map(r => ({ ...r, tables: r.tables.map(g => ({ ...g, a: fix(g.a), b: fix(g.b) })) })),
-    })),
-  };
-}
-
 const int = v => (Number.isFinite(v) ? Math.round(v) : null);
 
-const toProfileRow = p => ({ id: p.id, name: p.name, club: p.club ?? "", country: p.country ?? "", faction: p.faction ?? "" });
-const fromProfileRow = r => ({ id: r.id, name: r.name, club: r.club, country: r.country, faction: r.faction });
+// A profile: { id, firstName, lastName, nickname, club, country, avatarAt } (avatarAt is when the picture was last changed, or null)
+const toProfileRow = p => ({ id: p.id, first_name: p.firstName, last_name: p.lastName ?? "", nickname: p.nickname ?? "", club: p.club ?? "", country: p.country ?? "" });
+const fromProfileRow = r => ({ id: r.id, firstName: r.first_name ?? "", lastName: r.last_name ?? "", nickname: r.nickname, club: r.club, country: r.country, avatarAt: r.avatar_updated_at ?? null });
+// the nickname is the public name (rankings, rosters, standings); real names show only in match-ups, game history and the person's own profile
+const fullName = p => (p ? [p.firstName, p.lastName].filter(Boolean).join(" ") : "");
+const displayName = p => (p ? p.nickname || fullName(p) : "");
+const matchName = p => (p && p.nickname && fullName(p) ? `${p.nickname} (${fullName(p)})` : displayName(p));
+// initials for the picture placeholder, from the nickname: "The Kraken" -> TK, "Kraken" -> KR
+const initialsOf = p => {
+  const w = displayName(p).split(/\s+/).filter(Boolean);
+  return (w.length > 1 ? w[0][0] + w[1][0] : (w[0] ?? "").slice(0, 2)).toUpperCase() || "?";
+};
 
 const toTournamentRow = t => ({
-  id: t.id, name: t.name, date: t.date || null, location: t.location ?? "", points: t.points, planned_rounds: t.plannedRounds,
-  status: t.status, rules: t.rules, is_public: t.isPublic !== false,
+  id: t.id, name: t.name, date: t.date || null, location: t.location ?? "", description: t.description ?? "", points: t.points,
+  planned_rounds: t.plannedRounds, status: t.status, rules: t.rules, visibility: t.visibility ?? "listed",
+  registration_open: t.registrationOpen !== false, max_players: t.maxPlayers ?? null,
+  lists_locked: !!t.listsLocked, hide_lists_until_round1: !!t.hideListsUntilRound1,
 });
-const toPlayerRows = t => t.players.map(p => ({ tournament_id: t.id, profile_id: p.pid, list_code: p.listCode ?? "", locked: !!p.locked, dropped: !!p.dropped }));
 const toRoundRow = (t, r) => ({ tournament_id: t.id, n: r.n, done: !!r.done });
-const toGameRows = (t, r, roundId) => r.tables.map(g => ({
+const toGameRow = (t, r, g, roundId) => ({
   round_id: roundId, tournament_id: t.id, table_no: g.id, a: g.a, b: g.b ?? null, result: g.result ?? null, manual: !!g.manual,
   vp_a: int(g.vpA), vp_b: int(g.vpB), bonus_a: int(g.bonusA) ?? 0, bonus_b: int(g.bonusB) ?? 0,
   killed_by_a: g.killedByA ?? [], killed_by_b: g.killedByB ?? [],
+});
+// the final standings of a finished tournament as rows (st = the engine's standings, one entry per player, with rank)
+const toResultRows = (t, st) => st.map(s => ({
+  tournament_id: t.id, profile_id: s.pid, rank: s.rank, field_size: st.length, tournament_pts: s.points, played: s.played, wins: s.w, draws: s.d, losses: s.l,
+  byes: s.byes, major_wins: s.majors, vp_for: s.vp, vp_against: s.vpAgainst, pts_destroyed: s.destroyed, pts_lost: s.lost,
 }));
+// the fields a player may report on their own game
+const toReportRow = g => ({ vp_a: int(g.vpA), vp_b: int(g.vpB), result: g.result ?? null, killed_by_a: g.killedByA ?? [], killed_by_b: g.killedByB ?? [] });
 
-// rebuild one tournament from its rows
-function fromRows(tr, playerRows, roundRows, gameRows) {
-  const rounds = roundRows.filter(r => r.tournament_id === tr.id).sort((x, y) => x.n - y.n).map(r => ({
-    n: r.n, done: r.done,
-    tables: gameRows.filter(g => g.round_id === r.id).sort((x, y) => x.table_no - y.table_no).map(g => ({
-      id: g.table_no, a: g.a, b: g.b, result: g.result, manual: g.manual, vpA: g.vp_a, vpB: g.vp_b, bonusA: g.bonus_a, bonusB: g.bonus_b,
-      killedByA: g.killed_by_a ?? [], killedByB: g.killed_by_b ?? [],
-    })),
-  }));
+// rebuild a tournament from its rows (whatever this viewer is allowed to see)
+function fromRows(tr, regs, lists, rounds, games) {
+  const listOf = pid => lists.find(l => l.profile_id === pid)?.list_code ?? null;
+  const sortedRounds = rounds.filter(r => r.tournament_id === tr.id).sort((x, y) => x.n - y.n);
   return {
-    id: tr.id, name: tr.name, date: tr.date ?? "", location: tr.location, points: tr.points, plannedRounds: tr.planned_rounds, status: tr.status,
-    rules: tr.rules, isPublic: tr.is_public,
-    players: playerRows.filter(p => p.tournament_id === tr.id).map(p => ({ pid: p.profile_id, listCode: p.list_code, locked: p.locked, dropped: p.dropped })),
-    rounds,
+    id: tr.id, owner: tr.owner, name: tr.name, date: tr.date ?? "", location: tr.location, description: tr.description ?? "", points: tr.points,
+    plannedRounds: tr.planned_rounds, status: tr.status, rules: tr.rules, visibility: tr.visibility,
+    registrationOpen: tr.registration_open, maxPlayers: tr.max_players, listsLocked: tr.lists_locked, hideListsUntilRound1: tr.hide_lists_until_round1,
+    players: regs.filter(r => r.status === "approved").map(r => ({ pid: r.profile_id, dropped: r.dropped, listCode: listOf(r.profile_id) })),
+    requests: regs.filter(r => r.status !== "approved").map(r => ({ pid: r.profile_id, status: r.status, listCode: listOf(r.profile_id) })),
+    rounds: sortedRounds.map(r => ({
+      n: r.n, rid: r.id, done: r.done,
+      tables: games.filter(g => g.round_id === r.id).sort((x, y) => x.table_no - y.table_no).map(g => ({
+        id: g.table_no, gid: g.id, a: g.a, b: g.b, result: g.result, manual: g.manual, vpA: g.vp_a, vpB: g.vp_b, bonusA: g.bonus_a, bonusB: g.bonus_b,
+        killedByA: g.killed_by_a ?? [], killedByB: g.killed_by_b ?? [],
+      })),
+    })),
   };
 }
 
-// A fingerprint of every record, so only what changed is sent. Keys: p:<profile>, t:<tournament>, tp:<tournament players>, r:<tournament>:<round>
-function snapshotOf(db) {
+// A fingerprint of each record the organiser edits locally, so only what changed is sent.
+// Keys: t:<tournament> (settings, rules, status), r:<tournament>:<round>, g:<tournament>:<round>:<table>
+function snapshotOf(t) {
   const snap = new Map();
-  for (const p of db.profiles) snap.set(`p:${p.id}`, JSON.stringify(toProfileRow(p)));
-  for (const t of db.tournaments) {
-    snap.set(`t:${t.id}`, JSON.stringify(toTournamentRow(t)));
-    snap.set(`tp:${t.id}`, JSON.stringify(toPlayerRows(t)));
-    for (const r of t.rounds) snap.set(`r:${t.id}:${r.n}`, JSON.stringify([toRoundRow(t, r), toGameRows(t, r, "")]));
+  snap.set(`t:${t.id}`, JSON.stringify(toTournamentRow(t)));
+  for (const r of t.rounds) {
+    snap.set(`r:${t.id}:${r.n}`, JSON.stringify(toRoundRow(t, r)));
+    for (const g of r.tables) snap.set(`g:${t.id}:${r.n}:${g.id}`, JSON.stringify(toGameRow(t, r, g, "")));
   }
   return snap;
 }
 
-if (typeof module !== "undefined") module.exports = { isUuid, newId, withUuids, toProfileRow, fromProfileRow, toTournamentRow, toPlayerRows, toRoundRow, toGameRows, fromRows, snapshotOf };
+// the army list a player enters: its code plus the faction, commander and points, so records can be kept per faction
+const toEntryRow = (tid, pid, code, meta = {}) => ({ tournament_id: tid, profile_id: pid, list_code: code,
+  faction: meta.faction || null, commander: meta.commander || null, points: Number.isFinite(meta.points) ? meta.points : null });
+// a row of a person's private saved-list library
+const toSavedRow = (owner, e) => ({ owner, name: e.name, list_code: e.code, faction: e.faction || null, points: Number.isFinite(e.points) ? e.points : null, updated_at: e.saved });
+const fromSavedRow = r => ({ name: r.name, code: r.list_code, saved: r.updated_at });
+
+// what a profile shows about rating: 'provisional' until enough games (5 overall, 3 for a faction)
+const PROVISIONAL_GAMES = { overall: 5, faction: 3 };
+const isProvisional = (games, scope = "overall") => games < (scope === "overall" ? PROVISIONAL_GAMES.overall : PROVISIONAL_GAMES.faction);
+// summarise a person's game history into overall record, per-faction record and record against each opposing faction
+function factionRecords(games) {
+  const mine = new Map(), versus = new Map();
+  const bump = (m, key, outcome) => { const r = m.get(key) ?? { games: 0, wins: 0, draws: 0, losses: 0 }; r.games++; r[outcome === "win" ? "wins" : outcome === "draw" ? "draws" : "losses"]++; m.set(key, r); };
+  for (const g of games) {
+    if (!g.faction) continue;
+    bump(mine, g.faction, g.outcome);
+    if (g.opp_faction) bump(versus, `${g.faction}|${g.opp_faction}`, g.outcome);
+  }
+  return { mine, versus };
+}
+
+if (typeof module !== "undefined") module.exports = { toEntryRow, toSavedRow, fromSavedRow, isProvisional, factionRecords, isUuid, newId, displayName, fullName, matchName, initialsOf, toResultRows, toProfileRow, fromProfileRow, toTournamentRow, toRoundRow, toGameRow, toReportRow, fromRows, snapshotOf };

@@ -972,6 +972,7 @@ function saveList() {
   const saved = storeGet(STORE_SAVED, []).filter(s => s.name !== list.name);
   saved.unshift({ name: list.name, saved: new Date().toISOString(), list });
   toolMsg = storeSet(STORE_SAVED, saved) ? `Saved "${list.name}".` : "Could not save - browser storage is unavailable.";
+  window.savedSync?.push(saved[0]);
   render();
 }
 
@@ -987,6 +988,7 @@ function loadSaved(entry) {
 
 function deleteSaved(name) {
   storeSet(STORE_SAVED, storeGet(STORE_SAVED, []).filter(s => s.name !== name));
+  window.savedSync?.remove(name);
   render();
 }
 
@@ -1004,10 +1006,14 @@ function renderListBar() {
   const name = el("input", { type: "text", className: "list-name", value: list.name, maxLength: 60, placeholder: "List name", title: "List name" });
   name.oninput = () => { list.name = name.value; saveCurrent(); };
   name.onchange = () => { list.name = name.value.trim() || "My List"; saveCurrent(); };   // no redraw here: it would swallow the click on Save
+  // Save, Load and Share link need a signed-in account (with a profile); everything else is open to everyone
+  const account = !!window.savedSync?.signedIn;
   bar.append(name,
-    el("button", { textContent: "Save", onclick: saveList }),
-    el("button", { textContent: "Load", onclick: () => { dialog = { kind: "load" }; render(); } }),
-    el("button", { textContent: "Share link", disabled: !list.faction, onclick: () => copyText(shareUrl(), "Share link copied.") }),
+    ...(account ? [
+      el("button", { textContent: "Save", onclick: saveList }),
+      el("button", { textContent: "Load", onclick: () => { dialog = { kind: "load" }; render(); } }),
+      el("button", { textContent: "Share link", disabled: !list.faction, onclick: () => copyText(shareUrl(), "Share link copied.") })]
+      : [el("a", { className: "meta", href: "tournament.html?profile=me", textContent: "Sign in to save, load and share lists" })]),
     el("button", { textContent: "Print / PDF", disabled: !list.faction, title: "Opens the print dialog - choose Save as PDF to make a PDF", onclick: () => window.print() }),
     el("button", { textContent: "Export", disabled: !list.faction, onclick: () => { dialog = { kind: "export", text: exportText() }; render(); } }),
     el("button", {
@@ -1027,7 +1033,7 @@ function renderListBar() {
 // Build / Analysis links shown at the top of both pages
 function renderNav(current) {
   const link = (id, href, text) => el("a", { href, textContent: text, className: id === current ? "nav-link current" : "nav-link" });
-  return [el("nav", { className: "site-nav" }, link("build", "index.html", "Building"), link("analysis", "analysis.html", "Analysis"), link("tournament", "tournament.html", "Tournament"))];
+  return [el("nav", { className: "site-nav" }, link("profile", "tournament.html?profile=me", "My profile"), link("build", "index.html", "Building"), link("analysis", "analysis.html", "Analysis"), link("tournament", "tournament.html", "Tournament"))];
 }
 
 function renderHeader() {
@@ -1063,6 +1069,7 @@ function renderDialog() {
   } else {
     const saved = storeGet(STORE_SAVED, []);
     panel.append(el("div", { className: "menu-head" }, el("h2", { textContent: "Saved lists" }), el("button", { textContent: "Close", onclick: close })));
+    if (window.savedSync?.note) panel.append(el("p", { className: "meta", textContent: window.savedSync.note }));
     if (!saved.length) panel.append(el("p", { textContent: "No saved lists yet. Use Save to keep the current list under its name." }));
     saved.forEach(entry => {
       const l = sanitizeList(entry.list);
@@ -1552,6 +1559,7 @@ async function start() {
       } else if (e.key === "Escape" && menu) closeMenu();
     });
     render();
+    window.savedSync?.start();   // keeps saved lists on the signed-in account, if the page loaded the cloud scripts
   } catch (err) {
     console.error("Startup failed:", err);
   }
