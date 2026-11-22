@@ -6,7 +6,7 @@
     {"id": "martell", "name": "Martell", "canUseNeutrals": true, "borrowing": [{ "from": [], "max": 0 }]},
     {"id": "stark", "name": "Stark", "canUseNeutrals": true, "borrowing": [{ "from": [], "max": 0 }]},
     {"id": "targaryen", "name": "Targaryen", "canUseNeutrals": true, "borrowing": [{ "from": [], "max": 0 }]},
-    {"id": "brotherhood", "name": "Brotherhood", "canUseNeutrals": true, "borrowing": [{ "from": ["baratheon", "stark"], "max": 1 }]},
+    {"id": "brotherhood", "name": "Brotherhood", "canUseNeutrals": true, "firstAttachmentDiscount": 1, "borrowing": [{ "from": ["baratheon", "stark"], "max": 1, "not": ["ncu", "attachment"] }]},
     {"id": "freefolk", "name": "Freefolk", "canUseNeutrals": false, "borrowing": [{ "from": [], "max": 0 }]},
     {"id": "nightswatch", "name": "Night's Watch", "canUseNeutrals": true, "borrowing": [{ "from": [], "max": 0 }]},
     {"id": "neutral", "name": "Neutral", "canUseNeutrals": true, "borrowing": [{ "from": [], "max": 0 }]}

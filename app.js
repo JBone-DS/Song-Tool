@@ -107,6 +107,24 @@ function dropOrphans() {
   notice = dropped.length ? `Also removed ${dropped.join(", ")}, which needed something that was removed.` : null;
 }
 
+// Once a character leads the army, his other forms (an attachment, an NCU) cannot also be in it.
+// Returns a note for the player, or "" if nothing was removed.
+function removeOtherVersions(commander) {
+  if (!commander) return "";
+  const keepIds = new Set([commander.ncu, fieldCommander(list)?.id].filter(Boolean));
+  const names = new Set([commander.name, fieldCommander(list)?.name].filter(Boolean));
+  const dupe = id => {
+    const m = data.unitsById.get(id);
+    return !!m && !!m.nickname && names.has(m.name) && !keepIds.has(id);
+  };
+  const removed = [];
+  const strip = ids => ids.filter(id => { if (!dupe(id)) return true; removed.push(data.unitsById.get(id).name); return false; });
+  list.entries.forEach(e => { e.attachments = strip(e.attachments); });
+  list.enemyAttachments = strip(list.enemyAttachments);
+  list.ncus = strip(list.ncus);
+  return removed.length ? `Removed the other version of ${[...new Set(removed)].join(", ")}, who is now the commander.` : "";
+}
+
 function addAttachment(index, attachmentId) {
   if (data.unitsById.get(attachmentId).attachesToEnemy) {
     // goes on an enemy unit, so it gets its own row instead of joining this unit
@@ -196,7 +214,7 @@ function isEligible(unit, faction) {
   if (unit.excludedFactions?.includes(faction.id)) return false;   // e.g. neutral Bolton copies
   if (unit.faction === faction.id) return true;
   if (unit.faction === "neutral") return faction.canUseNeutrals;  // false for Freefolk
-  return faction.borrowing.some(rule => rule.from.includes(unit.faction));  // e.g. Brotherhood
+  return faction.borrowing.some(rule => rule.from.includes(unit.faction) && !(rule.not ?? []).includes(unit.class));  // e.g. Brotherhood: Baratheon or Stark units, but never their NCUs
 }
 
 function borrowedCount(rule, list) {
@@ -252,11 +270,10 @@ function modelPoints(model, l) {
   return d && l && armyHasAny(l, d.ids) ? Math.max(0, model.points - d.amount) : model.points;
 }
 
-// Brotherhood attachments (Gendry, Hot Pie...) that say "Reduce the cost of the first attachment included in your army by 1":
-// each one in the army takes that much off the first attachment, counting rows in order, then attachments on enemy units
+// Brotherhood: the first attachment in the army costs 1 less, whatever its faction (or neutral).
+// Counts rows in order, then attachments on enemy units.
 function firstAttachmentDiscount(l) {
-  const all = [...l.entries.flatMap(e => e.attachments), ...l.enemyAttachments];
-  const amount = all.reduce((s, id) => s + (data.unitsById.get(id)?.firstAttachmentDiscount ?? 0), 0);
+  const amount = data.factionsById.get(l.faction)?.firstAttachmentDiscount ?? 0;
   const row = l.entries.findIndex(e => e.attachments.length);
   return { amount, row, enemy: row < 0 && l.enemyAttachments.length > 0 };
 }
@@ -842,10 +859,13 @@ function unitOptions(index) {
     ...list,
     entries: list.entries.map((e, k) => (k === index ? { ...e, unit: null } : e))
   };
+  const carried = (list.entries[index]?.attachments ?? []).map(id => data.unitsById.get(id)).filter(Boolean);
   return data.units.filter(u =>
     u.class === "combat_unit" && isEligible(u, faction) && u.id !== unitCommander(list)?.unit &&
     !borrowingFull(u, faction, without) && !atMaxPerList(without, u) &&
     !perLimitReached(without, u) && (!u.mustHost || hostRows(u, list).includes(index)) && armyRequirementMet(u, list) && !armyConflict(u, list) && !loyaltyClash(u, without) &&
+    // attachments already on this row (chosen before a unit) must fit the unit: an infantry attachment cannot go on cavalry, and vice versa
+    (carried.length === 0 || (!isSolo(u) && carried.every(att => !att.attachesTo || attachmentFitsUnit(att, u)))) &&
     // the commander always sits in the top row, so that row only offers units he can join
     !(index === 0 && commander && !commanderFitsUnit(fieldCommander(list) ?? commander, u)));
 }
@@ -858,6 +878,15 @@ function ncuOptions() {
     armyRequirementMet(u, list) && !armyConflict(u, list) && !loyaltyClash(u, list));
 }
 
+function enemyAttachmentOptions() {
+  const faction = data.factionsById.get(list.faction);
+  return data.units.filter(u =>
+    u.class === "attachment" && u.attachesToEnemy && isEligible(u, faction) && u.attachesTo &&
+    !characterTaken(list, u) && !atMaxPerList(list, u) &&
+    armyRequirementMet(u, list) && !armyConflict(u, list) && !loyaltyClash(u, list) &&
+    !list.enemyAttachments.includes(u.id));
+}
+
 function attachmentOptions(i) {
   const faction = data.factionsById.get(list.faction);
   const unit = list.entries[i].unit ? data.unitsById.get(list.entries[i].unit) : null;
@@ -867,8 +896,8 @@ function attachmentOptions(i) {
     if (u.class !== "attachment" || !isEligible(u, faction) || !u.attachesTo) return false;
     if (characterTaken(list, u) || atMaxPerList(list, u)) return false;
     if (!armyRequirementMet(u, list) || armyConflict(u, list) || loyaltyClash(u, list)) return false;
-    // goes on an enemy unit: this row's unit and attachment limits don't matter, just one copy
-    if (u.attachesToEnemy) return !list.enemyAttachments.includes(u.id);
+    // goes on an enemy unit: it has its own section, not a place on a row
+    if (u.attachesToEnemy) return false;
     return (!unit || (!isSolo(unit) && attachmentFitsUnit(u, unit))) &&
       (!atCap || !countsTowardCap(u, here)) &&
       (!u.attachesTo.requiresAttachment || u.attachesTo.requiresAttachment.some(r => here.includes(r))) &&
@@ -1008,12 +1037,11 @@ function renderListBar() {
   name.onchange = () => { list.name = name.value.trim() || "My List"; saveCurrent(); };   // no redraw here: it would swallow the click on Save
   // Save, Load and Share link need a signed-in account (with a profile); everything else is open to everyone
   const account = !!window.savedSync?.signedIn;
-  bar.append(name,
-    ...(account ? [
+  // the list name box is only for signed-in people; the sign-in prompt sits to the right of the buttons that are open to everyone
+  bar.append(...(account ? [name,
       el("button", { textContent: "Save", onclick: saveList }),
       el("button", { textContent: "Load", onclick: () => { dialog = { kind: "load" }; render(); } }),
-      el("button", { textContent: "Share link", disabled: !list.faction, onclick: () => copyText(shareUrl(), "Share link copied.") })]
-      : [el("a", { className: "meta", href: "tournament.html?profile=me", textContent: "Sign in to save, load and share lists" })]),
+      el("button", { textContent: "Share link", disabled: !list.faction, onclick: () => copyText(shareUrl(), "Share link copied.") })] : []),
     el("button", { textContent: "Print / PDF", disabled: !list.faction, title: "Opens the print dialog - choose Save as PDF to make a PDF", onclick: () => window.print() }),
     el("button", { textContent: "Export", disabled: !list.faction, onclick: () => { dialog = { kind: "export", text: exportText() }; render(); } }),
     el("button", {
@@ -1025,7 +1053,8 @@ function renderListBar() {
         menu = null;
         toolMsg = "Started a new list. Saved lists are kept.";
         render();
-      } }));
+      } }),
+    ...(account ? [] : [el("a", { className: "meta", href: "tournament.html?profile=me", textContent: "Sign in to save, load and share lists" })]));
   return bar;
 }
 
@@ -1154,6 +1183,7 @@ function renderSetup() {
     el("select", { onchange: e => {
       releaseUnitCommander();
       const gone = releaseCommanderExtras();
+      let unfit = "";
       list.commander = e.target.value || null;
       const uc = unitCommander(list);
       if (uc) {
@@ -1166,11 +1196,22 @@ function renderSetup() {
         // the commander always joins the first row (it is created empty if there are no rows yet)
         if (!list.entries.length) list.entries.push({ unit: null, attachments: [] });
         list.commanderUnit = 0;
+        // a unit the commander cannot join (wrong type, or not one of his units) leaves the row
+        const first = list.entries[0].unit && data.unitsById.get(list.entries[0].unit);
+        const cmd = fieldCommander(list) ?? commanderOf(list);
+        if (first && !commanderFitsUnit(cmd, first)) {
+          unfit = `Removed ${first.name}, which ${cmd.name} cannot join.`;
+          list.entries[0].unit = null;
+        }
         makeRoomForCommander(0);
       } else list.commanderUnit = null;
       const picked = commanderOf(list);
+      // any other version of the commander (his attachment or NCU form) leaves the list
+      const dupes = removeOtherVersions(picked);
       if (picked?.ncu && !list.ncus.includes(picked.ncu)) list.ncus.push(picked.ncu);   // Doran joins as his NCU
       dropOrphans();
+      if (unfit) notice = `${notice ? notice + " " : ""}${unfit}`;
+      if (dupes) notice = `${notice ? notice + " " : ""}${dupes}`;
       if (gone) notice = `${notice ? notice + " " : ""}${gone}`;
       tidy();
       render();
@@ -1258,6 +1299,7 @@ function renderSlots() {
     return box;
   }
 
+  box.append(el("h3", { textContent: "Combat units" }));
   list.entries.forEach((entry, i) => {
     // big box: the unit (click to swap it) or a "+" while the row has no unit
     let big;
@@ -1341,12 +1383,17 @@ function renderSlots() {
         openMenu({ kind: "attachment", index: next });
       })))));
 
-  // attachments that go on enemy units: this row only exists while there is one
-  if (list.enemyAttachments.length) {
+  // attachments that go on enemy units
+  // (shown when the faction has any, greyed out until one can be taken)
+  const enemyOpts = enemyAttachmentOptions();
+  const factionRec = data.factionsById.get(list.faction);
+  const canEver = data.units.some(u => u.class === "attachment" && u.attachesToEnemy && isEligible(u, factionRec));
+  if (canEver || list.enemyAttachments.length) {
     const enemyRow = el("div", { className: "tile-row" });
     list.enemyAttachments.forEach((id, i) =>
       enemyRow.append(slotBox("small", filledTile(data.unitsById.get(id), "small"), () => removeEnemyAttachment(i))));
-    box.append(el("h3", { textContent: "Attachments for Enemy Units" }), enemyRow);
+    enemyRow.append(slotBox("small", addTile(enemyOpts.length ? () => openMenu({ kind: "enemy" }) : null)));
+    box.append(el("h3", { textContent: "Attachments to Enemy Units" }), enemyRow);
   }
 
   // non-combatant units
@@ -1399,8 +1446,10 @@ function menuTile(model, onclick) {
   // attachment / non-combatant pickers use the face icons (images/attachments) first, then images/units
   const tile = artTile(menu.kind === "unit" ? "units" : ["attachments", "units"], model, onclick);
   // * = cannot use the free attachment points
-  const star = menu.kind === "attachment" && !usesFreePoints(model, list) ? "*" : "";
-  tile.append(el("span", { className: "tile-points", textContent: `${Math.max(0, modelPoints(model, list) - pickDiscount(model, list))}${star}` }));
+  const star = (menu.kind === "attachment" || menu.kind === "enemy") && !usesFreePoints(model, list) ? "*" : "";
+  const isAtt = menu.kind === "attachment" || menu.kind === "enemy";
+  const firstOff = isAtt && !list.entries.some(e => e.attachments.length) && !list.enemyAttachments.length ? firstAttachmentDiscount(list).amount : 0;
+  tile.append(el("span", { className: "tile-points", textContent: `${Math.max(0, modelPoints(model, list) - pickDiscount(model, list) - firstOff)}${star}` }));
   tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
   return tile;
 }
@@ -1419,6 +1468,10 @@ function renderMenu() {
     groups = Object.entries(labels).map(([t, label]) => [label, opts.filter(u => u.type === t)]);
     const other = opts.filter(u => !(u.type in labels));
     if (other.length) groups.push(["Other", other]);
+  } else if (kind === "enemy") {
+    title = "Attach to an enemy unit";
+    pick = id => addAttachment(null, id);
+    groups = [["", enemyAttachmentOptions()]];
   } else if (kind === "ncu") {
     title = "Choose a non-combatant unit";
     pick = id => addNcu(id);
@@ -1445,7 +1498,7 @@ function renderMenu() {
       ...us.map(u => menuTile(u, () => { menu = null; pick(u.id); }))));
   });
   if (!groups.length) panel.append(el("p", { textContent: "Nothing available." }));
-  if (kind === "attachment")
+  if (kind === "attachment" || kind === "enemy")
     panel.append(el("p", { className: "legend", textContent: "* = Neutral attachments cannot be purchased using free attachment points" }));
   overlay.append(panel);
   return overlay;

@@ -107,7 +107,6 @@ Optional fields that drive rules:
 | `loyalty` | An army may not mix different loyalties | `stannis-baratheon` |
 | `excludedFactions` | Factions that may not use this model | neutral Bolton copies |
 | `discountIfInArmy` | `{ ids, amount }`: this model costs `amount` less while one of `ids` is in the army | Cortnay Penrose |
-| `firstAttachmentDiscount` | Reduces the cost of the first attachment in the army by this much. Several stack, floored at 0 | Gendry, Hot Pie |
 | `freeFirstIfInArmy` | The first copy of this attachment is free while one of the listed models is in the army | Crannogman Survivalist |
 | `freeAttachments` | Ids of attachments this unit takes for nothing | Stone Crows with Tyrion |
 | `adaptive` | `{ attachmentsAffected, attachmentCostReduction }`: cheaper attachments on this unit | Stormcrow Mercenaries |
@@ -119,10 +118,10 @@ Optional fields that drive rules:
 `nickname`, `faction`, `traits`, `removedFactionCards` (faction tactics cards he takes out of the deck),
 and optionally `loyalty`, `grantsKeyword`, `requiresInArmy`, `extraCards`, `allowedUnitTypes` and
 `attachesToUnits` (limits on which units he may join), plus the commander kinds above: `unit`, `ncu`, `field`
-and `points`.
+and `points`. Every commander has `allowedUnitTypes` (`["infantry"]` or `["cavalry"]`), so infantry commanders only join infantry units and cavalry commanders only cavalry units; set it to the type of the commander's card when adding a commander. Attachments do the same through `attachesTo.type`.
 
-**`factions.json`**: `id`, `name`, `canUseNeutrals`, and `borrowing` (`[{ from: [faction ids], max }]` for factions that
-may take units from another, like the Brotherhood).
+**`factions.json`**: `id`, `name`, `canUseNeutrals`, and `borrowing` (`[{ from: [faction ids], max, not: [unit classes never borrowed] }]` for factions that
+may take units from another, like the Brotherhood), and optionally `firstAttachmentDiscount` (points off the first attachment in the army, of any faction or neutral; the Brotherhood has 1).
 
 **`season.json`**: season name, allowed `gameSize`s, `defaultGameSize`, `attachmentsPerUnit`, and
 `freeAttachmentPoints` per game size (the points of own-faction attachments that cost nothing).
