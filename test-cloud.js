@@ -10,7 +10,7 @@ globalThis.storeSet = (k, v) => { mem[k] = v; return true; };
 const { cloud } = require("./cloud.js");
 
 // ---- a fake of the few Supabase calls cloud.js makes ----
-const tables = { profiles: [], tournaments: [], registrations: [], entry_lists: [], tournament_results: [], rounds: [], games: [], saved_lists: [], player_games: [], player_ratings: [], rating_ranks: [], rating_history: [] };
+const tables = { profiles: [], tournaments: [], registrations: [], entry_lists: [], tournament_results: [], rounds: [], games: [], teams: [], matches: [], saved_lists: [], player_games: [], player_ratings: [], rating_ranks: [], rating_history: [] };
 const calls = [];
 function from(name) {
   const rows = name === "profile_names" ? tables.profiles : tables[name]; let filters = [], op = null, payload = null, opts = {}, wantOne = false;
@@ -59,13 +59,12 @@ cloud.user = { id: "u-org" };
   const tid = K.newId();
   const t = {
     id: tid, owner: org, name: "Cup", date: "2026-11-21", location: "Leeds", description: "Hello", points: 40, plannedRounds: 3, status: "setup",
-    rules: { win: 3, margins: { enabled: true } }, visibility: "listed", registrationOpen: true, maxPlayers: 8, listsLocked: false, hideListsUntilRound1: true,
+    rules: { win: 3, margins: { enabled: true } }, registrationOpen: true, maxPlayers: 8, listsLocked: false, hideListsUntilRound1: true,
     players: [], requests: [], rounds: [],
   };
 
   // creating a tournament, then players asking to join and setting lists (their own calls)
   await cloud.createTournament(t);
-  assert.strictEqual(tables.tournaments[0].visibility, "listed");
   assert.strictEqual(tables.tournaments[0].hide_lists_until_round1, true);
   for (const p of [p1, p2, p3]) { cloud.user = { id: p }; await cloud.requestJoin(tid); await cloud.setList(tid, p, "code-" + p.slice(0, 4)); }
   cloud.user = { id: org };
@@ -129,7 +128,7 @@ cloud.user = { id: "u-org" };
   assert.strictEqual(tables.registrations.some(r => r.profile_id === p2), false);
 
   // directory search and counts
-  tables.tournaments.push({ id: K.newId(), owner: org, name: "Other", date: "", location: "York", points: 40, status: "setup", visibility: "listed", registration_open: true, lists_locked: false, planned_rounds: 3 });
+  tables.tournaments.push({ id: K.newId(), owner: org, name: "Other", date: "", location: "York", points: 40, status: "setup", registration_open: true, lists_locked: false, planned_rounds: 3 });
   const dir = await cloud._summaries(tables.tournaments);
   assert.strictEqual(dir.find(d => d.id === tid).players, 1);
 
@@ -207,6 +206,33 @@ cloud.user = { id: "u-org" };
   assert.deepStrictEqual(fr.mine.get("stark"), { games: 3, wins: 1, draws: 1, losses: 1 });
   assert.deepStrictEqual(fr.versus.get("stark|lannister"), { games: 2, wins: 1, draws: 0, losses: 1 });
   assert.strictEqual(K.isProvisional(4), true); assert.strictEqual(K.isProvisional(5), false); assert.strictEqual(K.isProvisional(2, "stark"), true); assert.strictEqual(K.isProvisional(3, "stark"), false);
+
+  // team tournaments: teams, matches and the team of each game travel with the rounds
+  {
+    const tt = { id: K.newId(), owner: org, name: "Team Cup", date: "", location: "", description: "", points: 40, plannedRounds: 3, status: "running", rules: { win: 3, draw: 1, loss: 0, tiebreakers: [] },
+      registrationOpen: true, maxPlayers: null, listsLocked: true, hideListsUntilRound1: false, format: "team", teamSize: 2, teams: [], players: [], requests: [], rounds: [] };
+    cloud.user = { id: org }; await cloud.createTournament(tt);
+    assert.deepStrictEqual([tables.tournaments.at(-1).format, tables.tournaments.at(-1).team_size], ["team", 2]);
+    const tA = K.newId(), tB = K.newId(), m1 = K.newId(), m2 = K.newId();
+    tables.teams.push({ id: tA, tournament_id: tt.id, name: "Alpha", captain: p1 }, { id: tB, tournament_id: tt.id, name: "Bravo", captain: p2 });
+    tt.rounds.push({ n: 1, done: false, matches: [{ mid: m1, a: tA, b: tB }], tables: [{ id: 1, mid: m1, team: tA, a: p1, b: p2, result: null, vpA: null, vpB: null, bonusA: 0, bonusB: 0 }] });
+    await cloud._push(tt);
+    assert.strictEqual(tables.matches.length, 1);
+    assert.deepStrictEqual([tables.matches[0].id, tables.matches[0].team_a, tables.matches[0].team_b], [m1, tA, tB]);
+    assert.deepStrictEqual([tables.games.at(-1).match_id, tables.games.at(-1).team], [m1, tA]);
+    tt.rounds[0].matches = [{ mid: m2, a: tB, b: tA }]; tt.rounds[0].tables[0].mid = m2; tt.rounds[0].tables[0].team = tB;   // a redraw
+    await cloud._push(tt);
+    assert.deepStrictEqual(tables.matches.map(m => m.id), [m2], "the old match is gone");
+    const back = (await cloud.load(tt.id)).t;
+    assert.strictEqual(back.format, "team"); assert.strictEqual(back.teamSize, 2); assert.strictEqual(back.teams.length, 2);
+    assert.deepStrictEqual(back.rounds[0].matches, [{ mid: m2, a: tB, b: tA }]); assert.strictEqual(back.rounds[0].tables[0].team, tB);
+    // team entry calls
+    cloud.user = { id: p3 }; await cloud.requestJoinTeam(tt.id, tA);
+    const rq = tables.registrations.at(-1); assert.deepStrictEqual([rq.tournament_id, rq.profile_id, rq.team_id], [tt.id, p3, tA]);
+    cloud.user = { id: p1 }; await cloud.acceptMember(tt.id, p3);
+    assert.strictEqual(tables.registrations.find(r => r.tournament_id === tt.id && r.profile_id === p3).team_ok, true);
+    const teamId = await cloud.createTeam(tt.id, "Charlie"); assert(tables.teams.some(x => x.id === teamId && x.captain === p1 && x.name === "Charlie"));
+  }
 
   console.log("Cloud sync OK");
 })().catch(e => { console.error(e); process.exit(1); });

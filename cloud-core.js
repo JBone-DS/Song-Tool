@@ -3,7 +3,7 @@
 //
 // A tournament as the page sees it:
 //   { id, owner, name, date, location, description, points, plannedRounds, status, rules,
-//     visibility ("listed" | "link" | "private"), registrationOpen, maxPlayers, listsLocked, hideListsUntilRound1,
+//     registrationOpen, maxPlayers, listsLocked, hideListsUntilRound1,
 //     players:  [ { pid, dropped, listCode } ]            approved players (listCode is null when the list is not visible to this viewer)
 //     requests: [ { pid, status, listCode } ]             people who asked to join and are waiting or were declined
 //     rounds:   [ { n, rid, done, tables: [ { id, gid, a, b, result, manual, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ] }
@@ -31,16 +31,19 @@ const initialsOf = p => {
 
 const toTournamentRow = t => ({
   id: t.id, name: t.name, date: t.date || null, location: t.location ?? "", description: t.description ?? "", points: t.points,
-  planned_rounds: t.plannedRounds, status: t.status, rules: t.rules, visibility: t.visibility ?? "listed",
+  planned_rounds: t.plannedRounds, status: t.status, rules: t.rules,
   registration_open: t.registrationOpen !== false, max_players: t.maxPlayers ?? null,
   lists_locked: !!t.listsLocked, hide_lists_until_round1: !!t.hideListsUntilRound1,
+  format: t.format ?? "individual", team_size: t.format === "team" ? t.teamSize : null,
 });
 const toRoundRow = (t, r) => ({ tournament_id: t.id, n: r.n, done: !!r.done });
 const toGameRow = (t, r, g, roundId) => ({
   round_id: roundId, tournament_id: t.id, table_no: g.id, a: g.a, b: g.b ?? null, result: g.result ?? null, manual: !!g.manual,
   vp_a: int(g.vpA), vp_b: int(g.vpB), bonus_a: int(g.bonusA) ?? 0, bonus_b: int(g.bonusB) ?? 0,
-  killed_by_a: g.killedByA ?? [], killed_by_b: g.killedByB ?? [],
+  killed_by_a: g.killedByA ?? [], killed_by_b: g.killedByB ?? [], match_id: g.mid ?? null, team: g.team ?? null,
 });
+// a team match-up of a round (team_b is null for a bye)
+const toMatchRow = (t, r, m) => ({ id: m.mid, round_id: r.rid, tournament_id: t.id, team_a: m.a, team_b: m.b ?? null });
 // the final standings of a finished tournament as rows (st = the engine's standings, one entry per player, with rank)
 const toResultRows = (t, st) => st.map(s => ({
   tournament_id: t.id, profile_id: s.pid, rank: s.rank, field_size: st.length, tournament_pts: s.points, played: s.played, wins: s.w, draws: s.d, losses: s.l,
@@ -50,20 +53,23 @@ const toResultRows = (t, st) => st.map(s => ({
 const toReportRow = g => ({ vp_a: int(g.vpA), vp_b: int(g.vpB), result: g.result ?? null, killed_by_a: g.killedByA ?? [], killed_by_b: g.killedByB ?? [] });
 
 // rebuild a tournament from its rows (whatever this viewer is allowed to see)
-function fromRows(tr, regs, lists, rounds, games) {
+function fromRows(tr, regs, lists, rounds, games, teams = [], matches = []) {
   const listOf = pid => lists.find(l => l.profile_id === pid)?.list_code ?? null;
   const sortedRounds = rounds.filter(r => r.tournament_id === tr.id).sort((x, y) => x.n - y.n);
   return {
     id: tr.id, owner: tr.owner, name: tr.name, date: tr.date ?? "", location: tr.location, description: tr.description ?? "", points: tr.points,
-    plannedRounds: tr.planned_rounds, status: tr.status, rules: tr.rules, visibility: tr.visibility,
+    plannedRounds: tr.planned_rounds, status: tr.status, rules: tr.rules,
     registrationOpen: tr.registration_open, maxPlayers: tr.max_players, listsLocked: tr.lists_locked, hideListsUntilRound1: tr.hide_lists_until_round1,
-    players: regs.filter(r => r.status === "approved").map(r => ({ pid: r.profile_id, dropped: r.dropped, listCode: listOf(r.profile_id) })),
-    requests: regs.filter(r => r.status !== "approved").map(r => ({ pid: r.profile_id, status: r.status, listCode: listOf(r.profile_id) })),
+    format: tr.format ?? "individual", teamSize: tr.team_size ?? null,
+    teams: teams.filter(x => x.tournament_id === tr.id).map(x => ({ id: x.id, name: x.name, captain: x.captain })),
+    players: regs.filter(r => r.status === "approved").map(r => ({ pid: r.profile_id, dropped: r.dropped, listCode: listOf(r.profile_id), teamId: r.team_id ?? null })),
+    requests: regs.filter(r => r.status !== "approved").map(r => ({ pid: r.profile_id, status: r.status, listCode: listOf(r.profile_id), teamId: r.team_id ?? null, teamOk: !!r.team_ok })),
     rounds: sortedRounds.map(r => ({
       n: r.n, rid: r.id, done: r.done,
+      matches: matches.filter(m => m.round_id === r.id).map(m => ({ mid: m.id, a: m.team_a, b: m.team_b })),
       tables: games.filter(g => g.round_id === r.id).sort((x, y) => x.table_no - y.table_no).map(g => ({
         id: g.table_no, gid: g.id, a: g.a, b: g.b, result: g.result, manual: g.manual, vpA: g.vp_a, vpB: g.vp_b, bonusA: g.bonus_a, bonusB: g.bonus_b,
-        killedByA: g.killed_by_a ?? [], killedByB: g.killed_by_b ?? [],
+        killedByA: g.killed_by_a ?? [], killedByB: g.killed_by_b ?? [], mid: g.match_id ?? null, team: g.team ?? null,
       })),
     })),
   };
@@ -76,6 +82,7 @@ function snapshotOf(t) {
   snap.set(`t:${t.id}`, JSON.stringify(toTournamentRow(t)));
   for (const r of t.rounds) {
     snap.set(`r:${t.id}:${r.n}`, JSON.stringify(toRoundRow(t, r)));
+    snap.set(`m:${t.id}:${r.n}`, JSON.stringify((r.matches ?? []).map(m => [m.mid, m.a, m.b ?? null])));
     for (const g of r.tables) snap.set(`g:${t.id}:${r.n}:${g.id}`, JSON.stringify(toGameRow(t, r, g, "")));
   }
   return snap;
@@ -103,4 +110,4 @@ function factionRecords(games) {
   return { mine, versus };
 }
 
-if (typeof module !== "undefined") module.exports = { toEntryRow, toSavedRow, fromSavedRow, isProvisional, factionRecords, isUuid, newId, displayName, fullName, matchName, initialsOf, toResultRows, toProfileRow, fromProfileRow, toTournamentRow, toRoundRow, toGameRow, toReportRow, fromRows, snapshotOf };
+if (typeof module !== "undefined") module.exports = { toEntryRow, toSavedRow, fromSavedRow, isProvisional, factionRecords, isUuid, newId, displayName, fullName, matchName, initialsOf, toResultRows, toProfileRow, fromProfileRow, toTournamentRow, toRoundRow, toGameRow, toMatchRow, toReportRow, fromRows, snapshotOf };

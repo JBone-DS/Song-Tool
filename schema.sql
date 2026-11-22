@@ -6,8 +6,7 @@
 -- Who can do what:
 --   * Everyone who signs up (email link) has ONE profile of their own: first and last name, a REQUIRED nickname, club, country, picture.
 --     The nickname is the public name; real names are shown only in match-ups, game history and to the person and their organisers.
---   * Anyone can create a tournament and becomes its organiser. A tournament is "listed" (shown in the directory),
---     "link" (anyone with the link can view it) or "private" (only the organiser and approved players).
+--   * Anyone can create a tournament and becomes its organiser. Every tournament is public: it is shown in the directory and anyone can view it.
 --   * A player asks to join. The organiser approves or declines. Approved players are shown publicly.
 --   * A player's army list is private to them and the organiser until the organiser locks lists, then it is visible
 --     to everyone who can view the tournament (or, if the organiser chose to, only once round 1 has been drawn).
@@ -15,6 +14,8 @@
 --     the organiser can change anything.
 --   * Each person's saved army lists are a PRIVATE library: only the owner can read them. A list becomes visible to others
 --     only by being entered in a tournament, under the list rules above.
+--   * Team tournaments: teams of 2 to 4 sign up under a captain (no solo entries), the organiser approves the team, and each
+--     round pairs team against team, with the players paired one-to-one inside each match-up (see the teams section).
 --   * Ratings (Glicko-2) are worked out from finished tournaments with 16 or more players (see the ratings section).
 
 -- ---- tables ---------------------------------------------------------------
@@ -41,7 +42,6 @@ create table if not exists public.tournaments (
   planned_rounds           integer not null default 3,
   status                   text not null default 'setup' check (status in ('setup', 'running', 'finished')),
   rules                    jsonb not null default '{}'::jsonb,   -- pairing, scoring, margins, tie-breakers
-  visibility               text not null default 'listed' check (visibility in ('listed', 'link', 'private')),
   registration_open        boolean not null default true,
   max_players              integer check (max_players is null or max_players > 0),
   lists_locked             boolean not null default false,       -- once true, lists can no longer be changed and become public
@@ -97,6 +97,15 @@ create table if not exists public.saved_lists (
 
 -- columns added after the first release of this file (safe to repeat)
 alter table public.tournaments add column if not exists rating_override boolean;
+alter table public.tournaments add column if not exists format text not null default 'individual';
+alter table public.tournaments add column if not exists team_size integer;
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'tournaments_format_check') then
+    alter table public.tournaments add constraint tournaments_format_check check (format in ('individual', 'team'));
+    alter table public.tournaments add constraint tournaments_team_size_check check ((format = 'individual' and team_size is null) or (format = 'team' and team_size between 2 and 4));
+  end if;
+end $$;
+
 alter table public.entry_lists add column if not exists faction text;
 alter table public.entry_lists add column if not exists commander text;
 alter table public.entry_lists add column if not exists points integer;
@@ -151,8 +160,33 @@ create table if not exists public.games (
   unique (round_id, table_no)
 );
 
+-- teams (only used by team tournaments)
+create table if not exists public.teams (
+  id             uuid primary key default gen_random_uuid(),
+  tournament_id  uuid not null references public.tournaments(id) on delete cascade,
+  name           text not null check (length(btrim(name)) > 0),
+  captain        uuid not null default auth.uid() references public.profiles(id),
+  created_at     timestamptz not null default now()
+);
+create unique index if not exists teams_name_idx on public.teams (tournament_id, lower(btrim(name)));
+create index if not exists teams_tournament_idx on public.teams (tournament_id);
+-- a team-versus-team pairing in one round; team_b is null when team_a has a bye
+create table if not exists public.matches (
+  id             uuid primary key default gen_random_uuid(),
+  round_id       uuid not null references public.rounds(id) on delete cascade,
+  tournament_id  uuid not null references public.tournaments(id) on delete cascade,
+  team_a         uuid not null references public.teams(id) on delete cascade,
+  team_b         uuid references public.teams(id) on delete cascade
+);
+create index if not exists matches_round_idx on public.matches (round_id);
+alter table public.registrations add column if not exists team_id uuid references public.teams(id) on delete cascade;
+alter table public.registrations add column if not exists team_ok boolean not null default false;   -- the captain has accepted this player
+alter table public.games add column if not exists match_id uuid references public.matches(id) on delete cascade;
+alter table public.games add column if not exists team uuid references public.teams(id) on delete cascade;          -- the team of player a (b is on the other team of the match)
+
 create index if not exists tournaments_owner_idx on public.tournaments (owner);
-create index if not exists tournaments_listed_idx on public.tournaments (visibility, date);
+drop index if exists public.tournaments_listed_idx;
+create index if not exists tournaments_date_idx on public.tournaments (date);
 create index if not exists registrations_profile_idx on public.registrations (profile_id);
 create index if not exists saved_lists_owner_idx on public.saved_lists (owner);
 create index if not exists entry_lists_faction_idx on public.entry_lists (faction);
@@ -167,14 +201,12 @@ create index if not exists games_b_idx on public.games (b);
 
 create or replace function public.is_owner(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from tournaments where id = tid and owner = auth.uid()) $$;
-create or replace function public.is_member(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from registrations where tournament_id = tid and profile_id = auth.uid() and status = 'approved') $$;
 create or replace function public.can_view(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from tournaments t where t.id = tid and (t.owner = auth.uid() or t.visibility in ('listed', 'link') or is_member(tid))) $$;
+  select exists (select 1 from tournaments t where t.id = tid) $$;   -- every tournament is public
 create or replace function public.is_locked(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select coalesce((select lists_locked from tournaments where id = tid), false) $$;
 create or replace function public.can_register(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from tournaments t where t.id = tid and t.registration_open and not t.lists_locked and t.visibility in ('listed', 'link')) $$;
+  select exists (select 1 from tournaments t where t.id = tid and t.registration_open and not t.lists_locked) $$;
 create or replace function public.has_registration(tid uuid, pid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from registrations where tournament_id = tid and profile_id = pid and status in ('pending', 'approved')) $$;
 create or replace function public.is_approved(tid uuid, pid uuid) returns boolean language sql stable security definer set search_path = public as $$
@@ -185,10 +217,19 @@ create or replace function public.lists_public(tid uuid) returns boolean languag
     and (not t.hide_lists_until_round1 or exists (select 1 from rounds r where r.tournament_id = t.id))) $$;
 create or replace function public.round_open(rid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from rounds where id = rid and not done) $$;
+-- team helpers
+create or replace function public.is_captain(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from teams where id = tid and captain = auth.uid()) $$;
+create or replace function public.on_team(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from registrations where team_id = tid and profile_id = auth.uid() and team_ok) $$;
+create or replace function public.is_team_event(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select coalesce((select format = 'team' from tournaments where id = tid), false) $$;
+
 -- may the caller see this profile? their own, or a player in a tournament they can see (the organiser also sees people who asked to join)
 create or replace function public.profile_visible(pid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select pid = auth.uid() or exists (select 1 from registrations r where r.profile_id = pid
-    and ((r.status = 'approved' and can_view(r.tournament_id)) or is_owner(r.tournament_id))) $$;
+    and ((r.status = 'approved' and can_view(r.tournament_id)) or is_owner(r.tournament_id)
+         or (r.team_id is not null and (is_captain(r.team_id) or on_team(r.team_id))))) $$;
 
 -- ---- triggers: rules that row-level security cannot express --------------------
 
@@ -211,13 +252,57 @@ end $$;
 drop trigger if exists tournaments_guard_check on public.tournaments;
 create trigger tournaments_guard_check before insert or update on public.tournaments for each row execute function public.tournaments_guard();
 
+-- team rules for registrations: no solo entries in a team event, the captain's own entry is accepted, a team never holds more than its size,
+-- only the captain may accept players (and change nothing else), and the organiser approves only players the captain accepted
+create or replace function public.registrations_team_rules() returns trigger language plpgsql security definer set search_path = public as $$
+declare tsize integer; tfmt text; cap uuid; ttid uuid;
+begin
+  select format, team_size into tfmt, tsize from tournaments where id = new.tournament_id;
+  if tg_op = 'INSERT' then
+    if tfmt = 'team' then
+      if new.team_id is null then raise exception 'This is a team tournament: sign up as part of a team.'; end if;
+      select captain, tournament_id into cap, ttid from teams where id = new.team_id;
+      if ttid is distinct from new.tournament_id then raise exception 'That team is not in this tournament.'; end if;
+      new.team_ok := (cap = new.profile_id) or coalesce(current_setting('song.sub', true), '') = '1';   -- a substitute is placed by the organiser
+    else
+      new.team_id := null; new.team_ok := false;
+    end if;
+    return new;
+  end if;
+  -- update
+  if new.team_id is distinct from old.team_id or new.profile_id <> old.profile_id or new.tournament_id <> old.tournament_id then
+    raise exception 'A registration cannot be moved to another team.';
+  end if;
+  if not is_owner(new.tournament_id) and (new.status <> old.status or new.dropped <> old.dropped) then
+    raise exception 'Only the organiser can change a registration.';
+  end if;
+  if new.team_ok and not old.team_ok and (select count(*) from registrations where team_id = new.team_id and team_ok and not dropped) >= tsize then
+    raise exception 'This team is full.';
+  end if;
+  if tfmt = 'team' and new.status = 'approved' and old.status <> 'approved' and not new.team_ok then
+    raise exception 'The team captain has not accepted this player.';
+  end if;
+  return new;
+end $$;
+drop trigger if exists registrations_team_check on public.registrations;
+create trigger registrations_team_check before insert or update on public.registrations for each row execute function public.registrations_team_rules();
+
+-- a captain who leaves disbands the team
+create or replace function public.registrations_captain_left() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if old.team_id is not null then delete from teams where id = old.team_id and captain = old.profile_id; end if;
+  return old;
+end $$;
+drop trigger if exists registrations_captain_left_check on public.registrations;
+create trigger registrations_captain_left_check after delete on public.registrations for each row execute function public.registrations_captain_left();
+
 -- a tournament cannot approve more players than its limit
 create or replace function public.registrations_cap() returns trigger language plpgsql security definer set search_path = public as $$
 declare cap integer;
 begin
   if new.status = 'approved' and (tg_op = 'INSERT' or old.status is distinct from 'approved') then
     select max_players into cap from tournaments where id = new.tournament_id;
-    if cap is not null and (select count(*) from registrations where tournament_id = new.tournament_id and status = 'approved') >= cap then
+    if cap is not null and (select count(*) from registrations where tournament_id = new.tournament_id and status = 'approved' and not dropped) >= cap then
       raise exception 'This tournament is full.';
     end if;
   end if;
@@ -231,7 +316,7 @@ create or replace function public.games_guard() returns trigger language plpgsql
 begin
   if not is_owner(new.tournament_id) then
     if new.a is distinct from old.a or new.b is distinct from old.b or new.round_id <> old.round_id or new.table_no <> old.table_no
-       or new.tournament_id <> old.tournament_id or new.bonus_a <> old.bonus_a or new.bonus_b <> old.bonus_b or new.manual <> old.manual then
+       or new.tournament_id <> old.tournament_id or new.match_id is distinct from old.match_id or new.team is distinct from old.team or new.bonus_a <> old.bonus_a or new.bonus_b <> old.bonus_b or new.manual <> old.manual then
       raise exception 'Players can only report victory points, destroyed units and the result of their own game.';
     end if;
     if old.manual and new.result is distinct from old.result then raise exception 'The organiser has fixed this result.'; end if;
@@ -265,8 +350,10 @@ create policy "profiles: delete own" on public.profiles for delete to authentica
 
 -- tournaments
 drop policy if exists "tournaments: read" on public.tournaments;
-create policy "tournaments: read" on public.tournaments for select to anon, authenticated
-  using (owner = auth.uid() or visibility in ('listed', 'link') or public.is_member(id));
+-- every tournament is public: the old "visibility" setting is gone
+alter table public.tournaments drop column if exists visibility;
+create policy "tournaments: read" on public.tournaments for select to anon, authenticated using (true);
+drop function if exists public.is_member(uuid);
 drop policy if exists "tournaments: create" on public.tournaments;
 create policy "tournaments: create" on public.tournaments for insert to authenticated with check (owner = auth.uid());
 drop policy if exists "tournaments: organiser changes" on public.tournaments;
@@ -277,16 +364,40 @@ create policy "tournaments: organiser deletes" on public.tournaments for delete 
 -- registrations: players ask to join (always "pending"); only the organiser approves or declines
 drop policy if exists "registrations: read" on public.registrations;
 create policy "registrations: read" on public.registrations for select to anon, authenticated
-  using (profile_id = auth.uid() or public.is_owner(tournament_id) or (status = 'approved' and public.can_view(tournament_id)));
+  using (profile_id = auth.uid() or public.is_owner(tournament_id) or (status = 'approved' and public.can_view(tournament_id))
+         or (team_id is not null and (public.is_captain(team_id) or public.on_team(team_id))));
 drop policy if exists "registrations: ask to join" on public.registrations;
 create policy "registrations: ask to join" on public.registrations for insert to authenticated
   with check (profile_id = auth.uid() and status = 'pending' and not dropped and public.can_register(tournament_id));
 drop policy if exists "registrations: organiser decides" on public.registrations;
 create policy "registrations: organiser decides" on public.registrations for update to authenticated
   using (public.is_owner(tournament_id)) with check (public.is_owner(tournament_id));
+drop policy if exists "registrations: captain accepts" on public.registrations;
+create policy "registrations: captain accepts" on public.registrations for update to authenticated
+  using (team_id is not null and public.is_captain(team_id)) with check (team_id is not null and public.is_captain(team_id));
 drop policy if exists "registrations: withdraw or remove" on public.registrations;
 create policy "registrations: withdraw or remove" on public.registrations for delete to authenticated
-  using (public.is_owner(tournament_id) or (profile_id = auth.uid() and not public.is_locked(tournament_id)));
+  using (public.is_owner(tournament_id) or (profile_id = auth.uid() and not public.is_locked(tournament_id))
+         or (team_id is not null and public.is_captain(team_id) and not public.is_locked(tournament_id)));
+
+-- teams and matches: anyone who can view the tournament reads; the captain creates, renames and disbands; the organiser runs matches
+alter table public.teams   enable row level security;
+alter table public.matches enable row level security;
+drop policy if exists "teams: read" on public.teams;
+create policy "teams: read" on public.teams for select to anon, authenticated using (public.can_view(tournament_id));
+drop policy if exists "teams: create" on public.teams;
+create policy "teams: create" on public.teams for insert to authenticated
+  with check (captain = auth.uid() and public.can_register(tournament_id) and public.is_team_event(tournament_id) and not public.has_registration(tournament_id, auth.uid()));
+drop policy if exists "teams: rename" on public.teams;
+create policy "teams: rename" on public.teams for update to authenticated
+  using (captain = auth.uid() and not public.is_locked(tournament_id)) with check (captain = auth.uid() and not public.is_locked(tournament_id));
+drop policy if exists "teams: disband" on public.teams;
+create policy "teams: disband" on public.teams for delete to authenticated
+  using (public.is_owner(tournament_id) or (captain = auth.uid() and not public.is_locked(tournament_id)));
+drop policy if exists "matches: read" on public.matches;
+create policy "matches: read" on public.matches for select to anon, authenticated using (public.can_view(tournament_id));
+drop policy if exists "matches: organiser writes" on public.matches;
+create policy "matches: organiser writes" on public.matches for all to authenticated using (public.is_owner(tournament_id)) with check (public.is_owner(tournament_id));
 
 -- army lists: private until the organiser locks lists (and, if chosen, round 1 is drawn)
 drop policy if exists "entry_lists: read" on public.entry_lists;
@@ -336,8 +447,8 @@ create policy "games: report" on public.games for update to authenticated
 -- ---- access: the API may only do what the rules above allow ---------------------
 
 grant usage on schema public to anon, authenticated;
-grant select on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games to anon;
-grant select, insert, update, delete on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games to authenticated;
+grant select on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games, public.teams, public.matches to anon;
+grant select, insert, update, delete on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games, public.teams, public.matches to authenticated;
 grant select, insert, update, delete on public.saved_lists to authenticated;   -- no access for anon: the library is private
 
 -- ---- real names ----------------------------------------------------------------
@@ -449,7 +560,7 @@ create index if not exists rating_history_tournament_idx on public.rating_histor
 
 -- does this tournament count for ratings?
 create or replace function public.is_rated(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce((select t.status = 'finished' and t.visibility <> 'private'
+  select coalesce((select t.status = 'finished'
       and coalesce(t.rating_override, coalesce((select max(r.field_size) from tournament_results r where r.tournament_id = t.id), 0) >= 16)
     from tournaments t where t.id = tid), false) $$;
 
@@ -539,6 +650,41 @@ begin
       select u.profile_id, u.scope, t.id, u.r, u.rd, u.games, u.score from _up u;
   end loop;
 end $$;
+-- ---- substitutes: the organiser can replace a player (a team member or anyone else) with any other person with a profile ----
+-- find_profiles: the organiser searches nicknames for somebody who is not already playing
+create or replace function public.find_profiles(tid uuid, q text) returns table(id uuid, nickname text, club text, country text)
+language sql stable security definer set search_path = public as $$
+  select p.id, p.nickname, p.club, p.country from profiles p
+  where is_owner(tid) and length(trim(q)) >= 2
+    and p.nickname ilike '%' || replace(replace(replace(trim(q), '\', '\\'), '%', '\%'), '_', '\_') || '%'
+    and not exists (select 1 from registrations r where r.tournament_id = tid and r.profile_id = p.id and r.status = 'approved' and not r.dropped)
+  order by p.nickname limit 8 $$;
+-- substitute_player: marks the old player as dropped and enters the new one, approved, in the same team
+create or replace function public.substitute_player(tid uuid, old_pid uuid, new_pid uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare tm uuid; oldrow registrations%rowtype; newrow registrations%rowtype;
+begin
+  if not is_owner(tid) then raise exception 'Only the organiser can substitute players.'; end if;
+  select * into oldrow from registrations where tournament_id = tid and profile_id = old_pid and status = 'approved';
+  if not found then raise exception 'That player is not in this tournament.'; end if;
+  if old_pid = new_pid then raise exception 'Choose somebody else.'; end if;
+  select * into newrow from registrations where tournament_id = tid and profile_id = new_pid;
+  if found then
+    if newrow.status = 'approved' and not newrow.dropped then raise exception 'That person is already playing in this tournament.'; end if;
+    if newrow.team_id is not null and exists (select 1 from teams where id = newrow.team_id and captain = new_pid) then raise exception 'That person is the captain of a team here.'; end if;
+    delete from registrations where tournament_id = tid and profile_id = new_pid;
+  end if;
+  update registrations set dropped = true where tournament_id = tid and profile_id = old_pid;
+  perform set_config('song.sub', '1', true);
+  insert into registrations (tournament_id, profile_id, status, dropped, team_id, team_ok)
+    values (tid, new_pid, 'approved', false, oldrow.team_id, oldrow.team_id is not null);
+  perform set_config('song.sub', '', true);
+end $$;
+revoke all on function public.find_profiles(uuid, text) from public, anon;
+grant execute on function public.find_profiles(uuid, text) to authenticated;
+revoke all on function public.substitute_player(uuid, uuid, uuid) from public, anon;
+grant execute on function public.substitute_player(uuid, uuid, uuid) to authenticated;
+
 revoke all on function public.recompute_ratings() from public, anon;
 grant execute on function public.recompute_ratings() to authenticated;
 
@@ -558,6 +704,12 @@ select profile_id, scope, rating, rd, games,
 from public.player_ratings
 where games >= case when scope = 'overall' then 5 else 3 end;
 grant select on public.rating_ranks to anon, authenticated;
+
+-- the Rankings page: ranked players with their public details (nickname, club, country), by scope ('overall' or a faction id)
+create or replace view public.ranking_board with (security_invoker = true) as
+select r.profile_id, r.scope, r.rating, r.rd, r.games, p.nickname, p.club, p.country, p.avatar_updated_at
+from public.rating_ranks r join public.profiles p on p.id = r.profile_id;
+grant select on public.ranking_board to anon, authenticated;
 
 -- one row per game a player has played (byes excluded) in finished rounds: the base of game history, faction records and matchups.
 -- Runs with the viewer's rights, so only games of tournaments they may see appear, and the faction columns are filled only
@@ -585,7 +737,7 @@ grant select on public.player_games to anon, authenticated;
 do $$
 declare t text;
 begin
-  foreach t in array array['games', 'rounds', 'registrations', 'entry_lists', 'tournaments'] loop
+  foreach t in array array['games', 'rounds', 'registrations', 'entry_lists', 'tournaments', 'teams', 'matches'] loop
     if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
       execute format('alter publication supabase_realtime add table public.%I', t);
     end if;

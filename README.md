@@ -34,6 +34,8 @@ combat numbers, decks of the wrong size). Run it from the repository root.
 | `index.html`, `app.js` | The Building page. `app.js` holds the state, the rules and the screen drawing. |
 | `analysis.html`, `analysis.js` | The Analysis page. It loads `app.js` with `window.SONG_NO_UI = true` (so the Building screen does not start) and reuses its rules and helpers. |
 | `tournament.html`, `tournament.js` | The Tournament page: directory, profiles, joining, lists, rules, rounds, standings. Also loads `app.js` (for list checking) in the same way. |
+| `rankings.html`, `rankings.js` | The Rankings page: best players by rating, filtered by faction, continent and country (continents only appear once they have 10 ranked players). Reads the `ranking_board` view. |
+| `countries.js` | The country list (with continents) used by the profile's Country dropdown and the Rankings filters. The profile's Country field is a dropdown of this list. |
 | `tournament-core.js` | The tournament maths with no page code: scoring, standings, pairings. `test-tournament.js` tests it in Node. |
 | `cloud.js`, `cloud-core.js`, `cloud-config.js` | The Supabase side: sign-in, reading and saving tournaments, joining, live updates. `cloud-core.js` (pure mapping, tested by `test-cloud.js`) turns database rows into the tournament object and back; `cloud-config.js` holds the project URL and public key. |
 | `schema.sql`, `migration-v1-to-v2.sql`, `migration-profile-names-results.sql` | The database tables and security rules (paste into Supabase's SQL Editor; safe to re-run), and the one-off step for anyone who ran the first version. |
@@ -151,7 +153,7 @@ time, held in `ui.t`, in the shape described at the top of `cloud-core.js`:
 
 ```
 t = { id, owner, name, date, location, description, points, plannedRounds, status, rules,
-      visibility: "listed" | "link" | "private", registrationOpen, maxPlayers, listsLocked, hideListsUntilRound1,
+      registrationOpen, maxPlayers, listsLocked, hideListsUntilRound1,
       players:  [ { pid, dropped, listCode } ],          // approved players; listCode is null if you may not see it yet
       requests: [ { pid, status, listCode } ],           // asked to join and waiting, or declined
       rounds:   [ { n, rid, done, tables: [ { id, gid, a, b, result, manual, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ] }   // b = null is a bye
@@ -160,7 +162,7 @@ rules: { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: [
 ```
 
 **People and flows**
-- **Everyone** can browse the directory and open any listed (or link-shared) tournament without an account.
+- **Everyone** can browse the directory and open any tournament without an account.
 - **Players** sign in with an email link and have one profile: first name, last name, an optional nickname (shown as Sam "The Kraken" Reid), club, country and an optional picture. They ask to join a
   tournament, choose their army list (a saved list from the Building page, or a pasted share link) and, once in a game, enter
   its victory points and tick off destroyed units.
@@ -169,8 +171,7 @@ rules: { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: [
 - **List privacy:** a list is private to its player and the organiser until the organiser **locks lists**; then it is public to
   anyone who can view the tournament, or (if "hide locked lists until round 1 is drawn" is set) once round 1 exists. Players
   cannot change a list after locking. The database enforces this, not just the page.
-- **Visibility:** "listed" tournaments appear in the directory; "link" ones are viewable by anyone with the link but not listed;
-  "private" ones are visible only to the organiser and approved players. An optional player limit blocks approving more.
+- **Visibility:** every tournament is public. An optional player limit blocks approving more.
 
 - **Pairing:** round one is random. Later Swiss rounds pair players by standings. No-one meets the same opponent twice and
   clubmates are avoided when the rules say so, as long as that is possible; if not, the rule is relaxed one step at a time
@@ -185,7 +186,7 @@ rules: { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: [
   `decideResult` in `tournament-core.js` does this. Tournament points are set on their own line of the Rules tab:
   "Pts per Win" (or "Pts per Marginal Win" and "Pts per Major Win" when margins are on), "Pts per Draw", "Pts per Loss".
   Changing a table's seat clears its kills and result.
-- **Marginal and major victories (optional, Rules tab):** a win by `band` victory points or fewer (default 2) is
+- **Marginal and major victories (on by default, can be turned off on the Rules tab):** a win by `band` victory points or fewer (default 2) is
   marginal, a bigger win (or a wipe-out) is major, and each is worth its own tournament points (defaults 2 and 3; the
   plain win score is not used). Both players' victory points must be entered so the margin is known, unless an army was wiped out. A bye counts as a major
   win. Standings show each player's major wins.
@@ -193,10 +194,37 @@ rules: { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: [
   `images/units/<id>.jpg`, or its name if there is none). Click a tile to cross the unit off: it fades with a red
   cross. `killedByA` holds the positions in B's list that A destroyed (and the reverse), so they stay correct as lists
   are known. The points of destroyed units become the tie-breakers "Enemy points destroyed" and "Points destroyed minus
-  points lost". A destroyed unit always counts with its attachments. Up to four tie-breakers
+  points lost". A destroyed unit always counts with its attachments. Up to four tie-breakers (default: strength of schedule, victory point difference, victory points scored, then points destroyed minus points lost; team events use the same default, and "individual games won" can be chosen as a tie-breaker)
   can be chosen, in order.
+- **Team events:** the organiser picks "Teams" and a team size (2, 3 or 4) when creating the tournament (`format`,
+  `teamSize`). There are no solo sign-ups: a captain enters a named team, teammates ask to join it, the captain accepts
+  them, and the organiser approves the squad (Players tab, "Approve team"). Every team event shows the banner "This is a team
+  event... Players are to assign a team captain, and that player applies for entry for the squad as a whole."
+  Each round pairs team against team (Swiss or random, no rematches, an odd team gets a bye) and then pairs the players of
+  the two teams one-to-one (Swiss by individual standing, or random: the "Player pairing in a match-up" rule). The organiser can
+  swap seats between teammates, sub in a teammate, or leave a seat empty. An empty seat is a forfeit win for the player
+  present and is not recorded against anyone's profile (it works like a bye, and is ignored by ratings). A team wins a match
+  by winning more individual games than it loses; level is a draw, and a drawn game is never a win. Team points use the
+  normal win/draw/loss points (a major win is a clean sweep). Team standings and the individual standings are both shown;
+  tie-breakers include "individual games won". Individual games still count for each player's record and Glicko-2 rating;
+  there are no team ratings. The engine is in the team section of `tournament-core.js` (`drawTeamRound`, `matchOutcome`,
+  `teamStandings`); the tables are `teams` and `matches` in `schema.sql`, with the rules enforced by triggers.
+- **All tournaments are public:** there is no visibility setting; every tournament is listed in the directory and readable by anyone (`schema.sql` drops the old `visibility` column and its rules).
+- **Swapping team members and substitutes:** until the organiser locks the lists, a captain can swap a player by
+  removing them ("Remove to replace") and letting the replacement join the team and be accepted. Once lists are locked
+  (and at any time during the event) only the organiser can substitute: on the Players tab, "Replace" on any player
+  (team or individual events) searches nicknames for anybody with a profile (they need not be on the team or in the
+  tournament), optionally takes their share link, drops the old player and enters the new one in the same team. A game still open
+  is handed over to the substitute (its record is cleared). This uses two organiser-only database functions,
+  `find_profiles` and `substitute_player` in `schema.sql`. The tournament directory has a Format column (Individual /
+  Team (Ns)).
+- **Rankings and the rating graph:** the Rankings page (nav: Rankings) lists ranked players (5 rated games overall, 3 with a
+  faction) by Glicko-2 rating. Filters: faction (overall or any faction), region (continent; only regions with 10+ ranked players
+  are offered) and country (always shown), plus a "Find a player" search that opens a player's page (`tournament.html?player=<id>`: record, rating graph, faction ratings and game history), so you can see "Best Greyjoy player in Europe" or "Best overall player in the United Kingdom".
+  Players pick their country from a list on their profile. My profile shows a line chart of the rating after each rated
+  tournament (in date order, from the 1500 start, hover a point for the tournament), with buttons to switch between overall and each faction.
 - **Not built yet:** public profile pages, the achievement and trophy rules themselves (the records they need are tracked),
-  per-round points limits (escalation), team events, and organisers adding co-organisers.
+  per-round points limits (escalation), and organisers adding co-organisers.
 
 ## The database (Supabase)
 
@@ -214,7 +242,7 @@ The page stores everything in a Supabase project (hosted Postgres, with sign-in 
   or `tournament_wins >= 1`); add columns to the view for new kinds. The profile page shows the signed-in player's record.
   Finishing a tournament writes its `tournament_results` (reopening removes them); a tournament only counts toward wins once finished.
 - **Ratings (Glicko-2):** everyone starts at 1500 with a rating deviation (RD) of 350. One finished tournament is one rating
-  period; a draw scores 0.5; byes are ignored. Only **rated tournaments** count: finished, not private, and with **16 or more
+  period; a draw scores 0.5; byes are ignored. Only **rated tournaments** count: finished, and with **16 or more
   players** (`MIN_RATED_PLAYERS` in `tournament.js` is only the wording; the real rule is `is_rated()` in `schema.sql`). The site
   administrator can force a tournament in or out with `tournaments.rating_override` (set it in the Supabase dashboard; a trigger
   stops organisers changing it), which is also the place to remove padded events. `recompute_ratings()` rebuilds every rating

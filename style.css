@@ -302,3 +302,9 @@ details > summary { cursor: pointer; margin: 10px 0 6px; font-weight: 600; }
 .profile-head .row-btn { margin-left: auto; }
 .profile-head h2 { font-weight: 700; }
 .profile-head .real-name { margin: 2px 0 0; font-size: 1em; }
+
+/* team events */
+.team-note { margin: .4rem 0; padding: .55rem .75rem; border-left: 3px solid var(--accent, #b08d3c); background: rgba(176, 141, 60, .12); border-radius: 4px; }
+tr.match-row th { text-align: left; background: rgba(128, 128, 128, .15); font-weight: 600; }
+.rating-chart { margin: 6px 0; color: var(--fg); }
+.rating-chart svg { max-width: 100%; height: auto; }

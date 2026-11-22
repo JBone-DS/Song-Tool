@@ -78,4 +78,61 @@ const t5=mk(2);play(t5,1,1);const d5=C.drawRound(t5,club,2);console.log('rematch
   assert.strictEqual(C.winTier({ ...g({ vpA: 4, vpB: 4, killedByA: [0, 1, 2] }), result: 'a' }, rules, opts), 'major');
   assert.strictEqual(C.winTier({ ...g({ vpA: 5, vpB: 4 }), result: 'a' }, rules, opts), 'marginal');
 }
+
+// ---- team events ----
+{
+  const mkTeams = (nTeams, size, rules = {}) => {
+    const teams = Array.from({ length: nTeams }, (_, i) => ({ id: 't' + i, name: 'Team ' + i, captain: `p${i}_0` }));
+    const players = teams.flatMap((x, i) => Array.from({ length: size }, (_, j) => ({ pid: `p${i}_${j}`, teamId: x.id })));
+    return { format: 'team', teamSize: size, teams, players, rounds: [], rules: { pairing: 'swiss', seatPairing: 'swiss', avoidClub: false, win: 3, draw: 1, loss: 0, tiebreakers: ['gameWins', 'vpDiff'], ...rules } };
+  };
+  const fin = (t, tables, rng) => tables.forEach(g => { if (g.b !== null) { g.vpA = Math.floor(rng() * 7); g.vpB = Math.floor(rng() * 7); g.result = C.resultFromVp(g); } });
+  // 8 teams of 3 over 5 rounds (and 7 teams for byes): everyone plays once a round, no team rematches, scoring is consistent
+  for (const nTeams of [8, 7]) for (let seed = 1; seed <= 15; seed++) {
+    const t = mkTeams(nTeams, 3), rng = C.makeRng(seed);
+    for (let r = 1; r <= (nTeams === 8 ? 5 : 4); r++) {
+      const { matches, tables } = C.drawTeamRound(t, seed * 31 + r, {});
+      const seen = tables.flatMap(g => [g.a, g.b]).filter(Boolean);
+      assert.strictEqual(new Set(seen).size, seen.length, 'a player is seated twice');
+      assert.strictEqual(seen.length, t.players.length - (matches.some(m => m.b === null) ? 3 : 0), 'every player of a paired team is seated');
+      for (const g of tables) { const m = matches.find(x => x.mid === g.mid); assert(m && g.team === m.a, 'player a is on the first team'); if (g.b) { assert(t.players.find(p => p.pid === g.a).teamId === m.a); assert(t.players.find(p => p.pid === g.b).teamId === m.b); } }
+      fin(t, tables, rng);
+      t.rounds.push({ n: r, done: true, tables, matches });
+    }
+    const met = new Set();
+    for (const round of t.rounds) for (const m of round.matches) if (m.b) { const k = [m.a, m.b].sort().join('|'); assert(!met.has(k), 'team rematch'); met.add(k); }
+    const st = C.teamStandings(t);
+    assert.strictEqual(st.length, nTeams);
+    const played = st.reduce((n, s) => n + s.played, 0), total = t.rounds.flatMap(r => r.matches).reduce((n, m) => n + (m.b === null ? 1 : 2), 0);
+    assert.strictEqual(played, total, 'every finished match is counted for each side');
+    assert.strictEqual(st[0].rank, 1);
+  }
+  // scoring rules from the brief
+  const rules = { win: 3, draw: 1, loss: 0, margins: { enabled: false } };
+  const T = (results, extra = {}) => { const tables = results.map((res, i) => ({ id: i + 1, mid: 'm', team: 'A', a: 'a' + i, b: 'b' + i, result: res })); return C.matchOutcome({ rules }, { tables, ...extra }, { mid: 'm', a: 'A', b: 'B' }); };
+  assert.strictEqual(T(['a', 'b', 'b']).result, 'b', 'one win and two losses is a team loss');
+  assert.strictEqual(T(['a', 'b', 'draw']).result, 'draw', 'win, loss, draw is a draw');
+  assert.strictEqual(T(['a', 'b']).result, 'draw', 'a team of two splitting is a draw');
+  assert.strictEqual(T(['a', 'draw']).result, 'a', 'win and draw beats draw and nothing');
+  assert.strictEqual(T(['draw', 'draw']).result, 'draw');
+  assert.strictEqual(T(['a', null]).result, null, 'unfinished while a table is open');
+  const o = T(['a', 'a', 'a']); assert(o.major, 'a clean sweep is a major win');
+  const mr = { win: 3, draw: 1, loss: 0, margins: { enabled: true, band: 2, marginalWin: 2, majorWin: 4 } };
+  assert.strictEqual(C.teamPoints(mr, o, 'a'), 4); assert.strictEqual(C.teamPoints(mr, T(['a', 'a', 'b']), 'a'), 2); assert.strictEqual(C.teamPoints(mr, o, 'b'), 0);
+  assert.strictEqual(C.teamPoints(rules, T(['a', 'b']), 'a'), 1);
+  // a forfeit seat (the other team is short) counts as a win for the present player's team and credits no loss
+  const tf = { rules, players: [], rounds: [] };
+  const short = C.matchOutcome(tf, { tables: [{ mid: 'm', team: 'A', a: 'x', b: 'y', result: 'b' }, { mid: 'm', team: 'A', a: 'z', b: null, result: 'a' }] }, { mid: 'm', a: 'A', b: 'B' });
+  assert.strictEqual(short.result, 'draw');
+  const shortB = C.matchOutcome(tf, { tables: [{ mid: 'm', team: 'B', a: 'z', b: null, result: 'a' }] }, { mid: 'm', a: 'A', b: 'B' });
+  assert.strictEqual(shortB.result, 'b', 'a forfeit seat on B counts for B');
+  // a short team: draw pairs min seats and the extra players get forfeit tables
+  const ts = mkTeams(2, 3); ts.players = ts.players.filter(p => p.pid !== 'p1_2');
+  const d = C.drawTeamRound(ts, 5, {});
+  assert.strictEqual(d.tables.filter(g => g.b === null).length, 1); assert.strictEqual(d.tables.length, 3);
+  assert(C.teamRoundWarnings(ts, d.matches).some(w => /short/.test(w)));
+  // a team of one dropped player is not paired; odd teams give a bye
+  const t3 = mkTeams(3, 2); t3.players.find(p => p.pid === 'p2_0').dropped = true; t3.players.find(p => p.pid === 'p2_1').dropped = true;
+  assert.strictEqual(C.drawTeamRound(t3, 9, {}).matches.length, 1);
+}
 console.log('Tournament engine OK');

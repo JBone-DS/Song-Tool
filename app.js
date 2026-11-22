@@ -1033,7 +1033,7 @@ function renderListBar() {
 // Build / Analysis links shown at the top of both pages
 function renderNav(current) {
   const link = (id, href, text) => el("a", { href, textContent: text, className: id === current ? "nav-link current" : "nav-link" });
-  return [el("nav", { className: "site-nav" }, link("profile", "tournament.html?profile=me", "My profile"), link("build", "index.html", "Building"), link("analysis", "analysis.html", "Analysis"), link("tournament", "tournament.html", "Tournament"))];
+  return [el("nav", { className: "site-nav" }, link("profile", "tournament.html?profile=me", "My profile"), link("build", "index.html", "Building"), link("analysis", "analysis.html", "Analysis"), link("tournament", "tournament.html", "Tournaments"), link("rankings", "rankings.html", "Rankings"))];
 }
 
 function renderHeader() {

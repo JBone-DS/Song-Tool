@@ -2,7 +2,7 @@
 //
 // A tournament (see tournament.js for how it is stored) looks like this:
 //   {
-//     rules:   { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: ["sos", "vpDiff", "destroyed"],
+//     rules:   { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: ["sos", "vpDiff", "vp", "destroyedDiff"],
 //                margins: { enabled, band, marginalWin, majorWin } },   // optional: a win by band VP or fewer is marginal, more is major
 //     players: [ { pid, dropped, ... } ],                    // pid = the player's profile id
 //     rounds:  [ { n, done, tables: [ { a, b, result, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ],
@@ -18,6 +18,7 @@ const TIEBREAKERS = {
   vp: "Victory points scored",
   destroyed: "Enemy points destroyed",
   destroyedDiff: "Points destroyed minus points lost",
+  gameWins: "Individual games won (team events)",
 };
 
 // ---- results ------------------------------------------------------------
@@ -87,8 +88,11 @@ function gameRows(t, opts = {}) {
   const worth = (pid, killed) => { const pts = rowPoints(pid); return (killed ?? []).reduce((n, i) => n + (pts[i] ?? 0), 0); };
   for (const round of t.rounds) {
     for (const g of round.tables) {
+      // in a team event each game belongs to a match; g.team is the team of player a, the other team of the match is b's
+      const mt = g.mid ? round.matches?.find(m => m.mid === g.mid) : null;
+      const teamA = g.team ?? null, teamB = mt ? (mt.a === g.team ? mt.b : mt.a) : null;
       if (g.b === null) {   // a bye counts as a win, with no victory points
-        rows.push({ pid: g.a, opp: null, points: winPoints(g, t.rules, opts) + bonus(g.bonusA), vp: 0, vpAgainst: 0, destroyed: 0, lost: 0, bye: true, outcome: "w", major: false });
+        rows.push({ team: teamA, pid: g.a, opp: null, points: winPoints(g, t.rules, opts) + bonus(g.bonusA), vp: 0, vpAgainst: 0, destroyed: 0, lost: 0, bye: true, outcome: "w", major: false });
         continue;
       }
       if (!g.result) continue;
@@ -98,8 +102,8 @@ function gameRows(t, opts = {}) {
       const vpA = Number.isFinite(g.vpA) ? g.vpA : 0, vpB = Number.isFinite(g.vpB) ? g.vpB : 0;
       const tier = winTier(g, t.rules, opts), win = winPoints(g, t.rules, opts);
       const dA = worth(g.b, g.killedByA), dB = worth(g.a, g.killedByB);   // points of B's army A destroyed, and the reverse
-      rows.push({ pid: g.a, opp: g.b, points: (oa === "w" ? win : pts(oa)) + bonus(g.bonusA), vp: vpA, vpAgainst: vpB, destroyed: dA, lost: dB, bye: false, outcome: oa, major: oa === "w" && tier === "major" });
-      rows.push({ pid: g.b, opp: g.a, points: (ob === "w" ? win : pts(ob)) + bonus(g.bonusB), vp: vpB, vpAgainst: vpA, destroyed: dB, lost: dA, bye: false, outcome: ob, major: ob === "w" && tier === "major" });
+      rows.push({ team: teamA, pid: g.a, opp: g.b, points: (oa === "w" ? win : pts(oa)) + bonus(g.bonusA), vp: vpA, vpAgainst: vpB, destroyed: dA, lost: dB, bye: false, outcome: oa, major: oa === "w" && tier === "major" });
+      rows.push({ team: teamB, pid: g.b, opp: g.a, points: (ob === "w" ? win : pts(ob)) + bonus(g.bonusB), vp: vpB, vpAgainst: vpA, destroyed: dB, lost: dA, bye: false, outcome: ob, major: ob === "w" && tier === "major" });
     }
   }
   return rows;
@@ -226,4 +230,109 @@ function drawIsComplete(t, tables) {
   return seen.length === active.length && new Set(seen).size === seen.length && active.every(id => seen.includes(id));
 }
 
-if (typeof module !== "undefined") module.exports = { TIEBREAKERS, resultFromVp, wipedOut, tableLeft, decideResult, winTier, winPoints, gameRows, standings, makeRng, shuffle, gamesPlayed, pairPlayers, drawRound, roundWarnings, drawIsComplete };
+
+// ---- team events ----------------------------------------------------------
+// A team tournament adds: t.format = "team", t.teamSize, t.teams = [{ id, name, captain }], players[].teamId, and per round
+// round.matches = [{ mid, a, b }] (team ids; b === null is a team bye) with each table carrying mid and team (the team of player a).
+// A table with b === null inside a match is a forfeit seat: the present player's team wins that seat, and nobody is credited
+// with the loss (it works like a bye). Individual results are the ordinary game results above.
+
+// the result of one match once its tables are in: winsA, winsB, draws, result "a" | "b" | "draw" (null while a table is unfinished)
+function matchOutcome(t, round, match, opts = {}) {
+  if (match.b === null) return { winsA: 0, winsB: 0, draws: 0, result: "a", bye: true, major: true };
+  let winsA = 0, winsB = 0, draws = 0, open = false, any = false;
+  for (const g of round.tables) {
+    if (g.mid !== match.mid) continue;
+    any = true;
+    if (g.b === null) { if (g.team === match.a) winsA++; else winsB++; continue; }
+    const res = g.result;
+    if (!res) { open = true; continue; }
+    if (res === "draw") { draws++; continue; }
+    if ((res === "a") === (g.team === match.a)) winsA++; else winsB++;
+  }
+  if (open || !any) return { winsA, winsB, draws, result: null, bye: false, major: false };
+  const result = winsA > winsB ? "a" : winsB > winsA ? "b" : "draw";
+  const [w, l] = result === "a" ? [winsA, winsB] : [winsB, winsA];
+  return { winsA, winsB, draws, result, bye: false, major: result !== "draw" && l === 0 && draws === 0 && w > 0 };
+}
+// team tournament points for one side of a match
+function teamPoints(rules, outcome, side) {
+  const r = outcome.result;
+  if (r === "draw") return rules.draw;
+  if (r !== side) return rules.loss;
+  const m = rules.margins;
+  return m?.enabled ? (outcome.major ? m.majorWin : m.marginalWin) : rules.win;
+}
+
+// one row per team, best first: points, then the chosen tie-breakers. Unfinished matches are not counted.
+function teamStandings(t, opts = {}) {
+  const base = new Map((t.teams ?? []).map(x => [x.id, { team: x.id, name: x.name, played: 0, w: 0, d: 0, l: 0, byes: 0, majors: 0, points: 0, gameWins: 0, vp: 0, vpAgainst: 0, destroyed: 0, lost: 0, opps: [] }]));
+  for (const round of t.rounds) for (const m of round.matches ?? []) {
+    const o = matchOutcome(t, round, m, opts);
+    if (o.result === null) continue;
+    for (const side of m.b === null ? ["a"] : ["a", "b"]) {
+      const s = base.get(m[side]); if (!s) continue;
+      s.played++; s.points += teamPoints(t.rules, o, side);
+      s.gameWins += side === "a" ? o.winsA : o.winsB;
+      if (o.result === "draw") s.d++; else if (o.result === side) { s.w++; if (o.major) s.majors++; } else s.l++;
+      if (o.bye) s.byes++; else s.opps.push(m[side === "a" ? "b" : "a"]);
+    }
+  }
+  for (const r of gameRows(t, opts)) {   // victory points and kills, added up by team
+    const s = r.team && base.get(r.team); if (!s) continue;
+    s.vp += r.vp; s.vpAgainst += r.vpAgainst; s.destroyed += r.destroyed; s.lost += r.lost;
+  }
+  for (const s of base.values()) {
+    s.vpDiff = s.vp - s.vpAgainst; s.destroyedDiff = s.destroyed - s.lost;
+    s.sos = s.opps.length ? s.opps.reduce((n, id) => n + (base.get(id)?.points ?? 0), 0) / s.opps.length : 0;
+  }
+  const order = ["points", ...t.rules.tiebreakers];
+  const out = [...base.values()].sort((x, y) => { for (const k of order) if ((y[k] ?? 0) !== (x[k] ?? 0)) return (y[k] ?? 0) - (x[k] ?? 0); return 0; });
+  out.forEach((s, i) => { s.rank = i && order.every(k => (s[k] ?? 0) === (out[i - 1][k] ?? 0)) ? out[i - 1].rank : i + 1; });
+  return out;
+}
+
+// the next round of a team event: teams are paired (Swiss or random, no rematches), then the players inside each match-up are
+// paired one-to-one (Swiss = by individual standing, or random). Returns { matches, tables }.
+// opts: { newId(), clubOfTeam(teamId), rowPoints... (as for standings) }
+function drawTeamRound(t, seed = Date.now(), opts = {}) {
+  const rng = makeRng(seed), newId = opts.newId ?? (() => `m${Math.floor(rng() * 1e9)}-${Math.floor(rng() * 1e9)}`);
+  const membersOf = id => t.players.filter(p => !p.dropped && p.teamId === id).map(p => p.pid);
+  const teams = (t.teams ?? []).filter(x => membersOf(x.id).length);
+  const met = new Set(), byes = new Set();
+  for (const round of t.rounds) for (const m of round.matches ?? []) { if (m.b === null) byes.add(m.a); else { met.add(`${m.a}|${m.b}`); met.add(`${m.b}|${m.a}`); } }
+  let order;
+  if (t.rules.pairing === "swiss" && t.rounds.length) {
+    const rank = new Map(teamStandings(t, opts).map((s, i) => [s.team, i]));
+    order = shuffle(teams.map(x => x.id), rng).sort((x, y) => rank.get(x) - rank.get(y));
+  } else order = shuffle(teams.map(x => x.id), rng);
+  const pairs = pairPlayers(order, met, byes, t.rules.avoidClub, opts.clubOfTeam ?? (() => ""));
+  const indRank = new Map(standings(t, opts).map((s, i) => [s.pid, i]));
+  const seatOrder = ids => (t.rules.seatPairing === "random" || !t.rounds.length ? shuffle(ids, rng) : [...shuffle(ids, rng)].sort((x, y) => (indRank.get(x) ?? 1e9) - (indRank.get(y) ?? 1e9)));
+  const matches = [], tables = [];
+  for (const p of pairs) {
+    const mid = newId();
+    matches.push({ mid, a: p.a, b: p.b });
+    if (p.b === null) continue;
+    const A = seatOrder(membersOf(p.a)), B = seatOrder(membersOf(p.b)), n = Math.min(A.length, B.length);
+    for (let i = 0; i < n; i++) tables.push({ id: tables.length + 1, mid, team: p.a, a: A[i], b: B[i], result: null, vpA: null, vpB: null, bonusA: 0, bonusB: 0 });
+    for (const [list, team] of [[A, p.a], [B, p.b]]) for (const pid of list.slice(n))   // the other team is short: these seats are forfeit wins
+      tables.push({ id: tables.length + 1, mid, team, a: pid, b: null, result: "a", vpA: null, vpB: null, bonusA: 0, bonusB: 0 });
+  }
+  return { matches, tables };
+}
+
+// problems the organiser may want to know about in a drawn team round
+function teamRoundWarnings(t, matches) {
+  const met = new Set(), byes = new Set(), out = [];
+  for (const round of t.rounds) for (const m of round.matches ?? []) { if (m.b === null) byes.add(m.a); else met.add(`${m.a}|${m.b}`); }
+  for (const m of matches) {
+    if (m.b === null) { if (byes.has(m.a)) out.push("A team is getting a second bye."); continue; }
+    if (met.has(`${m.a}|${m.b}`) || met.has(`${m.b}|${m.a}`)) out.push("Two teams are meeting again.");
+    const size = id => t.players.filter(p => !p.dropped && p.teamId === id).length;
+    if (size(m.a) !== size(m.b)) out.push("One team is short: the empty seats count as forfeit wins for the other team.");
+  }
+  return [...new Set(out)];
+}
+
+if (typeof module !== "undefined") module.exports = { matchOutcome, teamPoints, teamStandings, drawTeamRound, teamRoundWarnings, TIEBREAKERS, resultFromVp, wipedOut, tableLeft, decideResult, winTier, winPoints, gameRows, standings, makeRng, shuffle, gamesPlayed, pairPlayers, drawRound, roundWarnings, drawIsComplete };

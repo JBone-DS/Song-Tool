@@ -94,12 +94,28 @@ const cloud = {
   },
   // a person's rating (overall and per faction), leaderboard position and rating history after each rated tournament
   async ratings(pid) {
-    const [rows, ranks, history] = await Promise.all([
+    const [rows, ranks, hist] = await Promise.all([
       this._all(() => this.client.from("player_ratings").select("*").eq("profile_id", pid).order("scope")),
       this._all(() => this.client.from("rating_ranks").select("*").eq("profile_id", pid).order("scope")),
-      this._all(() => this.client.from("rating_history").select("*").eq("profile_id", pid).eq("scope", "overall").order("tournament_id")),
+      this._all(() => this.client.from("rating_history").select("*").eq("profile_id", pid).order("scope").order("tournament_id")),
     ]);
+    // the history in date order, with the tournament's name and date (every scope: overall and each faction)
+    const ids = [...new Set(hist.map(h => h.tournament_id))];
+    const ts = ids.length ? await this._all(() => this.client.from("tournaments").select("id,name,date").in("id", ids).order("id")) : [];
+    const info = new Map(ts.map(x => [x.id, x]));
+    const history = hist.map(h => ({ ...h, name: info.get(h.tournament_id)?.name ?? "", date: info.get(h.tournament_id)?.date ?? "" }))
+      .sort((x, y) => (x.date || "").localeCompare(y.date || "") || x.name.localeCompare(y.name));
     return { rows, ranks, history };
+  },
+  // players whose nickname contains the text (public details only)
+  async searchPlayers(q) {
+    const s = String(q ?? "").trim().replace(/[%_,()\\*]/g, " ").slice(0, 40);
+    if (s.length < 2) return [];
+    return (await this._all(() => this.client.from("profiles").select(PROFILE_COLS).ilike("nickname", `%${s}%`).order("nickname").order("id"))).slice(0, 20).map(fromProfileRow);
+  },
+  // everyone ranked in a scope ('overall' or a faction id), best first
+  async rankings(scope) {
+    return this._all(() => this.client.from("ranking_board").select("*").eq("scope", scope).order("rating", { ascending: false }).order("profile_id"));
   },
   // every game a person has played that the viewer may see (the player_games view); list codes are NOT included here
   async gamesOf(pid) { return this._all(() => this.client.from("player_games").select("*").eq("profile_id", pid).order("game_id")); },
@@ -122,14 +138,14 @@ const cloud = {
     const ids = rows.map(r => r.id);
     const regs = ids.length ? await this._all(() => this.client.from("registrations").select("tournament_id,profile_id").eq("status", "approved").in("tournament_id", ids).order("tournament_id")) : [];
     return rows.map(r => ({
-      id: r.id, owner: r.owner, name: r.name, date: r.date ?? "", location: r.location, points: r.points, status: r.status, visibility: r.visibility,
-      registrationOpen: r.registration_open, maxPlayers: r.max_players, listsLocked: r.lists_locked, plannedRounds: r.planned_rounds,
+      id: r.id, owner: r.owner, name: r.name, date: r.date ?? "", location: r.location, points: r.points, status: r.status,
+      registrationOpen: r.registration_open, maxPlayers: r.max_players, listsLocked: r.lists_locked, plannedRounds: r.planned_rounds, format: r.format, teamSize: r.team_size,
       players: regs.filter(g => g.tournament_id === r.id).length,
     }));
   },
   // listed tournaments, newest first. q searches name and place.
   async directory({ q = "", openOnly = false } = {}) {
-    let query = this.client.from("tournaments").select("*").eq("visibility", "listed").order("date", { ascending: false, nullsFirst: false }).limit(100);
+    let query = this.client.from("tournaments").select("*").order("date", { ascending: false, nullsFirst: false }).limit(100);
     const s = q.replace(/[%,()*\\]/g, " ").trim();
     if (s) query = query.or(`name.ilike.%${s}%,location.ilike.%${s}%`);
     if (openOnly) query = query.eq("registration_open", true).eq("lists_locked", false);
@@ -153,14 +169,16 @@ const cloud = {
   async load(id) {
     const trs = await this._all(() => this.client.from("tournaments").select("*").eq("id", id).order("id"));
     if (!trs.length) return null;
-    const [regs, lists, rounds, games] = await Promise.all([
+    const [regs, lists, rounds, games, teams, matches] = await Promise.all([
       this._all(() => this.client.from("registrations").select("*").eq("tournament_id", id).order("profile_id")),
       this._all(() => this.client.from("entry_lists").select("*").eq("tournament_id", id).order("profile_id")),
       this._all(() => this.client.from("rounds").select("*").eq("tournament_id", id).order("id")),
       this._all(() => this.client.from("games").select("*").eq("tournament_id", id).order("id")),
+      this._all(() => this.client.from("teams").select("*").eq("tournament_id", id).order("id")),
+      this._all(() => this.client.from("matches").select("*").eq("tournament_id", id).order("id")),
     ]);
-    const t = fromRows(trs[0], regs, lists, rounds, games);
-    const people = await this.profiles([...new Set([t.owner, ...regs.map(r => r.profile_id)])]);
+    const t = fromRows(trs[0], regs, lists, rounds, games, teams, matches);
+    const people = await this.profiles([...new Set([t.owner, ...regs.map(r => r.profile_id), ...teams.map(x => x.captain)])]);
     return { t, people };
   },
   // call `onChange` (after a short pause) whenever anything in this tournament changes; returns a function that stops listening
@@ -169,7 +187,7 @@ const cloud = {
     const fire = () => { clearTimeout(timer); timer = setTimeout(onChange, 600); };
     const ch = this.client.channel(`tournament-${id}-${Math.random().toString(36).slice(2, 7)}`);
     for (const [table, filter] of [["games", `tournament_id=eq.${id}`], ["rounds", `tournament_id=eq.${id}`], ["registrations", `tournament_id=eq.${id}`],
-      ["entry_lists", `tournament_id=eq.${id}`], ["tournaments", `id=eq.${id}`]])
+      ["entry_lists", `tournament_id=eq.${id}`], ["teams", `tournament_id=eq.${id}`], ["matches", `tournament_id=eq.${id}`], ["tournaments", `id=eq.${id}`]])
       ch.on("postgres_changes", { event: "*", schema: "public", table, filter }, fire);
     ch.subscribe();
     return () => { clearTimeout(timer); this.client.removeChannel(ch); };
@@ -177,6 +195,20 @@ const cloud = {
 
   // ---- players: direct calls ----
   async requestJoin(tid) { this._check(await this.client.from("registrations").insert({ tournament_id: tid, profile_id: this.user.id })); },
+  // team events: the captain creates the team and enters it; teammates ask to join it and the captain accepts them
+  async createTeam(tid, name) {
+    const id = newId();
+    this._check(await this.client.from("teams").insert({ id, tournament_id: tid, name, captain: this.user.id }));
+    this._check(await this.client.from("registrations").insert({ tournament_id: tid, profile_id: this.user.id, team_id: id }));
+    return id;
+  },
+  async requestJoinTeam(tid, teamId) { this._check(await this.client.from("registrations").insert({ tournament_id: tid, profile_id: this.user.id, team_id: teamId })); },
+  // organiser: find somebody to bring in, and put them in place of a player who dropped out
+  async findProfiles(tid, q) { return (this._check(await this.client.rpc("find_profiles", { tid, q })) ?? []).map(fromProfileRow); },
+  async substitute(tid, oldPid, newPid) { this._check(await this.client.rpc("substitute_player", { tid, old_pid: oldPid, new_pid: newPid })); },
+  async acceptMember(tid, pid) { this._check(await this.client.from("registrations").update({ team_ok: true }).eq("tournament_id", tid).eq("profile_id", pid)); },
+  async renameTeam(teamId, name) { this._check(await this.client.from("teams").update({ name }).eq("id", teamId)); },
+  async disbandTeam(teamId) { this._check(await this.client.from("teams").delete().eq("id", teamId)); },
   async withdraw(tid) { this._check(await this.client.from("registrations").delete().eq("tournament_id", tid).eq("profile_id", this.user.id)); },
   // meta = { faction, commander, points } of the list, kept with the entry so faction records can be worked out
   async setList(tid, pid, code, meta = {}) { this._check(await this.client.from("entry_lists").upsert(toEntryRow(tid, pid, code, meta), { onConflict: "tournament_id,profile_id" })); },
@@ -255,17 +287,26 @@ const cloud = {
     const check = ({ error }) => { if (error) throw error; };
     if (changed(`t:${t.id}`)) check(await c.from("tournaments").upsert(toTournamentRow(t), { onConflict: "id" }));
     for (const r of t.rounds) {
+      const matchesChanged = changed(`m:${t.id}:${r.n}`);
       const gamesChanged = r.tables.some(g => changed(`g:${t.id}:${r.n}:${g.id}`));
       const goneGames = [...old.keys()].some(k => k.startsWith(`g:${t.id}:${r.n}:`) && !cur.has(k));
-      if (!changed(`r:${t.id}:${r.n}`) && !gamesChanged && !goneGames && r.rid) continue;
+      if (!changed(`r:${t.id}:${r.n}`) && !gamesChanged && !goneGames && !matchesChanged && r.rid) continue;
       const { data, error } = await c.from("rounds").upsert(toRoundRow(t, r), { onConflict: "tournament_id,n" }).select("id").single();
       if (error) throw error;
       r.rid = data.id;
+      if (r.matches?.length) check(await c.from("matches").upsert(r.matches.map(m => toMatchRow(t, r, m)), { onConflict: "id" }));   // before the games that point at them
       const rows = r.tables.filter(g => changed(`g:${t.id}:${r.n}:${g.id}`)).map(g => toGameRow(t, r, g, r.rid));
       if (rows.length) check(await c.from("games").upsert(rows, { onConflict: "round_id,table_no" }));
       if (goneGames || rows.length) {   // drop games that are no longer in the round (a redraw can have fewer tables)
         const del = c.from("games").delete().eq("round_id", r.rid);
         check(await (r.tables.length ? del.not("table_no", "in", `(${r.tables.map(g => g.id).join(",")})`) : del));
+      }
+      if (matchesChanged) {   // matches of an earlier draw of this round
+        const keepIds = (r.matches ?? []).map(m => m.mid), before = old.get(`m:${t.id}:${r.n}`);
+        if (keepIds.length || (before && before !== "[]")) {
+          const dm = c.from("matches").delete().eq("round_id", r.rid);
+          check(await (keepIds.length ? dm.not("id", "in", `(${keepIds.join(",")})`) : dm));
+        }
       }
     }
     const keep = new Set(t.rounds.map(r => r.n));
