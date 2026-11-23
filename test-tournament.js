@@ -135,4 +135,18 @@ const t5=mk(2);play(t5,1,1);const d5=C.drawRound(t5,club,2);console.log('rematch
   const t3 = mkTeams(3, 2); t3.players.find(p => p.pid === 'p2_0').dropped = true; t3.players.find(p => p.pid === 'p2_1').dropped = true;
   assert.strictEqual(C.drawTeamRound(t3, 9, {}).matches.length, 1);
 }
+// two lists: units destroyed, wipe-outs and points left on the table follow the list each player locked in for that game
+{
+  const t={rules:{pairing:'swiss',win:3,draw:1,loss:0,tiebreakers:['destroyed']},players:[{pid:'a'},{pid:'b'}],
+    rounds:[{n:1,done:true,tables:[{id:1,a:'a',b:'b',result:'a',vpA:3,vpB:1,bonusA:0,bonusB:0,killedByA:[0],killedByB:[],pickA:1,pickB:2}]}]};
+  const lists={a:{1:[7],2:[5]},b:{1:[4],2:[9]}};
+  const opts={rowPoints:(pid,g)=>lists[pid][(pid==='a'?g.pickA:g.pickB)??1],unitRows:(pid,g)=>lists[pid][(pid==='a'?g.pickA:g.pickB)??1].map((_,i)=>i),
+    tableStart:(pid,g)=>lists[pid][(pid==='a'?g.pickA:g.pickB)??1].reduce((n,x)=>n+x,0)};
+  const st=Object.fromEntries(C.standings(t,opts).map(s=>[s.pid,s]));
+  assert.strictEqual(st.a.destroyed,9,'a destroyed the 9-point unit b played from list 2');
+  assert.strictEqual(st.b.lost,9);
+  t.rounds[0].tables[0].pickB=1;   // had b locked in list 1 instead, the same kill is worth 4
+  assert.strictEqual(C.standings(t,opts).find(s=>s.pid==='a').destroyed,4);
+  assert.strictEqual(C.wipedOut(t.rounds[0].tables[0],'b',opts),true,'killing b\'s only unit wipes the played list out');
+}
 console.log('Tournament engine OK');

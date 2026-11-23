@@ -44,8 +44,8 @@ create table if not exists public.tournaments (
   rules                    jsonb not null default '{}'::jsonb,   -- pairing, scoring, margins, tie-breakers
   registration_open        boolean not null default true,
   max_players              integer check (max_players is null or max_players > 0),
-  lists_locked             boolean not null default false,       -- once true, lists can no longer be changed and become public
-  hide_lists_until_round1  boolean not null default false,       -- if true, locked lists stay hidden until round 1 is drawn
+  lists_locked             boolean not null default false,       -- once true, lists can no longer be changed
+  hide_lists_until_round1  boolean not null default false,       -- no longer used: lists are private until a player is matched, and public when the tournament finishes
   rating_override          boolean,                              -- site admin only: true = always counts for ratings, false = never, null = counts if 16+ players
   created_at               timestamptz not null default now(),
   updated_at               timestamptz not null default now()
@@ -109,6 +109,12 @@ end $$;
 alter table public.entry_lists add column if not exists faction text;
 alter table public.entry_lists add column if not exists commander text;
 alter table public.entry_lists add column if not exists points integer;
+-- every player enters TWO lists (they may be the same list twice) and secretly picks one of them for each game.
+-- Both lists must be of the same faction, so `faction` above stands for both; the second list keeps its own commander and points.
+alter table public.entry_lists add column if not exists list_code_2 text;
+alter table public.entry_lists add column if not exists faction_2 text;
+alter table public.entry_lists add column if not exists commander_2 text;
+alter table public.entry_lists add column if not exists points_2 integer;
 
 -- Final standings of a finished tournament, one row per player, saved by the organiser's page when the tournament is finished.
 -- This is what "tournament wins" and "podium finishes" are counted from (rank 1 = winner; players level on everything share a rank).
@@ -183,6 +189,20 @@ alter table public.registrations add column if not exists team_id uuid reference
 alter table public.registrations add column if not exists team_ok boolean not null default false;   -- the captain has accepted this player
 alter table public.games add column if not exists match_id uuid references public.matches(id) on delete cascade;
 alter table public.games add column if not exists team uuid references public.teams(id) on delete cascade;          -- the team of player a (b is on the other team of the match)
+-- has each player locked in a list for this game? (only the fact is public here; which list stays in game_picks until both have locked)
+alter table public.games add column if not exists locked_a boolean not null default false;
+alter table public.games add column if not exists locked_b boolean not null default false;
+
+-- a player's secret choice of list 1 or 2 for one game. The database shows it to the opponent only once both players have locked in.
+create table if not exists public.game_picks (
+  game_id        uuid not null references public.games(id) on delete cascade,
+  profile_id     uuid not null references public.profiles(id) on delete cascade,
+  tournament_id  uuid not null references public.tournaments(id) on delete cascade,
+  slot           smallint not null check (slot in (1, 2)),
+  locked_at      timestamptz not null default now(),
+  primary key (game_id, profile_id)
+);
+create index if not exists game_picks_tournament_idx on public.game_picks (tournament_id);
 
 create index if not exists tournaments_owner_idx on public.tournaments (owner);
 drop index if exists public.tournaments_listed_idx;
@@ -211,12 +231,29 @@ create or replace function public.has_registration(tid uuid, pid uuid) returns b
   select exists (select 1 from registrations where tournament_id = tid and profile_id = pid and status in ('pending', 'approved')) $$;
 create or replace function public.is_approved(tid uuid, pid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from registrations where tournament_id = tid and profile_id = pid and status = 'approved') $$;
--- are the locked lists public yet? (locked, and either no "hide until round 1" or round 1 has been drawn)
+-- are the army lists public yet? Only once the tournament has finished; until then a list is seen by its player, the organiser and
+-- whoever the player has been matched with (see matched_with)
 create or replace function public.lists_public(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from tournaments t where t.id = tid and t.lists_locked
-    and (not t.hide_lists_until_round1 or exists (select 1 from rounds r where r.tournament_id = t.id))) $$;
+  select exists (select 1 from tournaments t where t.id = tid and t.lists_locked and t.status = 'finished') $$;
+-- has the caller been drawn against this player in a game of the tournament? Then they may see both of the player's lists, to choose theirs with
+-- the knowledge of what they face (which of the two the player picks stays secret until both have locked in).
+create or replace function public.matched_with(tid uuid, pid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from games g where g.tournament_id = tid and g.b is not null
+    and ((g.a = auth.uid() and g.b = pid) or (g.b = auth.uid() and g.a = pid))) $$;
 create or replace function public.round_open(rid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from rounds where id = rid and not done) $$;
+-- have both players of this game locked in their list? (until then neither choice may be seen by anybody else)
+create or replace function public.picks_revealed(gid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from games g where g.id = gid and g.b is not null
+    and exists (select 1 from game_picks p where p.game_id = g.id and p.profile_id = g.a)
+    and exists (select 1 from game_picks p where p.game_id = g.id and p.profile_id = g.b)) $$;
+-- may the organiser see this game's lock-ins early? Yes on every table except one they play at themselves (an organiser who is also a player
+-- must not see their own opponent's choice)
+create or replace function public.organiser_sees_picks(gid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from games g where g.id = gid and is_owner(g.tournament_id) and auth.uid() is distinct from g.a and auth.uid() is distinct from g.b) $$;
+-- may the caller lock in a list for this game? (they play in it, it is not a bye and the round is still open)
+create or replace function public.can_pick(gid uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from games g where g.id = gid and g.b is not null and auth.uid() in (g.a, g.b) and round_open(g.round_id)) $$;
 -- team helpers
 create or replace function public.is_captain(tid uuid) returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from teams where id = tid and captain = auth.uid()) $$;
@@ -239,6 +276,19 @@ drop trigger if exists tournaments_touch on public.tournaments;
 create trigger tournaments_touch before update on public.tournaments for each row execute function public.touch_updated_at();
 drop trigger if exists entry_lists_touch on public.entry_lists;
 create trigger entry_lists_touch before update on public.entry_lists for each row execute function public.touch_updated_at();
+
+-- both lists of an entry must be of the same faction; with no second list its details are cleared
+create or replace function public.entry_lists_guard() returns trigger language plpgsql as $$
+begin
+  if new.list_code_2 is null then
+    new.faction_2 := null; new.commander_2 := null; new.points_2 := null;
+  elsif new.faction_2 is distinct from new.faction then
+    raise exception 'Both of your lists must be of the same faction.';
+  end if;
+  return new;
+end $$;
+drop trigger if exists entry_lists_guard_check on public.entry_lists;
+create trigger entry_lists_guard_check before insert or update on public.entry_lists for each row execute function public.entry_lists_guard();
 
 -- only the site administrator (working in the Supabase dashboard, not through the website) may set rating_override
 create or replace function public.tournaments_guard() returns trigger language plpgsql as $$
@@ -311,21 +361,69 @@ end $$;
 drop trigger if exists registrations_cap_check on public.registrations;
 create trigger registrations_cap_check before insert or update on public.registrations for each row execute function public.registrations_cap();
 
--- players may report their own games, but not move players between tables or change bonus points or an organiser-fixed result
+-- players may report their own games, but not move players between tables or change bonus points or an organiser-fixed result;
+-- nobody may enter a game until both players have locked in one of their lists their lists
 create or replace function public.games_guard() returns trigger language plpgsql security definer set search_path = public as $$
 begin
+  if coalesce(current_setting('song.pick', true), '') = '1' then return new; end if;   -- the lock-in trigger setting the flags
   if not is_owner(new.tournament_id) then
     if new.a is distinct from old.a or new.b is distinct from old.b or new.round_id <> old.round_id or new.table_no <> old.table_no
-       or new.tournament_id <> old.tournament_id or new.match_id is distinct from old.match_id or new.team is distinct from old.team or new.bonus_a <> old.bonus_a or new.bonus_b <> old.bonus_b or new.manual <> old.manual then
+       or new.tournament_id <> old.tournament_id or new.match_id is distinct from old.match_id or new.team is distinct from old.team or new.bonus_a <> old.bonus_a or new.bonus_b <> old.bonus_b or new.manual <> old.manual
+       or new.locked_a <> old.locked_a or new.locked_b <> old.locked_b then
       raise exception 'Players can only report victory points, destroyed units and the result of their own game.';
     end if;
     if old.manual and new.result is distinct from old.result then raise exception 'The organiser has fixed this result.'; end if;
+  end if;
+  -- a game cannot be entered, by anybody, until both players have locked in one of their lists
+  if new.b is not null and not picks_revealed(new.id)
+     and ((new.vp_a is not null and new.vp_a is distinct from old.vp_a) or (new.vp_b is not null and new.vp_b is distinct from old.vp_b)
+          or (new.result is not null and new.result is distinct from old.result)
+          or (new.killed_by_a <> '{}' and new.killed_by_a is distinct from old.killed_by_a) or (new.killed_by_b <> '{}' and new.killed_by_b is distinct from old.killed_by_b)) then
+    raise exception 'Both players must lock in one of their lists before the game is entered.';
+  end if;
+  if is_owner(new.tournament_id) and (new.a is distinct from old.a or new.b is distinct from old.b) then
+    -- somebody else now sits at this table: the old lock-ins no longer apply
+    perform set_config('song.reset', '1', true);
+    delete from game_picks where game_id = new.id;
+    perform set_config('song.reset', '', true);
+    new.locked_a := false; new.locked_b := false;
   end if;
   new.updated_by = auth.uid(); new.updated_at = now();
   return new;
 end $$;
 drop trigger if exists games_guard_check on public.games;
 create trigger games_guard_check before update on public.games for each row execute function public.games_guard();
+
+-- locking in: the choice must be one the player really has, the lists must be locked, and the public flag on the game is raised
+create or replace function public.game_picks_guard() returns trigger language plpgsql security definer set search_path = public as $$
+declare g record; e record;
+begin
+  select * into g from games where id = new.game_id;
+  if not found or g.b is null then raise exception 'There is no game to lock in a list for.'; end if;
+  if new.profile_id is distinct from g.a and new.profile_id is distinct from g.b then raise exception 'You are not playing in this game.'; end if;
+  new.tournament_id := g.tournament_id;
+  if not (select lists_locked from tournaments where id = g.tournament_id) then raise exception 'The organiser has not locked the army lists yet.'; end if;
+  select * into e from entry_lists where tournament_id = g.tournament_id and profile_id = new.profile_id;
+  if not found then raise exception 'You have no army list in this tournament.'; end if;
+  if new.slot = 2 and e.list_code_2 is null then raise exception 'You have not entered a second list.'; end if;
+  return new;
+end $$;
+drop trigger if exists game_picks_guard_check on public.game_picks;
+create trigger game_picks_guard_check before insert on public.game_picks for each row execute function public.game_picks_guard();
+
+create or replace function public.game_picks_flag() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  perform set_config('song.pick', '1', true);
+  if tg_op = 'INSERT' then
+    update games set locked_a = locked_a or (a = new.profile_id), locked_b = locked_b or (b = new.profile_id) where id = new.game_id;
+  elsif coalesce(current_setting('song.reset', true), '') <> '1' then   -- the organiser clearing a lock-in
+    update games set locked_a = locked_a and (a <> old.profile_id), locked_b = locked_b and (b is distinct from old.profile_id) where id = old.game_id;
+  end if;
+  perform set_config('song.pick', '', true);
+  return null;
+end $$;
+drop trigger if exists game_picks_flag_check on public.game_picks;
+create trigger game_picks_flag_check after insert or delete on public.game_picks for each row execute function public.game_picks_flag();
 
 -- ---- security: row level security on every table -----------------------------
 
@@ -337,6 +435,7 @@ alter table public.entry_lists    enable row level security;
 alter table public.tournament_results enable row level security;
 alter table public.rounds         enable row level security;
 alter table public.games          enable row level security;
+alter table public.game_picks     enable row level security;
 
 -- profiles
 drop policy if exists "profiles: read" on public.profiles;
@@ -399,10 +498,10 @@ create policy "matches: read" on public.matches for select to anon, authenticate
 drop policy if exists "matches: organiser writes" on public.matches;
 create policy "matches: organiser writes" on public.matches for all to authenticated using (public.is_owner(tournament_id)) with check (public.is_owner(tournament_id));
 
--- army lists: private until the organiser locks lists (and, if chosen, round 1 is drawn)
+-- army lists: private to their player and the organiser; an opponent sees both lists once they are matched; everyone once the tournament has finished
 drop policy if exists "entry_lists: read" on public.entry_lists;
 create policy "entry_lists: read" on public.entry_lists for select to anon, authenticated
-  using (profile_id = auth.uid() or public.is_owner(tournament_id)
+  using (profile_id = auth.uid() or public.is_owner(tournament_id) or public.matched_with(tournament_id, profile_id)
          or (public.lists_public(tournament_id) and public.can_view(tournament_id) and public.is_approved(tournament_id, profile_id)));
 drop policy if exists "entry_lists: write" on public.entry_lists;
 create policy "entry_lists: write" on public.entry_lists for insert to authenticated
@@ -444,11 +543,41 @@ create policy "games: report" on public.games for update to authenticated
   using (public.is_owner(tournament_id) or (auth.uid() in (a, b) and public.round_open(round_id)))
   with check (public.is_owner(tournament_id) or (auth.uid() in (a, b) and public.round_open(round_id)));
 
+-- game_picks: you always see your own choice; the other player's (and everyone else's) only once both players have locked in.
+-- The organiser also sees them early, except on a table they play at themselves.
+-- A player can lock in once and cannot change it; the organiser can clear a lock-in (clear_lock_in).
+drop policy if exists "game_picks: read" on public.game_picks;
+create policy "game_picks: read" on public.game_picks for select to anon, authenticated
+  using (profile_id = auth.uid() or public.picks_revealed(game_id) or public.organiser_sees_picks(game_id));
+drop policy if exists "game_picks: lock in" on public.game_picks;
+create policy "game_picks: lock in" on public.game_picks for insert to authenticated
+  with check (profile_id = auth.uid() and public.can_pick(game_id));
+drop policy if exists "game_picks: organiser clears" on public.game_picks;   -- (replaced by clear_lock_in below: the organiser cannot read a hidden choice, so cannot delete it directly)
+-- the organiser locks in a list for a player who cannot or will not (absent, no connection). The same checks apply as for the player's own lock-in
+create or replace function public.organiser_lock_in(gid uuid, pid uuid, slot integer) returns void language plpgsql security definer set search_path = public as $$
+declare g record;
+begin
+  select * into g from games where id = gid;
+  if not found or not is_owner(g.tournament_id) then raise exception 'Only the organiser can lock in a list for a player.'; end if;
+  if not round_open(g.round_id) then raise exception 'That round has finished.'; end if;
+  if exists (select 1 from game_picks where game_id = gid and profile_id = pid) then raise exception 'That player has already locked in.'; end if;
+  insert into game_picks (game_id, profile_id, tournament_id, slot) values (gid, pid, g.tournament_id, slot::smallint);   -- the guard trigger validates it
+end $$;
+-- the organiser clears both lock-ins of a game, e.g. after a mistake
+create or replace function public.clear_lock_in(gid uuid) returns void language plpgsql security definer set search_path = public as $$
+declare tid uuid;
+begin
+  select tournament_id into tid from games where id = gid;
+  if tid is null or not is_owner(tid) then raise exception 'Only the organiser can clear a lock-in.'; end if;
+  delete from game_picks where game_id = gid;   -- the trigger lowers the flags on the game
+end $$;
+
 -- ---- access: the API may only do what the rules above allow ---------------------
 
 grant usage on schema public to anon, authenticated;
-grant select on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games, public.teams, public.matches to anon;
+grant select on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games, public.teams, public.matches, public.game_picks to anon;
 grant select, insert, update, delete on public.profiles, public.tournaments, public.registrations, public.entry_lists, public.tournament_results, public.rounds, public.games, public.teams, public.matches to authenticated;
+grant select, insert on public.game_picks to authenticated;   -- a lock-in is never changed, only made (the organiser can clear one with clear_lock_in)
 grant select, insert, update, delete on public.saved_lists to authenticated;   -- no access for anon: the library is private
 
 -- ---- real names ----------------------------------------------------------------
@@ -717,7 +846,7 @@ grant select on public.ranking_board to anon, authenticated;
 create or replace view public.player_games with (security_invoker = true) as
 select s.profile_id, s.game_id, s.tournament_id, t.name as tournament_name, t.date as tournament_date, s.round_n, s.table_no,
        s.opp_id, s.outcome, s.vp_for, s.vp_against,
-       me.faction as faction, me.commander as commander, opp.faction as opp_faction, public.is_rated(s.tournament_id) as rated
+       me.faction as faction, case when pk.slot = 2 then me.commander_2 else me.commander end as commander, opp.faction as opp_faction, public.is_rated(s.tournament_id) as rated
 from (
   select g.a as profile_id, g.id as game_id, g.tournament_id, rd.n as round_n, g.table_no, g.b as opp_id,
          case g.result when 'a' then 'win' when 'draw' then 'draw' else 'loss' end as outcome, g.vp_a as vp_for, g.vp_b as vp_against
@@ -729,6 +858,7 @@ from (
 ) s
 join public.tournaments t on t.id = s.tournament_id
 left join public.entry_lists me on me.tournament_id = s.tournament_id and me.profile_id = s.profile_id
+left join public.game_picks pk on pk.game_id = s.game_id and pk.profile_id = s.profile_id
 left join public.entry_lists opp on opp.tournament_id = s.tournament_id and opp.profile_id = s.opp_id;
 grant select on public.player_games to anon, authenticated;
 
@@ -737,7 +867,7 @@ grant select on public.player_games to anon, authenticated;
 do $$
 declare t text;
 begin
-  foreach t in array array['games', 'rounds', 'registrations', 'entry_lists', 'tournaments', 'teams', 'matches'] loop
+  foreach t in array array['games', 'rounds', 'registrations', 'entry_lists', 'tournaments', 'teams', 'matches', 'game_picks'] loop
     if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
       execute format('alter publication supabase_realtime add table public.%I', t);
     end if;

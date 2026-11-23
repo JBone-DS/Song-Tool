@@ -349,3 +349,11 @@ details > summary { cursor: pointer; margin: 10px 0 6px; font-weight: 600; }
 tr.match-row th { text-align: left; background: rgba(128, 128, 128, .15); font-weight: 600; }
 .rating-chart { margin: 6px 0; color: var(--fg); }
 .rating-chart svg { max-width: 100%; height: auto; }
+
+/* two lists per player, and the secret lock-in under each table */
+.list-slot { margin: 10px 0; }
+.list-slot h3 { margin: 0 0 4px; }
+.lock-row td { padding-top: 2px; padding-bottom: 8px; font-size: 0.92rem; white-space: normal; }
+.lock-row .lock-note { display: block; margin-bottom: 4px; }
+.lock-row .row-btn { margin: 2px 6px 2px 0; display: inline-block; white-space: normal; text-align: left; max-width: 100%; }
+.lock-played { margin-right: 14px; display: inline-block; }

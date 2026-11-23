@@ -2,15 +2,17 @@
 //
 // A tournament (see tournament.js for how it is stored) looks like this:
 //   {
-//     rules:   { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: ["sos", "vpDiff", "vp", "destroyedDiff"],
+//     rules:   { pairing: "swiss" | "random", avoidClub (Round 1 only), win, draw, loss, tiebreakers: ["sos", "vpDiff", "vp", "destroyedDiff"],
 //                margins: { enabled, band, marginalWin, majorWin } },   // optional: a win by band VP or fewer is marginal, more is major
 //     players: [ { pid, dropped, ... } ],                    // pid = the player's profile id
-//     rounds:  [ { n, done, tables: [ { a, b, result, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ],
+//     rounds:  [ { n, done, tables: [ { a, b, result, vpA, vpB, bonusA, bonusB, killedByA, killedByB, lockedA, lockedB, pickA, pickB } ] } ],
+//     (every player has two lists; pickA / pickB are the list, 1 or 2, each side locked in for that game - null until known)
 //   }
 // A table with b === null is a bye. result is "a", "b", "draw", or null while the game is unplayed.
 // killedByA lists which units of B's army A destroyed, as positions in B's list (killedByB likewise).
-// Standings take optional { rowPoints(pid) -> [points of each row of that player's list], unitRows(pid) -> [positions of its unit rows],
-// tableStart(pid) -> army points less NCUs } to turn kills into points, spot a wiped-out army and work out points left on the table.
+// Standings take optional { rowPoints(pid, g) -> [points of each row of that player's list], unitRows(pid, g) -> [positions of its unit rows],
+// tableStart(pid, g) -> army points less NCUs } to turn kills into points, spot a wiped-out army and work out points left on the table.
+// g is the game, because a player has two lists and may play a different one each game.
 
 const TIEBREAKERS = {
   sos: "Strength of schedule (opponents' average points)",
@@ -30,15 +32,15 @@ function resultFromVp(t) {
 }
 
 // points of the enemy army this side destroyed (killed = positions in the enemy list)
-function killedWorth(pid, killed, opts) {
-  const pts = (opts.rowPoints ?? (() => []))(pid);
+function killedWorth(pid, killed, opts, g) {
+  const pts = (opts.rowPoints ?? (() => []))(pid, g);
   return (killed ?? []).reduce((n, i) => n + (pts[i] ?? 0), 0);
 }
 // Has this side lost its whole army off the table? True when it has units and the enemy destroyed every one.
 // opts.unitRows(pid) gives the positions of a player's unit rows (not NCUs, not commanders).
 function wipedOut(g, side, opts = {}) {
   if (g.b === null || !opts.unitRows) return false;
-  const rows = opts.unitRows(side === "a" ? g.a : g.b);
+  const rows = opts.unitRows(side === "a" ? g.a : g.b, g);
   const killed = new Set(side === "a" ? g.killedByB : g.killedByA);
   return rows.length > 0 && rows.every(i => killed.has(i));
 }
@@ -46,7 +48,7 @@ function wipedOut(g, side, opts = {}) {
 function tableLeft(g, side, opts = {}) {
   if (!opts.tableStart) return null;
   const pid = side === "a" ? g.a : g.b;
-  return opts.tableStart(pid) - killedWorth(pid, side === "a" ? g.killedByB : g.killedByA, opts);
+  return opts.tableStart(pid, g) - killedWorth(pid, side === "a" ? g.killedByB : g.killedByA, opts, g);
 }
 
 // Decide a game: { result: "a" | "b" | "draw" | null, basis: "wipeout" | "vp" | "table" | "tied" | null }.
@@ -85,7 +87,7 @@ function gameRows(t, opts = {}) {
   const rows = [];
   const bonus = n => (Number.isFinite(n) ? n : 0);
   const rowPoints = opts.rowPoints ?? (() => []);
-  const worth = (pid, killed) => { const pts = rowPoints(pid); return (killed ?? []).reduce((n, i) => n + (pts[i] ?? 0), 0); };
+  const worth = (pid, killed, g) => { const pts = rowPoints(pid, g); return (killed ?? []).reduce((n, i) => n + (pts[i] ?? 0), 0); };
   for (const round of t.rounds) {
     for (const g of round.tables) {
       // in a team event each game belongs to a match; g.team is the team of player a, the other team of the match is b's
@@ -101,7 +103,7 @@ function gameRows(t, opts = {}) {
       const ob = g.result === "b" ? "w" : g.result === "draw" ? "d" : "l";
       const vpA = Number.isFinite(g.vpA) ? g.vpA : 0, vpB = Number.isFinite(g.vpB) ? g.vpB : 0;
       const tier = winTier(g, t.rules, opts), win = winPoints(g, t.rules, opts);
-      const dA = worth(g.b, g.killedByA), dB = worth(g.a, g.killedByB);   // points of B's army A destroyed, and the reverse
+      const dA = worth(g.b, g.killedByA, g), dB = worth(g.a, g.killedByB, g);   // points of B's army A destroyed, and the reverse
       rows.push({ team: teamA, pid: g.a, opp: g.b, points: (oa === "w" ? win : pts(oa)) + bonus(g.bonusA), vp: vpA, vpAgainst: vpB, destroyed: dA, lost: dB, bye: false, outcome: oa, major: oa === "w" && tier === "major" });
       rows.push({ team: teamB, pid: g.b, opp: g.a, points: (ob === "w" ? win : pts(ob)) + bonus(g.bonusB), vp: vpB, vpAgainst: vpA, destroyed: dB, lost: dA, bye: false, outcome: ob, major: ob === "w" && tier === "major" });
     }
@@ -195,6 +197,12 @@ function pairPlayers(order, met, byes, avoidClub, clubOf) {
     .concat(bye !== null ? [{ a: bye, b: null }] : []);   // unreachable in practice: level 2 always succeeds
 }
 
+// is "avoid clubmates" on for the round about to be drawn? The rule (rules.avoidClub) covers Round 1 only; later
+// rounds are paired on standings. t.rounds holds the rounds already drawn before this one.
+function avoidingClubs(t) {
+  return !!t.rules.avoidClub && !t.rounds.length;
+}
+
 // the tables for the next round
 function drawRound(t, clubOf, seed = Date.now(), opts = {}) {
   const rng = makeRng(seed);
@@ -206,7 +214,7 @@ function drawRound(t, clubOf, seed = Date.now(), opts = {}) {
     // players level on every measure are shuffled among themselves so pairings are not decided by sign-up order
     order = shuffle(active, rng).sort((x, y) => rank.get(x) - rank.get(y));
   } else order = shuffle(active, rng);
-  return pairPlayers(order, met, byes, t.rules.avoidClub, clubOf).map((g, i) => ({
+  return pairPlayers(order, met, byes, avoidingClubs(t), clubOf).map((g, i) => ({
     id: i + 1, a: g.a, b: g.b, result: g.b === null ? "a" : null, vpA: null, vpB: null, bonusA: 0, bonusB: 0,
   }));
 }
@@ -218,7 +226,7 @@ function roundWarnings(t, tables, clubOf) {
   for (const g of tables) {
     if (g.b === null) { if (byes.has(g.a)) out.push("A player is getting a second bye."); continue; }
     if (met.has(`${g.a}|${g.b}`)) out.push("A rematch is on the draw.");
-    if (t.rules.avoidClub && clubOf(g.a) && clubOf(g.a) === clubOf(g.b)) out.push("Two players from the same club are paired.");
+    if (avoidingClubs(t) && clubOf(g.a) && clubOf(g.a) === clubOf(g.b)) out.push("Two players from the same club are paired.");
   }
   return [...new Set(out)];
 }
@@ -306,7 +314,7 @@ function drawTeamRound(t, seed = Date.now(), opts = {}) {
     const rank = new Map(teamStandings(t, opts).map((s, i) => [s.team, i]));
     order = shuffle(teams.map(x => x.id), rng).sort((x, y) => rank.get(x) - rank.get(y));
   } else order = shuffle(teams.map(x => x.id), rng);
-  const pairs = pairPlayers(order, met, byes, t.rules.avoidClub, opts.clubOfTeam ?? (() => ""));
+  const pairs = pairPlayers(order, met, byes, avoidingClubs(t), opts.clubOfTeam ?? (() => ""));
   const indRank = new Map(standings(t, opts).map((s, i) => [s.pid, i]));
   const seatOrder = ids => (t.rules.seatPairing === "random" || !t.rounds.length ? shuffle(ids, rng) : [...shuffle(ids, rng)].sort((x, y) => (indRank.get(x) ?? 1e9) - (indRank.get(y) ?? 1e9)));
   const matches = [], tables = [];

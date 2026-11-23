@@ -10,7 +10,7 @@ globalThis.storeSet = (k, v) => { mem[k] = v; return true; };
 const { cloud } = require("./cloud.js");
 
 // ---- a fake of the few Supabase calls cloud.js makes ----
-const tables = { profiles: [], tournaments: [], registrations: [], entry_lists: [], tournament_results: [], rounds: [], games: [], teams: [], matches: [], saved_lists: [], player_games: [], player_ratings: [], rating_ranks: [], rating_history: [] };
+const tables = { profiles: [], tournaments: [], registrations: [], entry_lists: [], tournament_results: [], rounds: [], games: [], game_picks: [], teams: [], matches: [], saved_lists: [], player_games: [], player_ratings: [], rating_ranks: [], rating_history: [] };
 const calls = [];
 function from(name) {
   const rows = name === "profile_names" ? tables.profiles : tables[name]; let filters = [], op = null, payload = null, opts = {}, wantOne = false;
@@ -186,6 +186,46 @@ cloud.user = { id: "u-org" };
   cloud.user = { id: org };
   await cloud.syncEntryMeta(tid, [{ pid: p1, faction: "lannister", commander: "", points: 40 }]);
   e1 = tables.entry_lists.find(r => r.profile_id === p1); assert.deepStrictEqual([e1.faction, e1.commander, e1.points], ["lannister", null, 40]);
+
+  // two lists: the second goes on the same entry; changing list 1 to another faction can drop it
+  cloud.user = { id: p1 };
+  await cloud.setList(tid, p1, "codeX", { faction: "stark", commander: "c1", points: 39 });
+  await cloud.setList(tid, p1, "codeZ", { faction: "stark", commander: "c9", points: 40 }, 2);
+  e1 = tables.entry_lists.find(r => r.profile_id === p1);
+  assert.deepStrictEqual([e1.list_code, e1.faction, e1.list_code_2, e1.faction_2, e1.commander_2, e1.points_2], ["codeX", "stark", "codeZ", "stark", "c9", 40]);
+  await cloud.setList(tid, p1, "codeW", { faction: "lannister" }, 1, { clearSecond: true });
+  e1 = tables.entry_lists.find(r => r.profile_id === p1);
+  assert.deepStrictEqual([e1.list_code, e1.faction, e1.list_code_2, e1.faction_2, e1.points_2], ["codeW", "lannister", null, null, null]);
+  await cloud.setList(tid, p1, "codeX", { faction: "stark", commander: "c1", points: 39 });
+  await cloud.setList(tid, p1, "codeZ", { faction: "stark", commander: "c9", points: 40 }, 2);
+  cloud.user = { id: org };
+  await cloud.syncEntryMeta(tid, [{ pid: p1, faction: "stark", commander: "c1", points: 40, second: { faction: "stark", commander: "c8", points: 38 } }]);
+  e1 = tables.entry_lists.find(r => r.profile_id === p1);
+  assert.deepStrictEqual([e1.points, e1.commander_2, e1.points_2, e1.list_code_2], [40, "c8", 38, "codeZ"]);
+
+  // lock-in: a player's secret choice of list for a game; the organiser can clear it
+  cloud.user = { id: p1 };
+  await cloud.lockIn("game-1", tid, 2);
+  const pk = tables.game_picks.at(-1);
+  assert.deepStrictEqual([pk.game_id, pk.tournament_id, pk.profile_id, pk.slot], ["game-1", tid, p1, 2]);
+  cloud.user = { id: org };
+  await cloud.clearLockIn("game-1"); assert.ok(calls.includes("rpc clear_lock_in"));
+  await cloud.organiserLockIn("game-1", p2, 1); assert.ok(calls.includes("rpc organiser_lock_in"));   // the organiser locking in for a player
+  // the list a player played in a game: their locked-in slot (their first list when there is no pick)
+  assert.strictEqual(await cloud.entryList(tid, p1, "game-1"), "codeZ");
+  assert.strictEqual(await cloud.entryList(tid, p1), "codeX");
+  // reading them back: the second list, the public lock flags, and only the picks the database showed this viewer
+  const twoListRead = K.fromRows({ id: "t1", owner: "o", name: "x", points: 40, planned_rounds: 3, status: "running", rules: {}, registration_open: true, lists_locked: true, hide_lists_until_round1: false },
+    [{ profile_id: "pa", status: "approved", dropped: false }, { profile_id: "pb", status: "approved", dropped: false }],
+    [{ profile_id: "pa", list_code: "A1", list_code_2: "A2" }, { profile_id: "pb", list_code: "B1" }],
+    [{ id: "r1", tournament_id: "t1", n: 1, done: false }],
+    [{ id: "g1", round_id: "r1", table_no: 1, a: "pa", b: "pb", locked_a: true, locked_b: false, killed_by_a: [], killed_by_b: [] }, { id: "g2", round_id: "r1", table_no: 2, a: "pc", b: null, killed_by_a: [], killed_by_b: [] }],
+    [], [], [{ game_id: "g1", profile_id: "pa", slot: 2 }]);
+  assert.deepStrictEqual(twoListRead.players.map(p => [p.listCode, p.listCode2]), [["A1", "A2"], ["B1", null]]);
+  assert.deepStrictEqual([twoListRead.rounds[0].tables[0].lockedA, twoListRead.rounds[0].tables[0].lockedB, twoListRead.rounds[0].tables[0].pickA, twoListRead.rounds[0].tables[0].pickB], [true, false, 2, null]);
+  assert.deepStrictEqual([twoListRead.rounds[0].tables[1].lockedA, twoListRead.rounds[0].tables[1].pickA, twoListRead.rounds[0].tables[1].pickB], [false, null, null]);
+  // the organiser's uploads never touch the lock flags (they are the players' to raise)
+  assert.ok(!("locked_a" in K.toGameRow({ id: "t1" }, { n: 1 }, { id: 1, a: "pa", b: "pb" }, "r1")));
 
   // ratings: one call that rebuilds them on the server
   await cloud.recomputeRatings(); assert.ok(calls.includes("rpc recompute_ratings"));

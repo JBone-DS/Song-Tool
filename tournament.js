@@ -4,7 +4,7 @@
 // Everything is stored in a Supabase database (cloud.js, schema.sql). People sign in with an email link and have one profile each.
 //  - Anyone can browse the directory and open a tournament (read-only) without an account.
 //  - A signed-in player asks to join; the organiser approves or declines. Players set their army list; the organiser locks lists,
-//    which makes them public (or only once round 1 is drawn, if the organiser chose that).
+//    which stops changes; an opponent sees both lists once they are matched, and everyone does when the tournament finishes.
 //  - The organiser runs the rounds and can change anything; the two players in a game can report its victory points and
 //    destroyed units while the round is open.
 // The page works on one tournament at a time, `ui.t` (see cloud-core.js for its shape). The organiser's edits to it are saved
@@ -51,17 +51,17 @@ const ratedNow = t => t.players.length >= MIN_RATED_PLAYERS;
 const problem = err => (err?.message ?? String(err)).replace(/^.*?:\s*(?=[A-Z])/, "");
 
 // the points of each row of a player's locked list, for scoring destroyed units
-function rowPointsOf(t, pid) {
-  const info = listInfo(t.players.find(p => p.pid === pid)?.listCode);
+function rowPointsOf(t, pid, g) {
+  const info = infoFor(t, pid, g);
   return (info?.rows ?? []).map(r => (r ? r.withAttachments : 0));
 }
 // what the engine needs to know about each player's list: points per row, which rows are units, and points that start on the table
 function ctx(t) {
-  const info = pid => listInfo(t.players.find(p => p.pid === pid)?.listCode);
+  const info = (pid, g) => infoFor(t, pid, g);   // the list that player played in that game
   return {
-    rowPoints: pid => rowPointsOf(t, pid),
-    unitRows: pid => (info(pid)?.rows ?? []).flatMap((r, i) => (r ? [i] : [])),
-    tableStart: pid => { const i = info(pid); return i ? i.points - i.ncuPoints : 0; },   // army total less NCU costs
+    rowPoints: (pid, g) => rowPointsOf(t, pid, g),
+    unitRows: (pid, g) => (info(pid, g)?.rows ?? []).flatMap((r, i) => (r ? [i] : [])),
+    tableStart: (pid, g) => { const i = info(pid, g); return i ? i.points - i.ncuPoints : 0; },   // army total less NCU costs
   };
 }
 const stand = t => standings(t, ctx(t));
@@ -129,6 +129,40 @@ function lockProblems(t, code) {
   if (info.list.gameSize !== t.points) out.unshift(`The list is built for ${info.list.gameSize} points, the tournament is ${t.points}`);
   return out;
 }
+// ---- two lists per player ---------------------------------------------------
+// Every player enters two lists of one faction (they may be the same list twice) and, for each game, secretly locks in one of them.
+const entryCodes = p => [p?.listCode ?? null, p?.listCode2 ?? null];
+const listCodeOf = (p, slot) => (slot === 2 ? p?.listCode2 : p?.listCode) ?? null;
+// the list a player plays in a game: the one they locked in (their first list until they have)
+function gameListCode(t, g, pid) {
+  const p = t.players.find(x => x.pid === pid);
+  return listCodeOf(p, (g.a === pid ? g.pickA : g.pickB) ?? 1);
+}
+const infoFor = (t, pid, g) => listInfo(g ? gameListCode(t, g, pid) : t.players.find(p => p.pid === pid)?.listCode);
+const bothLocked = g => g.b === null || !!(g.lockedA && g.lockedB);
+// what is wrong with a player's pair of lists (empty when fine)
+function entryProblems(t, p) {
+  const [c1, c2] = entryCodes(p), out = [];
+  if (!c1) return ["no list"];
+  if (!c2) out.push("no second list");
+  for (const [n, c] of [[1, c1], [2, c2]]) if (c) out.push(...lockProblems(t, c).map(x => (c2 ? `List ${n}: ` : "") + x));
+  const f1 = listInfo(c1)?.list.faction, f2 = c2 ? listInfo(c2)?.list.faction : f1;
+  if (f1 && f2 && f1 !== f2) out.push("both lists must be of the same faction");
+  return out;
+}
+// "View list" links: one when both lists are the same list, otherwise one for each
+function listLinks(p) {
+  const [c1, c2] = entryCodes(p), link = (code, label) => el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", textContent: label });
+  if (!c1) return [];
+  return c2 && c2 !== c1 ? [link(c1, "View list 1"), link(c2, "View list 2")] : [link(c1, "View list")];
+}
+const listsSummary = p => {
+  const [c1, c2] = entryCodes(p);
+  if (!c1) return "No list yet";
+  if (!c2) return `${listSummary(c1)} (second list missing)`;
+  return c2 === c1 ? `${listSummary(c1)} (both lists)` : `1: ${listSummary(c1)}; 2: ${listSummary(c2)}`;
+};
+const commandersOf = p => [...new Set(entryCodes(p).map(c => listInfo(c)?.commander).filter(Boolean))].join(" / ");
 const savedLists = () => storeGet(STORE_SAVED, []).map(s => { const l = sanitizeList(s.list); return { name: s.name, code: l ? encodeList(l) : "" }; }).filter(s => s.code);
 
 
@@ -328,8 +362,8 @@ function renderHistory(games) {
 async function viewGameList(g, pid, who) {
   ui.viewList = { title: `${who} - ${g.tournament_name}, round ${g.round_n}`, code: null, reason: "Loading..." }; render();
   try {
-    const code = await cloud.entryList(g.tournament_id, pid);
-    ui.viewList.code = code; ui.viewList.reason = code ? "" : "This list is not visible to you (lists become public when the organiser locks them).";
+    const code = await cloud.entryList(g.tournament_id, pid, g.game_id);
+    ui.viewList.code = code; ui.viewList.reason = code ? "" : "This list is not visible to you (lists are private until you are matched with the player, and public once a tournament has finished).";
   } catch (err) { ui.viewList.reason = `Could not load it: ${problem(err)}`; }
   render();
 }
@@ -471,7 +505,7 @@ document.addEventListener("focusout", () => { if (ui.renderPending) { ui.renderP
 // ---- my entry: asking to join and choosing a list ----------------------------
 
 async function askToJoin(t) {
-  try { await cloud.requestJoin(t.id); t.requests.push({ pid: myId(), status: "pending", listCode: null }); ui.msg = "Request sent. The organiser will approve it. You can choose your list now."; }
+  try { await cloud.requestJoin(t.id); t.requests.push({ pid: myId(), status: "pending", listCode: null, listCode2: null }); ui.msg = "Request sent. The organiser will approve it. You can choose your list now."; }
   catch (err) { ui.msg = `Could not send the request: ${problem(err)}`; }
   render();
 }
@@ -480,13 +514,13 @@ async function startTeam(t) {
   if (!name) { ui.msg = "Give your team a name."; return render(); }
   try {
     const id = await cloud.createTeam(t.id, name);
-    t.teams.push({ id, name, captain: myId() }); t.requests.push({ pid: myId(), status: "pending", listCode: null, teamId: id, teamOk: true });
+    t.teams.push({ id, name, captain: myId() }); t.requests.push({ pid: myId(), status: "pending", listCode: null, listCode2: null, teamId: id, teamOk: true });
     ui.teamName = ""; ui.msg = `${name} is entered. You are the captain: ask your teammates to join it here, then accept them. The organiser approves the squad.`;
   } catch (err) { ui.msg = `Could not create the team: ${problem(err)}`; }
   render();
 }
 async function joinTeam(t, team) {
-  try { await cloud.requestJoinTeam(t.id, team.id); t.requests.push({ pid: myId(), status: "pending", listCode: null, teamId: team.id, teamOk: false }); ui.msg = `Asked to join ${team.name}. Their captain needs to accept you.`; }
+  try { await cloud.requestJoinTeam(t.id, team.id); t.requests.push({ pid: myId(), status: "pending", listCode: null, listCode2: null, teamId: team.id, teamOk: false }); ui.msg = `Asked to join ${team.name}. Their captain needs to accept you.`; }
   catch (err) { ui.msg = `Could not join the team: ${problem(err)}`; }
   render();
 }
@@ -510,14 +544,26 @@ async function withdraw(t) {
   catch (err) { ui.msg = `Could not withdraw: ${problem(err)}`; }
   render();
 }
-async function chooseList(t, code) {
+async function chooseList(t, code, slot = 1) {
   if (!listInfo(code)) { ui.msg = "That doesn't look like a share link."; return render(); }
+  const e = myEntry(t), meta = listMeta(code);
   try {
-    await cloud.setList(t.id, myId(), code, listMeta(code));
-    const e = myEntry(t); if (e) e.listCode = code;
+    let note = "";
+    if (slot === 2) {
+      if (!e?.listCode) { ui.msg = "Choose your first list before your second."; return render(); }
+      const first = listInfo(e.listCode);
+      if (first && listInfo(code).list.faction !== first.list.faction) { ui.msg = `Both lists must be of the same faction. Your first list is ${first.faction}.`; return render(); }
+      await cloud.setList(t.id, myId(), code, meta, 2);
+      if (e) e.listCode2 = code;
+    } else {
+      const second = e?.listCode2 ? listInfo(e.listCode2) : null;
+      const drop = !!second && second.list.faction !== listInfo(code).list.faction;
+      await cloud.setList(t.id, myId(), code, meta, 1, { clearSecond: drop });
+      if (e) { e.listCode = code; if (drop) { e.listCode2 = null; note = " Your second list was a different faction, so it has been cleared. Choose it again."; } }
+    }
     const problems = lockProblems(t, code);
-    ui.msg = "List saved." + (problems.length ? ` It does not pass yet: ${problems.join("; ")}.` : " It passes every check.");
-    ui.pasteList = "";
+    ui.msg = `List ${slot} saved.` + (problems.length ? ` It does not pass yet: ${problems.join("; ")}.` : " It passes every check.") + note;
+    ui[slot === 2 ? "pasteList2" : "pasteList"] = "";
   } catch (err) { ui.msg = `Could not save the list: ${problem(err)}`; }
   render();
 }
@@ -555,7 +601,6 @@ function renderEntry(t) {
   const team = isTeam(t) ? myTeam(t) : null, captain = !!team && team.captain === myId();
   const status = e.status === "declined" ? "The organiser has declined your request." : approved ? "You are in this tournament."
     : team && !e.teamOk ? `You have asked to join ${team.name}. Their captain needs to accept you.` : "Your request is waiting for the organiser's approval.";
-  const problems = e.listCode ? lockProblems(t, e.listCode) : [];
   const editable = !t.listsLocked && e.status !== "declined";
   const teamBox = team ? el("div", {}, el("h3", { textContent: `Team: ${team.name}${captain ? " (you are the captain)" : ""}` }),
     el("ul", { className: "meta" }, ...teamMembers(t, team.id).map(m => el("li", {},
@@ -564,15 +609,24 @@ function renderEntry(t) {
       captain && m.pid !== myId() && !t.listsLocked ? btn("Remove to replace", () => removeMember(t, m.pid)) : ""))),
     teamMembers(t, team.id).length < t.teamSize ? el("p", { className: "meta", textContent: `Room for ${t.teamSize - teamMembers(t, team.id).length} more. Teammates find this tournament and choose "Join ${team.name}". To swap a player before the organiser locks the lists, remove them and let their replacement join. After that, ask the organiser.` }) : "") : "";
   return el("section", { className: "an-panel" }, title, el("p", { textContent: status }), teamBox,
-    e.listCode ? el("p", { className: problems.length ? "warn" : "meta", textContent: `Your list: ${listSummary(e.listCode)}.${problems.length ? ` Not valid yet: ${problems.join("; ")}.` : " It passes every check."}` })
-      : el("p", { className: "meta", textContent: e.status === "declined" ? "" : "You have not chosen a list yet." }),
+    el("p", { className: "meta", textContent: "Every player enters two lists of the same faction (the same list twice is fine). After each round is drawn you secretly lock in one of them for that game." }),
+    entryListBlock(t, e, 1, editable), entryListBlock(t, e, 2, editable),
     t.listsLocked ? el("p", { className: "meta", textContent: "Lists are locked. They can no longer be changed." }) : "",
-    editable ? el("div", { className: "an-pick" },
-      field("Saved list", el("select", { onchange: e2 => { const s = savedLists().find(x => x.name === e2.target.value); if (s) chooseList(t, s.code); } },
-        opt("", savedLists().length ? "- choose one saved in this browser -" : "(none saved in this browser)", true), ...savedLists().map(s => opt(s.name, s.name, false)))),
-      el("input", { type: "text", className: "paste", placeholder: "or paste a share link", value: ui.pasteList, onchange: e2 => { ui.pasteList = e2.target.value; chooseList(t, codeFromText(e2.target.value)); } })) : "",
-    el("div", { className: "an-pick" }, e.listCode ? el("a", { className: "row-btn", href: `index.html#list=${e.listCode}`, target: "_blank", textContent: "View my list" }) : "",
+    el("div", { className: "an-pick" },
       t.listsLocked && e.status !== "declined" ? "" : sure("withdraw", e.status === "declined" ? "Remove my request" : captain ? "Disband my team and leave" : "Leave this tournament", () => withdraw(t))));
+}
+// one of the two list slots on the sign-up panel
+function entryListBlock(t, e, slot, editable) {
+  const code = listCodeOf(e, slot), problems = code ? lockProblems(t, code) : [], key = slot === 2 ? "pasteList2" : "pasteList";
+  return el("div", { className: "list-slot" }, el("h3", { textContent: `List ${slot}` }),
+    code ? el("p", { className: problems.length ? "warn" : "meta", textContent: `${listSummary(code)}.${problems.length ? ` Not valid yet: ${problems.join("; ")}.` : " It passes every check."}` })
+      : el("p", { className: "meta", textContent: e.status === "declined" ? "" : slot === 2 ? (e.listCode ? "You have not chosen your second list yet. It can be your first list again." : "Choose your first list, then your second.") : "You have not chosen a list yet." }),
+    editable && (slot === 1 || e.listCode) ? el("div", { className: "an-pick" },
+      field("Saved list", el("select", { onchange: e2 => { const sv = savedLists().find(x => x.name === e2.target.value); if (sv) chooseList(t, sv.code, slot); } },
+        opt("", savedLists().length ? "- choose one saved in this browser -" : "(none saved in this browser)", true), ...savedLists().map(sv => opt(sv.name, sv.name, false)))),
+      el("input", { type: "text", className: "paste", placeholder: "or paste a share link", value: ui[key] ?? "", onchange: e2 => { ui[key] = e2.target.value; chooseList(t, codeFromText(e2.target.value), slot); } }),
+      slot === 2 && e.listCode ? btn("Use list 1 again", () => chooseList(t, e.listCode, 2)) : "") : "",
+    code ? el("div", { className: "an-pick" }, el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", textContent: `View list ${slot}` })) : "");
 }
 
 // the people taking part, shown to everyone
@@ -581,10 +635,10 @@ function renderRoster(t) {
   const rows = ordered.map(p => {
     const info = listInfo(p.listCode);
     return el("tr", { className: p.dropped ? "dropped" : "" }, ...(team ? [el("td", { textContent: teamLabel(t, p.teamId) + (teamById(t, p.teamId)?.captain === p.pid ? " (captain)" : "") })] : []), personCell(p.pid), el("td", { textContent: profile(p.pid)?.club || "-" }), el("td", { textContent: profile(p.pid)?.country || "-" }),
-      el("td", { textContent: info?.faction ?? "" }), el("td", { textContent: info?.commander ?? "" }),
-      el("td", {}, info ? el("a", { className: "row-btn", href: `index.html#list=${p.listCode}`, target: "_blank", textContent: "View list" }) : ""));
+      el("td", { textContent: info?.faction ?? "" }), el("td", { textContent: commandersOf(p) }),
+      el("td", {}, ...listLinks(p)));
   });
-  const hidden = !t.listsLocked ? "Army lists are shown once the organiser locks them." : t.hideListsUntilRound1 && !t.rounds.length ? "Army lists are shown once round 1 is drawn." : "";
+  const hidden = t.status === "finished" ? "" : "Army lists stay private until you are matched with an opponent, who then sees both of your lists. Everyone can see them once the tournament has finished.";
   return el("section", { className: "an-panel" }, el("h2", { textContent: `Players (${t.players.length}${t.maxPlayers ? `/${t.maxPlayers}` : ""})` }),
     hidden ? el("p", { className: "meta", textContent: hidden }) : "",
     t.players.length ? el("div", { className: "table-wrap" }, el("table", { className: "an-table tn" },
@@ -599,7 +653,7 @@ function ratedNote(t) {
   return el("p", { className: "meta", textContent: text });
 }
 function renderOverview(t) {
-  return [el("section", { className: "an-panel" }, ratedNote(t)), t.description ? el("section", { className: "an-panel" }, el("h2", { textContent: "About this tournament" }), el("p", { textContent: t.description, style: "white-space:pre-wrap" })) : "", renderEntry(t), renderRoster(t)];
+  return [el("section", { className: "an-panel" }, ratedNote(t)), t.description ? el("section", { className: "an-panel" }, el("h2", { textContent: "About this tournament" }), el("p", { textContent: t.description, style: "white-space:pre-wrap" })) : "", lockInReminder(t), renderEntry(t), renderRoster(t)];
 }
 
 // ---- organiser: players -----------------------------------------------------
@@ -608,8 +662,8 @@ function renderOverview(t) {
 async function applyPlayer(t, pid, patch) {
   await cloud.setRegistration(t.id, pid, patch);
   const inPlayers = t.players.find(p => p.pid === pid), inReqs = t.requests.find(p => p.pid === pid);
-  if (patch.status === "approved" && inReqs) { t.requests = t.requests.filter(r => r !== inReqs); t.players.push({ pid, dropped: false, listCode: inReqs.listCode, teamId: inReqs.teamId ?? null }); }
-  else if (patch.status === "declined" && inPlayers) { t.players = t.players.filter(p => p !== inPlayers); t.requests.push({ pid, status: "declined", listCode: null, teamId: inPlayers.teamId ?? null, teamOk: true }); }
+  if (patch.status === "approved" && inReqs) { t.requests = t.requests.filter(r => r !== inReqs); t.players.push({ pid, dropped: false, listCode: inReqs.listCode, listCode2: inReqs.listCode2 ?? null, teamId: inReqs.teamId ?? null }); }
+  else if (patch.status === "declined" && inPlayers) { t.players = t.players.filter(p => p !== inPlayers); t.requests.push({ pid, status: "declined", listCode: null, listCode2: null, teamId: inPlayers.teamId ?? null, teamOk: true }); }
   else if (patch.status && inReqs) inReqs.status = patch.status;
   else if ("dropped" in patch && inPlayers) inPlayers.dropped = patch.dropped;
 }
@@ -627,16 +681,19 @@ async function substitute(t, oldPid, sub) {
     const old = t.players.find(p => p.pid === oldPid);
     await cloud.substitute(t.id, oldPid, sub.id);
     people.set(sub.id, sub);
-    if (code) await cloud.setList(t.id, sub.id, code, listMeta(code));
+    const code2 = codeFromText(ui.subList2 ?? "") || code;
+    if (code2 && code2 !== code && listInfo(code2)?.list.faction !== listInfo(code)?.list.faction) throw new Error("Both lists must be of the same faction.");
+    if (code) { await cloud.setList(t.id, sub.id, code, listMeta(code)); await cloud.setList(t.id, sub.id, code2, listMeta(code2), 2); }
     if (old) old.dropped = true;
     t.requests = t.requests.filter(r => r.pid !== sub.id);
-    t.players = t.players.filter(p => p.pid !== sub.id).concat({ pid: sub.id, dropped: false, listCode: code || null, teamId: old?.teamId ?? null });
+    t.players = t.players.filter(p => p.pid !== sub.id).concat({ pid: sub.id, dropped: false, listCode: code || null, listCode2: code ? code2 : null, teamId: old?.teamId ?? null });
     const open = t.rounds.at(-1) && !t.rounds.at(-1).done ? t.rounds.at(-1) : null;
     let seated = false;
     for (const g of open?.tables ?? []) for (const s of ["a", "b"]) if (g[s] === oldPid) {
       g[s] = sub.id; seated = true; g.killedByA = []; g.killedByB = []; g.result = g.b === null ? "a" : null; g.manual = false; g.vpA = g.vpB = null;
+      g.lockedA = g.lockedB = false; g.pickA = g.pickB = null;   // the substitute locks in their own list (the database clears the old lock-ins)
     }
-    ui.replacing = null; ui.subQ = ""; ui.subList = ""; ui.subResults = [];
+    ui.replacing = null; ui.subQ = ""; ui.subList = ""; ui.subList2 = ""; ui.subResults = [];
     commit(`${nameOf(sub.id)} is in for ${nameOf(oldPid)}${seated ? " and has taken their seat in the open round (that game's record was cleared)" : ""}${code ? "" : ". Add their list in the Players tab, then lock lists again if needed"}.`);
   } catch (err) { ui.msg = `Could not substitute: ${problem(err)}`; render(); }
 }
@@ -647,7 +704,8 @@ function renderReplace(t) {
     el("div", { className: "an-pick" },
       el("input", { type: "search", id: "sub-q", className: "paste", placeholder: "Nickname", value: ui.subQ ?? "", style: "flex:0 1 220px", onchange: e => { ui.subQ = e.target.value; findSubs(); } }),
       btn("Search", () => { ui.subQ = document.getElementById("sub-q").value; findSubs(); }),
-      el("input", { type: "text", className: "paste", placeholder: "Their share link (optional)", value: ui.subList ?? "", style: "flex:1 1 240px", onchange: e => { ui.subList = e.target.value; } })),
+      el("input", { type: "text", className: "paste", placeholder: "Their first list's share link (optional)", value: ui.subList ?? "", style: "flex:1 1 240px", onchange: e => { ui.subList = e.target.value; } }),
+      el("input", { type: "text", className: "paste", placeholder: "Second list's link (blank = the same list twice)", value: ui.subList2 ?? "", style: "flex:1 1 240px", onchange: e => { ui.subList2 = e.target.value; } })),
     el("div", { className: "an-pick" }, ...(ui.subResults ?? []).map(p => btn(`Use ${p.nickname}${p.club ? ` (${p.club})` : ""}`, () => { people.set(p.id, p); substitute(t, old, p); }))),
     btn("Cancel", () => { ui.replacing = null; ui.subResults = []; render(); }));
 }
@@ -663,11 +721,11 @@ async function approveTeam(t, team) {
   render();
 }
 function lockLists(t) {
-  const bad = active(t).map(p => [p, p.listCode ? lockProblems(t, p.listCode) : ["no list"]]).filter(([, pr]) => pr.length);
+  const bad = active(t).map(p => [p, entryProblems(t, p)]).filter(([, pr]) => pr.length);
   if (bad.length) { ui.msg = `Lists cannot be locked yet: ${bad.map(([p, pr]) => `${nameOf(p.pid)} (${pr[0]})`).join("; ")}.`; return render(); }
   t.listsLocked = true;
-  cloud.syncEntryMeta(t.id, active(t).map(p => ({ pid: p.pid, ...listMeta(p.listCode) }))).catch(err => { ui.msg = `Lists locked, but faction records could not be updated: ${problem(err)}`; render(); });
-  commit(t.hideListsUntilRound1 ? "Lists locked. They become public when round 1 is drawn." : "Lists locked. They are now public.");
+  cloud.syncEntryMeta(t.id, active(t).map(p => ({ pid: p.pid, ...listMeta(p.listCode), second: p.listCode2 ? listMeta(p.listCode2) : null }))).catch(err => { ui.msg = `Lists locked, but faction records could not be updated: ${problem(err)}`; render(); });
+  commit("Lists locked. Each player's opponent sees both of their lists once they are matched; everyone can see them when the tournament finishes.");
 }
 function renderPlayers(t) {
   const full = !!t.maxPlayers && t.players.length >= t.maxPlayers, started = t.rounds.length > 0, ended = t.status === "finished";
@@ -675,23 +733,24 @@ function renderPlayers(t) {
   const reqRows = [...waiting, ...declined].map(r => {
     const pr = profile(r.pid), info = listInfo(r.listCode);
     return el("tr", { className: r.status === "declined" ? "dropped" : "" }, ...(isTeam(t) ? [el("td", { textContent: teamLabel(t, r.teamId) + (r.teamOk ? "" : " (not accepted by captain)") })] : []), personCell(r.pid, true), el("td", { textContent: pr?.club || "-" }), el("td", { textContent: pr?.country || "-" }),
-      el("td", { textContent: info ? listSummary(r.listCode) : "No list yet" }), el("td", { className: "cap", textContent: r.status }),
-      el("td", { className: "tn-actions" }, btn("Approve", () => setPlayer(t, r.pid, { status: "approved" }, `Approved ${nameOf(r.pid)}.`), full || t.listsLocked || (isTeam(t) && !r.teamOk)),
+      el("td", { textContent: listsSummary(r) }), el("td", { className: "cap", textContent: r.status }),
+      el("td", { className: "tn-actions" }, btn("Approve", () => setPlayer(t, r.pid, { status: "approved" }, `Approved ${nameOf(r.pid)}.`), full || t.listsLocked || (isTeam(t) && !r.teamOk) || !(r.listCode && r.listCode2)),
+        r.status === "pending" && !(r.listCode && r.listCode2) ? el("span", { className: "meta", textContent: "Needs two lists" }) : "",
         r.status === "pending" ? btn("Decline", () => setPlayer(t, r.pid, { status: "declined" }, `Declined ${nameOf(r.pid)}.`)) : ""));
   });
   const rows = t.players.map(p => {
-    const info = listInfo(p.listCode), problems = p.listCode ? lockProblems(t, p.listCode) : ["no list"];
+    const info = listInfo(p.listCode), problems = entryProblems(t, p);
     return el("tr", { className: p.dropped ? "dropped" : "" }, ...(isTeam(t) ? [el("td", { textContent: teamLabel(t, p.teamId) })] : []), personCell(p.pid, true), el("td", { textContent: profile(p.pid)?.club || "-" }),
-      el("td", { textContent: info?.faction ?? "-" }), el("td", { textContent: info?.commander || (info ? "-" : "") }), el("td", { textContent: info ? `${info.points}/${info.list.gameSize}` : "-" }),
+      el("td", { textContent: info?.faction ?? "-" }), el("td", { textContent: commandersOf(p) || (info ? "-" : "") }), el("td", { textContent: info ? `${info.points}/${info.list.gameSize}` : "-" }),
       el("td", { className: problems.length ? "meta" : "ok", textContent: problems.length ? (info ? `Problem: ${problems[0]}` : "No list") : "OK" }),
-      el("td", { className: "tn-actions" }, info ? el("a", { className: "row-btn", href: `index.html#list=${p.listCode}`, target: "_blank", textContent: "View list" }) : "",
-        ended ? "" : btn("Replace", () => { ui.replacing = p.pid; ui.subResults = []; ui.subQ = ""; ui.subList = ""; render(); }),
+      el("td", { className: "tn-actions" }, ...listLinks(p),
+        ended ? "" : btn("Replace", () => { ui.replacing = p.pid; ui.subResults = []; ui.subQ = ""; ui.subList = ""; ui.subList2 = ""; render(); }),
         ended ? "" : btn(p.dropped ? "Reinstate" : "Drop", () => setPlayer(t, p.pid, { dropped: !p.dropped }, p.dropped ? `${nameOf(p.pid)} is back in.` : `${nameOf(p.pid)} has dropped out.`)),
         started ? "" : sure(`remp:${p.pid}`, "Remove", () => setPlayer(t, p.pid, { status: "declined" }, `Removed ${nameOf(p.pid)}.`))));
   });
   const lockBar = ended ? "" : el("div", { className: "an-pick" },
     t.listsLocked ? btn("Unlock lists", () => { t.listsLocked = false; commit("Lists unlocked. Players can change them again."); }, started) : btn("Lock lists", () => lockLists(t), !t.players.length),
-    el("span", { className: "meta", textContent: t.listsLocked ? (started ? "Lists are locked for the tournament." : "Lists are locked and cannot be changed by players.") : "Lists must be valid and built for the tournament's points. Locking stops players changing them and makes them public" + (t.hideListsUntilRound1 ? " once round 1 is drawn." : ".") }));
+    el("span", { className: "meta", textContent: t.listsLocked ? (started ? "Lists are locked for the tournament." : "Lists are locked and cannot be changed by players.") : "Both lists of every player must be valid and built for the tournament's points. Locking stops players changing them. Opponents see each other's lists once matched." }));
   const teamsPanel = !isTeam(t) ? "" : el("section", { className: "an-panel" }, el("h2", { textContent: `Teams (${t.teams.length})` }),
     t.teams.length ? el("div", { className: "table-wrap" }, el("table", { className: "an-table tn" },
       el("thead", {}, el("tr", {}, ...["Team", "Captain", "Members", "Status", ""].map(h => el("th", { textContent: h })))),
@@ -749,9 +808,9 @@ function rulesFields(t, locked, onChange) {
       field(isTeam(t) ? "Team pairing" : "Pairing", el("select", { disabled: locked, onchange: e => { r.pairing = e.target.value; onChange(); } }, opt("swiss", "Swiss (by standings)", r.pairing === "swiss"), opt("random", "Random every round", r.pairing === "random"))),
       ...(isTeam(t) ? [field("Player pairing in a match-up", el("select", { disabled: locked, onchange: e => { r.seatPairing = e.target.value; onChange(); } },
         opt("swiss", "Swiss (by individual standing)", r.seatPairing !== "random"), opt("random", "Random", r.seatPairing === "random")))] : []),
-      field("Avoid clubmates", el("input", { type: "checkbox", checked: r.avoidClub, disabled: locked, onchange: e => { r.avoidClub = e.target.checked; onChange(); } })),
+      field("Avoid clubmates", el("select", { disabled: locked, onchange: e => { r.avoidClub = e.target.value === "round1"; onChange(); } },
+        opt("round1", "Avoid clubmates in round 1 only", !!r.avoidClub), opt("off", "Off", !r.avoidClub))),
       field("Rounds", el("input", { type: "number", min: 1, max: 12, value: t.plannedRounds, style: "width:60px", onchange: e => { t.plannedRounds = Math.max(Math.max(1, t.rounds.length), Math.min(12, +e.target.value || 3)); onChange(); } }))),
-    el("div", { className: "an-pick" }, field("Hide locked lists until round 1 is drawn", el("input", { type: "checkbox", checked: !!t.hideListsUntilRound1, disabled: locked, onchange: e => { t.hideListsUntilRound1 = e.target.checked; onChange(); } }))),
     el("h3", { textContent: "Victories" }),
     el("div", { className: "an-pick" },
       field("Marginal and major victories", el("input", { type: "checkbox", checked: m.enabled, disabled: locked, onchange: e => { m.enabled = e.target.checked; onChange(); } })),
@@ -816,7 +875,7 @@ function redraw(t) {
 function setSeat(round, table, side, pid) {
   const other = side === "a" ? "b" : "a";
   const old = table[side];
-  const reset = g => { g.killedByA = []; g.killedByB = []; g.result = null; g.manual = false; };   // a new opponent means the old game record no longer applies
+  const reset = g => { g.killedByA = []; g.killedByB = []; g.result = null; g.manual = false; g.lockedA = g.lockedB = false; g.pickA = g.pickB = null; };   // a new opponent means the old game record no longer applies
   if (pid === table[other]) { table[other] = old; table[side] = pid; reset(table); return; }
   for (const g of round.tables) for (const s of ["a", "b"]) if (g !== table || s !== side) if (g[s] === pid) { g[s] = old; reset(g); }
   table[side] = pid; reset(table);
@@ -853,6 +912,47 @@ function setNum(t, table, key, raw) {
   if (key === "vpA" || key === "vpB") autoResult(t, table);
   commitLater(table);
 }
+// ---- lock-in: each player secretly picks one of their two lists for a game ----
+// The choice is sent straight to the database, which hides it from the opponent (and everybody else) until both have locked in.
+async function lockIn(t, g, slot) {
+  if (!g.gid) { ui.msg = "The draw is still being saved. Try again in a moment."; return render(); }
+  try {
+    await cloud.lockIn(g.gid, t.id, slot);
+    if (g.a === myId()) { g.lockedA = true; g.pickA = slot; } else { g.lockedB = true; g.pickB = slot; }
+    ui.msg = `Locked in list ${slot}.`;
+  } catch (err) { ui.msg = `Could not lock in: ${problem(err)}`; }
+  render();
+}
+// organiser: lock in a list for a player who cannot (the same rules as their own lock-in)
+async function lockFor(t, g, pid, slot) {
+  try {
+    await cloud.organiserLockIn(g.gid, pid, slot);
+    if (g.a === pid) g.lockedA = true; else g.lockedB = true;
+    ui.msg = `Locked in list ${slot} for ${nameOf(pid)}.`;
+    await refresh();
+  } catch (err) { ui.msg = `Could not lock in for them: ${problem(err)}`; }
+  render();
+}
+// organiser: clear both lock-ins of a table (a mistake, or the wrong list)
+async function clearLocks(t, g) {
+  try { await cloud.clearLockIn(g.gid); g.lockedA = g.lockedB = false; g.pickA = g.pickB = null; ui.msg = "The lock-ins on that table have been cleared. Both players lock in again."; }
+  catch (err) { ui.msg = `Could not clear them: ${problem(err)}`; }
+  render();
+}
+// a reminder for a player whose game in the open round still needs their lock-in
+function myLockInDue(t) {
+  const last = t.rounds.at(-1), me = myId();
+  if (!me || t.status !== "running" || !last || last.done) return null;
+  return last.tables.find(g => g.b !== null && (g.a === me ? !g.lockedA : g.b === me ? !g.lockedB : false)) ?? null;
+}
+function lockInReminder(t) {
+  const g = myLockInDue(t);
+  if (!g) return "";
+  return el("section", { className: "an-panel" }, el("h2", { textContent: "Lock in your list" }),
+    el("p", { textContent: `Round ${t.rounds.at(-1).n}, table ${g.id}: you play ${nameOf(g.a === myId() ? g.b : g.a)}. Choose which of your two lists you are using before you play. Your choice stays secret until both of you have locked in.` }),
+    btn("Go to my table", () => { ui.sub = "rounds"; render(); }));
+}
+
 // ---- units destroyed: a checklist of the enemy army's units, crossed off as they die ----
 function toggleKill(t, g, key, i) {
   const now = new Set(g[key] ?? []);
@@ -862,12 +962,12 @@ function toggleKill(t, g, key, i) {
   commit(ui.msg, g);
 }
 const killedPoints = (t, g, side) => {   // points of the enemy army that `side` has destroyed in this game
-  const opp = side === "a" ? g.b : g.a, pts = rowPointsOf(t, opp);
+  const opp = side === "a" ? g.b : g.a, pts = rowPointsOf(t, opp, g);
   return (g[side === "a" ? "killedByA" : "killedByB"] ?? []).reduce((n, i) => n + (pts[i] ?? 0), 0);
 };
 function killList(t, g, side, editable) {
   const opp = side === "a" ? g.b : g.a, key = side === "a" ? "killedByA" : "killedByB";
-  const info = listInfo(t.players.find(p => p.pid === opp)?.listCode);
+  const info = infoFor(t, opp, g);
   const head = el("h4", { textContent: `${nameOf(side === "a" ? g.a : g.b)} destroyed ${killedPoints(t, g, side)} points of ${nameOf(opp)}'s army` });
   if (!info) return el("div", { className: "kill-box" }, head, el("p", { className: "meta", textContent: "This player has no list on file." }));
   const dead = new Set(g[key] ?? []);
@@ -889,6 +989,7 @@ function renderRound(t, round) {
   const editable = org && open;   // the organiser changes anything
   const reports = g => !org && open && !!myId() && (g.a === myId() || g.b === myId());   // a player reports victory points and destroyed units of their own game
   const canScore = g => editable || reports(g);
+  const scoreable = g => canScore(g) && bothLocked(g);   // victory points and destroyed units wait for both lock-ins
   const players = t.players.map(p => p.pid);
   const oppTeamOf = g => { const m = (round.matches ?? []).find(x => x.mid === g.mid); return m ? (g.team === m.a ? m.b : m.a) : null; };
   const teamSeat = (g, side) => {   // team events: a seat holds a member of that side's team, or is left empty (forfeit)
@@ -899,28 +1000,68 @@ function renderRound(t, round) {
   };
   const seat = (g, side) => isTeam(t) ? teamSeat(g, side) : editable ? el("select", { id: `seat-${round.n}-${g.id}-${side}`, onchange: e => { setSeat(round, g, side, e.target.value); commit(); } },
     ...players.map(pid => opt(pid, matchOf(pid) + (t.players.find(p => p.pid === pid).dropped ? " (dropped)" : ""), g[side] === pid))) : el("span", { textContent: matchOf(g[side]) });
-  const numField = (g, key) => (key.startsWith("vp") ? canScore(g) : editable) ? el("input", { type: "number", min: 0, id: `${key}-${round.n}-${g.id}`, value: g[key] ?? "", style: "width:52px", onchange: e => setNum(t, g, key, e.target.value) }) : el("span", { textContent: g[key] ?? "" });
+  const numField = (g, key) => (key.startsWith("vp") ? scoreable(g) : editable) ? el("input", { type: "number", min: 0, id: `${key}-${round.n}-${g.id}`, value: g[key] ?? "", style: "width:52px", onchange: e => setNum(t, g, key, e.target.value) }) : el("span", { textContent: g[key] ?? "" });
   const BASIS = { wipeout: "army wiped out", vp: "victory points", table: "points on the table", tied: "level on points on the table" };
   const tierText = g => {
     const tier = winTier(g, t.rules, ctx(t)), basis = g.manual || !g.result ? "" : BASIS[decideResult(g, ctx(t)).basis] ?? "";
     return [tier, basis].filter(Boolean).length ? ` (${[tier, basis].filter(Boolean).join(", ")})` : "";
+  };
+  // the lock-in line under a table: pick a list, wait for the opponent, or (once both have locked) see who plays what
+  const lockRow = g => {
+    const me = myId(), side = g.a === me ? "a" : g.b === me ? "b" : null, live = open && !round.done;
+    const mine = side === "a" ? g.lockedA : side === "b" ? g.lockedB : false, theirs = side === "a" ? g.lockedB : side === "b" ? g.lockedA : false;
+    const opp = side === "a" ? g.b : g.a, who = pid => t.players.find(p => p.pid === pid);
+    const played = pid => {
+      const p = who(pid), slot = pid === g.a ? g.pickA : g.pickB, code = slot ? listCodeOf(p, slot) : null;
+      return el("span", { className: "lock-played" }, `${matchOf(pid)} plays ${slot ? `list ${slot}` : "a list that is not shown"}${code ? `: ${listSummary(code)} ` : " "}`,
+        ...(code ? [el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", textContent: "View" })] : []));
+    };
+    let parts;
+    if (bothLocked(g)) parts = [el("span", { className: "ok lock-note", textContent: "Both locked in." }), played(g.a), " ", played(g.b)];
+    else if (!live && !g.lockedA && !g.lockedB) return null;   // a game from before lock-ins existed
+    else if (side && !mine && live) {
+      const p = who(me), c1 = p?.listCode, c2 = p?.listCode2;
+      const pick = n => sure(`lock:${g.gid ?? g.id}:${n}`, c1 && c2 && c1 !== c2 ? `Lock in list ${n}: ${listSummary(listCodeOf(p, n))}` : "Lock in my list", () => lockIn(t, g, n));
+      const o = who(opp), [o1, o2] = entryCodes(o), oLink = (code, label) => code ? [`${label}: ${listSummary(code)} `, el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", textContent: "View" }), " "] : [];
+      parts = [el("span", { className: "lock-note" }, `${nameOf(opp)}'s lists: `, ...(!o1 ? ["not shown"] : o2 && o2 !== o1 ? [...oLink(o1, "1"), ...oLink(o2, "2")] : [...oLink(o1, "both lists")])),
+        el("span", { className: "meta lock-note", textContent: `Choose one of your two lists (final, and secret until ${nameOf(opp)} has locked in too${theirs ? "; they already have" : ""}): ` }),
+        ...(c1 ? [pick(1)] : []), ...(c2 && c2 !== c1 ? [pick(2)] : [])];
+    }
+    else if (side && mine) parts = [el("span", { className: "meta", textContent: `You locked in list ${side === "a" ? g.pickA : g.pickB}. Waiting for ${nameOf(opp)} to lock in; you will both see the lists then.` })];
+    else {   // the organiser (or a visitor): the organiser also sees which list each player locked in, on tables they do not play at
+      const state = (locked, pick) => (locked ? `has locked in${pick ? ` list ${pick}` : ""}` : "has not yet");
+      parts = [el("span", { className: "meta", textContent: `Waiting for lock-ins: ${nameOf(g.a)} ${state(g.lockedA, g.pickA)}, ${nameOf(g.b)} ${state(g.lockedB, g.pickB)}.` })];
+    }
+    if (org && live && g.gid) {   // the organiser can lock in for a player who has not (they are shown the player's lists)
+      for (const sd of ["a", "b"]) {
+        const pid = g[sd], done = sd === "a" ? g.lockedA : g.lockedB;
+        if (done || pid === me) continue;
+        const p = who(pid), [c1, c2] = entryCodes(p), two = c2 && c2 !== c1;
+        parts.push(el("span", { className: "lock-note" }, el("span", { className: "meta", textContent: `${nameOf(pid)} has not locked in. Lock in for them: ` }),
+          ...(c1 ? [sure(`ol:${g.gid}:${pid}:1`, two ? `List 1: ${listSummary(c1)}` : "Their list", () => lockFor(t, g, pid, 1))] : []),
+          ...(two ? [sure(`ol:${g.gid}:${pid}:2`, `List 2: ${listSummary(c2)}`, () => lockFor(t, g, pid, 2))] : [])));
+      }
+    }
+    if (org && live && (g.lockedA || g.lockedB) && g.gid) parts.push(" ", sure(`clr:${g.gid}`, "Clear lock-ins", () => clearLocks(t, g)));
+    return el("tr", { className: "lock-row" }, el("td"), el("td", { colSpan: 7 }, ...parts));
   };
   const rowsOf = tables => tables.flatMap(g => {
     if (g.b === null && isTeam(t)) return [el("tr", {}, el("td", { textContent: g.id }), el("td", {}, seat(g, "a")),
       el("td", { colSpan: 2, className: "meta", textContent: "Forfeit win (empty seat)" }), el("td", {}, seat(g, "b")), el("td", { colSpan: 3 }))];
     if (g.b === null) return [el("tr", {}, el("td", { textContent: g.id }), el("td", {}, seat(g, "a")), el("td", { colSpan: 6, className: "meta", textContent: "Bye (counts as a win)" }))];
     const key = `${round.n}-${g.id}`, isOpen = ui.openKills === key;
-    const c = ctx(t), left = side => (c.tableStart(side === "a" ? g.a : g.b) - killedPoints(t, g, side === "a" ? "b" : "a"));
+    const c = ctx(t), left = side => (c.tableStart(side === "a" ? g.a : g.b, g) - killedPoints(t, g, side === "a" ? "b" : "a"));
     const done = `${nameOf(g.a)} destroyed ${killedPoints(t, g, "a")} pts (${left("b")} left on ${nameOf(g.b)}'s table), ${nameOf(g.b)} destroyed ${killedPoints(t, g, "b")} pts (${left("a")} left on ${nameOf(g.a)}'s table)`;
     return [el("tr", {}, el("td", { textContent: g.id }), el("td", {}, seat(g, "a")), el("td", {}, numField(g, "vpA")), el("td", {}, numField(g, "bonusA")),
       el("td", {}, seat(g, "b")), el("td", {}, numField(g, "vpB")), el("td", {}, numField(g, "bonusB")),
-      el("td", {}, editable ? el("span", {}, el("select", { id: `res-${round.n}-${g.id}`, onchange: e => { setResult(t, g, e.target.value); commitLater(); } },
+      el("td", {}, editable && bothLocked(g) ? el("span", {}, el("select", { id: `res-${round.n}-${g.id}`, onchange: e => { setResult(t, g, e.target.value); commitLater(); } },
         opt("auto", g.manual || !g.result ? "Automatic" : "Automatic (from the game)", !g.manual), opt("", "- no result -", g.manual && !g.result), opt("a", `${nameOf(g.a)} wins`, g.result === "a"), opt("draw", "Draw", g.result === "draw"), opt("b", `${nameOf(g.b)} wins`, g.result === "b")),
         el("span", { className: "meta", textContent: tierText(g) }))
         : el("span", { textContent: (g.result === "a" ? `${nameOf(g.a)} wins` : g.result === "b" ? `${nameOf(g.b)} wins` : g.result === "draw" ? "Draw" : "") + tierText(g) }))),
+    lockRow(g) ?? "",
     el("tr", { className: "kills-row" }, el("td"), el("td", { colSpan: 7 },
       el("button", { className: "row-btn", textContent: `${isOpen ? "Hide" : "Units destroyed"}: ${done}`, onclick: () => { ui.openKills = isOpen ? null : key; render(); } }),
-      isOpen ? el("div", { className: "kill-pair" }, killList(t, g, "a", canScore(g)), killList(t, g, "b", canScore(g))) : ""))];
+      isOpen ? el("div", { className: "kill-pair" }, killList(t, g, "a", scoreable(g)), killList(t, g, "b", scoreable(g))) : ""))];
   });
   const matchRows = isTeam(t) ? (round.matches ?? []).flatMap(m => {
     const o = matchOutcome(t, round, m, ctx(t)), A = teamLabel(t, m.a), B = m.b ? teamLabel(t, m.b) : "";
@@ -1047,7 +1188,7 @@ function renderTournamentView(t) {
 function renderPlayerRounds(t) {
   const rounds = [...t.rounds].reverse();
   return el("section", { className: "an-panel" }, el("h2", { textContent: "Rounds" }),
-    rounds.length ? el("p", { className: "meta", textContent: myId() && t.players.some(p => p.pid === myId()) ? "You can enter the victory points and tick off destroyed units for your own games while a round is open. The organiser can correct anything." : "" }) : el("p", { className: "meta", textContent: "No rounds have been drawn yet." }),
+    rounds.length ? el("p", { className: "meta", textContent: myId() && t.players.some(p => p.pid === myId()) ? "First lock in one of your two lists on your table. Then you can enter the victory points and tick off destroyed units for your own games while a round is open. The organiser can correct anything." : "" }) : el("p", { className: "meta", textContent: "No rounds have been drawn yet." }),
     ...rounds.map((r, i) => el("details", { open: i === 0 }, el("summary", { textContent: `Round ${r.n}${r.done ? "" : " (in progress)"}` }), renderRound(t, r))));
 }
 

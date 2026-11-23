@@ -120,9 +120,16 @@ const cloud = {
   // every game a person has played that the viewer may see (the player_games view); list codes are NOT included here
   async gamesOf(pid) { return this._all(() => this.client.from("player_games").select("*").eq("profile_id", pid).order("game_id")); },
   // the list a player entered in a tournament, if the viewer is allowed to see it (database rules decide, not the page)
-  async entryList(tid, pid) {
-    const rows = this._check(await this.client.from("entry_lists").select("list_code").eq("tournament_id", tid).eq("profile_id", pid));
-    return rows?.[0]?.list_code ?? null;
+  // gid (optional): the game, so the list that player locked in for it is returned instead of their first list
+  async entryList(tid, pid, gid) {
+    const rows = this._check(await this.client.from("entry_lists").select("list_code,list_code_2").eq("tournament_id", tid).eq("profile_id", pid));
+    const row = rows?.[0];
+    if (!row) return null;
+    if (gid) {
+      const pick = this._check(await this.client.from("game_picks").select("slot").eq("game_id", gid).eq("profile_id", pid));
+      if (pick?.[0]?.slot === 2 && row.list_code_2) return row.list_code_2;
+    }
+    return row.list_code ?? null;
   },
 
   // ---- private saved-list library (the Building page's "Saved lists") ----
@@ -169,15 +176,16 @@ const cloud = {
   async load(id) {
     const trs = await this._all(() => this.client.from("tournaments").select("*").eq("id", id).order("id"));
     if (!trs.length) return null;
-    const [regs, lists, rounds, games, teams, matches] = await Promise.all([
+    const [regs, lists, rounds, games, teams, matches, picks] = await Promise.all([
       this._all(() => this.client.from("registrations").select("*").eq("tournament_id", id).order("profile_id")),
       this._all(() => this.client.from("entry_lists").select("*").eq("tournament_id", id).order("profile_id")),
       this._all(() => this.client.from("rounds").select("*").eq("tournament_id", id).order("id")),
       this._all(() => this.client.from("games").select("*").eq("tournament_id", id).order("id")),
       this._all(() => this.client.from("teams").select("*").eq("tournament_id", id).order("id")),
       this._all(() => this.client.from("matches").select("*").eq("tournament_id", id).order("id")),
+      this._all(() => this.client.from("game_picks").select("*").eq("tournament_id", id).order("game_id").order("profile_id")),   // the database shows only your own until both have locked in
     ]);
-    const t = fromRows(trs[0], regs, lists, rounds, games, teams, matches);
+    const t = fromRows(trs[0], regs, lists, rounds, games, teams, matches, picks);
     const people = await this.profiles([...new Set([t.owner, ...regs.map(r => r.profile_id), ...teams.map(x => x.captain)])]);
     return { t, people };
   },
@@ -187,7 +195,7 @@ const cloud = {
     const fire = () => { clearTimeout(timer); timer = setTimeout(onChange, 600); };
     const ch = this.client.channel(`tournament-${id}-${Math.random().toString(36).slice(2, 7)}`);
     for (const [table, filter] of [["games", `tournament_id=eq.${id}`], ["rounds", `tournament_id=eq.${id}`], ["registrations", `tournament_id=eq.${id}`],
-      ["entry_lists", `tournament_id=eq.${id}`], ["teams", `tournament_id=eq.${id}`], ["matches", `tournament_id=eq.${id}`], ["tournaments", `id=eq.${id}`]])
+      ["entry_lists", `tournament_id=eq.${id}`], ["teams", `tournament_id=eq.${id}`], ["matches", `tournament_id=eq.${id}`], ["game_picks", `tournament_id=eq.${id}`], ["tournaments", `id=eq.${id}`]])
       ch.on("postgres_changes", { event: "*", schema: "public", table, filter }, fire);
     ch.subscribe();
     return () => { clearTimeout(timer); this.client.removeChannel(ch); };
@@ -211,11 +219,22 @@ const cloud = {
   async disbandTeam(teamId) { this._check(await this.client.from("teams").delete().eq("id", teamId)); },
   async withdraw(tid) { this._check(await this.client.from("registrations").delete().eq("tournament_id", tid).eq("profile_id", this.user.id)); },
   // meta = { faction, commander, points } of the list, kept with the entry so faction records can be worked out
-  async setList(tid, pid, code, meta = {}) { this._check(await this.client.from("entry_lists").upsert(toEntryRow(tid, pid, code, meta), { onConflict: "tournament_id,profile_id" })); },
+  // slot 1 is the first list, slot 2 the second (both of one faction). Changing list 1 to another faction drops list 2, which then has to be chosen again.
+  async setList(tid, pid, code, meta = {}, slot = 1, { clearSecond = false } = {}) {
+    if (slot === 2) { this._check(await this.client.from("entry_lists").update(toSecondListRow(code, meta)).eq("tournament_id", tid).eq("profile_id", pid)); return; }
+    this._check(await this.client.from("entry_lists").upsert({ ...toEntryRow(tid, pid, code, meta), ...(clearSecond ? toSecondListRow(null) : {}) }, { onConflict: "tournament_id,profile_id" }));
+  },
   // the organiser re-checks each entry's faction/commander/points against its list code when locking, so they cannot disagree
   async syncEntryMeta(tid, entries) {
-    for (const e of entries) this._check(await this.client.from("entry_lists").update({ faction: e.faction || null, commander: e.commander || null, points: Number.isFinite(e.points) ? e.points : null }).eq("tournament_id", tid).eq("profile_id", e.pid));
+    for (const e of entries) this._check(await this.client.from("entry_lists").update({ faction: e.faction || null, commander: e.commander || null, points: Number.isFinite(e.points) ? e.points : null,
+      ...(e.second ? { faction_2: e.second.faction || null, commander_2: e.second.commander || null, points_2: Number.isFinite(e.second.points) ? e.second.points : null } : {}) }).eq("tournament_id", tid).eq("profile_id", e.pid));
   },
+  // lock in list 1 or 2 for a game: secret from the opponent until they have locked in too, and final once made
+  async lockIn(gid, tid, slot) { this._check(await this.client.from("game_picks").insert({ game_id: gid, tournament_id: tid, profile_id: this.user.id, slot })); },
+  // the organiser clears both lock-ins of a game (a mistake, or a changed seat)
+  // the organiser locks in a list for a player who cannot
+  async organiserLockIn(gid, pid, slot) { this._check(await this.client.rpc("organiser_lock_in", { gid, pid, slot })); },
+  async clearLockIn(gid) { this._check(await this.client.rpc("clear_lock_in", { gid })); },
   async clearList(tid, pid) { this._check(await this.client.from("entry_lists").delete().eq("tournament_id", tid).eq("profile_id", pid)); },
   // send a player's report of a game a moment after the last change
   reportGame(g) {

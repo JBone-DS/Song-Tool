@@ -155,10 +155,11 @@ time, held in `ui.t`, in the shape described at the top of `cloud-core.js`:
 ```
 t = { id, owner, name, date, location, description, points, plannedRounds, status, rules,
       registrationOpen, maxPlayers, listsLocked, hideListsUntilRound1,
-      players:  [ { pid, dropped, listCode } ],          // approved players; listCode is null if you may not see it yet
-      requests: [ { pid, status, listCode } ],           // asked to join and waiting, or declined
-      rounds:   [ { n, rid, done, tables: [ { id, gid, a, b, result, manual, vpA, vpB, bonusA, bonusB, killedByA, killedByB } ] } ] }   // b = null is a bye
-rules: { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: ["sos", "vpDiff", "destroyed"],
+      players:  [ { pid, dropped, listCode, listCode2 } ],   // approved players (two lists each); null if you may not see them yet
+      requests: [ { pid, status, listCode, listCode2 } ],    // asked to join and waiting, or declined
+      rounds:   [ { n, rid, done, tables: [ { id, gid, a, b, result, manual, vpA, vpB, bonusA, bonusB, killedByA, killedByB,
+                    lockedA, lockedB, pickA, pickB } ] } ] }   // b = null is a bye; pickA / pickB = list 1 or 2, null until locked in and visible
+rules: { pairing: "swiss" | "random", avoidClub (true = avoid clubmates in round 1 only, false = off), win, draw, loss, tiebreakers: ["sos", "vpDiff", "destroyed"],
          margins: { enabled, band, marginalWin, majorWin } }
 ```
 
@@ -169,13 +170,29 @@ rules: { pairing: "swiss" | "random", avoidClub, win, draw, loss, tiebreakers: [
   its victory points and tick off destroyed units.
 - **Organisers** are whoever created the tournament. They approve or decline requests, lock lists, set the rules, draw rounds,
   seat players and can change any result. Tabs: Players, Details, Rules, Rounds, Standings.
-- **List privacy:** a list is private to its player and the organiser until the organiser **locks lists**; then it is public to
-  anyone who can view the tournament, or (if "hide locked lists until round 1 is drawn" is set) once round 1 exists. Players
-  cannot change a list after locking. The database enforces this, not just the page.
+- **List privacy:** both of a player's lists are private to that player and the organiser. When two players are **matched** in a
+  drawn game each sees both of the other's lists (`matched_with()` in `schema.sql`), so they can choose with knowledge of what they
+  face. Everyone else sees them only once the tournament has **finished** (`lists_public()`). Players cannot change a list after
+  the organiser locks lists. The database enforces this, not just the page. (The old "hide locked lists until round 1" setting is no longer used.)
+- **Two lists and the secret lock-in:** every player enters **two lists of the same faction** when signing up (the same list twice
+  is fine); the organiser can only approve a request that has both, and "Lock lists" needs both valid. After a round is drawn,
+  the first thing each player does at their table is **lock in** list 1 or 2 (final, and secret). The opponent only sees that a
+  player has locked in (`games.locked_a` / `locked_b`); which of the two they chose stays hidden from the opponent until **both** have
+  locked, when both choices are shown. Victory points and the units-destroyed checklist (which uses the list actually played) unlock only then. The
+  organiser can **lock in a list for a player** who cannot (`organiser_lock_in()`), and **clear lock-ins** on a table (for a mistake).
+  Nobody, the organiser included, can enter a game's result, victory points or destroyed units until both players have locked in a list.
+  The organiser also sees which list each player locked in, on every table except one they play at themselves. The players' own
+  Overview page reminds them when a lock-in is due. Team events work the same way for every seat.
+  How it is stored: `entry_lists` keeps the second list in `list_code_2` (with `faction_2`, `commander_2`, `points_2`; a trigger
+  makes both the same faction), and the secret choice is a row in `game_picks` (`game_id`, `profile_id`, `slot` 1 or 2) that the
+  database shows to others only once `picks_revealed()` is true. A lock-in can be made once and never changed (no update rule);
+  `clear_lock_in()` is the organiser's way to undo one. A changed seat wipes the old lock-ins. A game cannot be entered until
+  both have locked in (`games_guard`). The engine's `rowPoints`, `unitRows` and `tableStart` take the game as a second argument so
+  scoring follows the list played. The "units destroyed" tiles and the player's game history show the list that was actually played.
 - **Visibility:** every tournament is public. An optional player limit blocks approving more.
 
 - **Pairing:** round one is random. Later Swiss rounds pair players by standings. No-one meets the same opponent twice and
-  clubmates are avoided when the rules say so, as long as that is possible; if not, the rule is relaxed one step at a time
+  clubmates are avoided when the rules say so ("Avoid clubmates in round 1 only", or Off; later rounds follow the standings), as long as that is possible; if not, the rule is relaxed one step at a time
   and the page warns. An odd player gets a bye (a win with no victory points) and nobody gets a second one while others
   have had none. Seats can be swapped by hand before any result is entered.
 - **Results:** enter victory points (the winner is worked out) or pick the result directly (organiser). Bonus points are added to
@@ -255,7 +272,8 @@ The page stores everything in a Supabase project (hosted Postgres, with sign-in 
   tournament keep their RD unchanged (no inactivity growth). `glicko2_update` reproduces Glickman's worked
   example (1464.05, RD 151.52, volatility 0.06000; the paper's 1464.06 is hand-rounded).
 - **Entry faction records:** `entry_lists` stores each entry's faction, commander and points next to the list code (set when the
-  player chooses the list, and re-synced by the organiser when lists are locked). The `player_games` view gives one row per game
+  player chooses the list, and re-synced by the organiser when lists are locked). Both lists share the faction; the commander in
+  game history is the one of the list locked in for that game. The `player_games` view gives one row per game
   played (game history, per-faction record, record against each faction); it respects list visibility, so faction columns are
   filled only where the viewer may see the lists.
 - **Private saved-list library:** `saved_lists` holds each person's Saved lists from the Building page. Row level security lets
