@@ -87,7 +87,8 @@ Conventions worth knowing:
 **`units.json`** is a flat list. Every unit, attachment and NCU is one object.
 
 Always present: `id`, `name`, `class` (`combat_unit`, `attachment` or `ncu`), `faction`, `points`, `excludedFactions`.
-Common: `nickname`, `traits`, `maxPerList`. Combat units also have `type` (infantry, cavalry...), `stats`
+Common: `nickname`, `traits`, `maxPerList`, `character` (set `false` on a card with a nickname that is not a named character, such as Scorpion Modifications, so
+the "one version of each character" rule skips it). Combat units also have `type` (infantry, cavalry...), `stats`
 (`speed`, `defense`, `morale`).
 
 Optional fields that drive rules:
@@ -107,6 +108,7 @@ Optional fields that drive rules:
 | `loyalty` | An army may not mix different loyalties | `stannis-baratheon` |
 | `excludedFactions` | Factions that may not use this model | neutral Bolton copies |
 | `discountIfInArmy` | `{ ids, amount }`: this model costs `amount` less while one of `ids` is in the army | Cortnay Penrose |
+| `firstAttachmentDiscount` | Reduces the cost of the first attachment in the army by this much. Several stack, floored at 0 | Gendry, Hot Pie |
 | `freeFirstIfInArmy` | The first copy of this attachment is free while one of the listed models is in the army | Crannogman Survivalist |
 | `freeAttachments` | Ids of attachments this unit takes for nothing | Stone Crows with Tyrion |
 | `adaptive` | `{ attachmentsAffected, attachmentCostReduction }`: cheaper attachments on this unit | Stormcrow Mercenaries |
@@ -121,7 +123,7 @@ and optionally `loyalty`, `grantsKeyword`, `requiresInArmy`, `extraCards`, `allo
 and `points`. Every commander has `allowedUnitTypes` (`["infantry"]` or `["cavalry"]`), so infantry commanders only join infantry units and cavalry commanders only cavalry units; set it to the type of the commander's card when adding a commander. Attachments do the same through `attachesTo.type`.
 
 **`factions.json`**: `id`, `name`, `canUseNeutrals`, and `borrowing` (`[{ from: [faction ids], max, not: [unit classes never borrowed] }]` for factions that
-may take units from another, like the Brotherhood), and optionally `firstAttachmentDiscount` (points off the first attachment in the army, of any faction or neutral; the Brotherhood has 1).
+may take units from another, like the Brotherhood).
 
 **`season.json`**: season name, allowed `gameSize`s, `defaultGameSize`, `attachmentsPerUnit`, and
 `freeAttachmentPoints` per game size (the points of own-faction attachments that cost nothing).

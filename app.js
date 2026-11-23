@@ -115,7 +115,7 @@ function removeOtherVersions(commander) {
   const names = new Set([commander.name, fieldCommander(list)?.name].filter(Boolean));
   const dupe = id => {
     const m = data.unitsById.get(id);
-    return !!m && !!m.nickname && names.has(m.name) && !keepIds.has(id);
+    return !!m && isCharacter(m) && names.has(m.name) && !keepIds.has(id);
   };
   const removed = [];
   const strip = ids => ids.filter(id => { if (!dupe(id)) return true; removed.push(data.unitsById.get(id).name); return false; });
@@ -723,11 +723,13 @@ function validateDuplicateAttachments(list) {
   return problems;
 }
 
-// a named character is any model with a nickname; the commander counts as one too
+// a named character is any model with a nickname (unless its data says "character": false, like the two
+// Scorpion Modifications, which are equipment); the commander counts as one too
+const isCharacter = m => !!m.nickname && m.character !== false;
 function characterNamesInList(list) {
   const names = allModelIds(list)
     .map(id => data.unitsById.get(id))
-    .filter(m => m.nickname)
+    .filter(isCharacter)
     .map(m => m.name);
   const commander = commanderOf(list);
   // Doran stands in the list as his NCU, so the commander does not count a second time; Areo does take his place
@@ -738,7 +740,7 @@ function characterNamesInList(list) {
 
 // is this model another form of a character who is already in the list?
 function characterTaken(list, model) {
-  return !!model.nickname && characterNamesInList(list).includes(model.name);
+  return isCharacter(model) && characterNamesInList(list).includes(model.name);
 }
 
 function validateUniqueCharacters(list) {
@@ -1160,6 +1162,44 @@ function renderPrintSheet() {
   return box;
 }
 
+// choose the commander (id = null clears him): he joins the first row, and anything that cannot go with him leaves
+function setCommander(id) {
+  releaseUnitCommander();
+  const gone = releaseCommanderExtras();
+  let unfit = "";
+  list.commander = id || null;
+  const uc = unitCommander(list);
+  if (uc) {
+    // a unit commander leads a new top row of his own; any other copy of his unit leaves the list
+    list.entries.forEach(en => { if (en.unit === uc.unit) en.unit = null; });
+    list.entries = list.entries.filter(en => en.unit || en.attachments.length);
+    list.entries.unshift({ unit: uc.unit, attachments: [] });
+    list.commanderUnit = 0;
+  } else if (list.commander) {
+    // the commander always joins the first row (it is created empty if there are no rows yet)
+    if (!list.entries.length) list.entries.push({ unit: null, attachments: [] });
+    list.commanderUnit = 0;
+    // a unit the commander cannot join (wrong type, or not one of his units) leaves the row
+    const first = list.entries[0].unit && data.unitsById.get(list.entries[0].unit);
+    const cmd = fieldCommander(list) ?? commanderOf(list);
+    if (first && !commanderFitsUnit(cmd, first)) {
+      unfit = `Removed ${first.name}, which ${cmd.name} cannot join.`;
+      list.entries[0].unit = null;
+    }
+    makeRoomForCommander(0);
+  } else list.commanderUnit = null;
+  const picked = commanderOf(list);
+  // any other version of the commander (his attachment or NCU form) leaves the list
+  const dupes = removeOtherVersions(picked);
+  if (picked?.ncu && !list.ncus.includes(picked.ncu)) list.ncus.push(picked.ncu);   // Doran joins as his NCU
+  dropOrphans();
+  if (unfit) notice = `${notice ? notice + " " : ""}${unfit}`;
+  if (dupes) notice = `${notice ? notice + " " : ""}${dupes}`;
+  if (gone) notice = `${notice ? notice + " " : ""}${gone}`;
+  tidy();
+  render();
+}
+
 function renderSetup() {
   const box = el("section", { className: "setup" });
 
@@ -1178,51 +1218,11 @@ function renderSetup() {
       onclick: () => { list.gameSize = n; render(); }
     })));
 
-  const commanders = [...data.commandersById.values()].filter(c => c.faction === list.faction);
+  const cmd = commanderOf(list);
   const commanderLine = el("div", { className: "commander-line" }, "Commander: ",
-    el("select", { onchange: e => {
-      releaseUnitCommander();
-      const gone = releaseCommanderExtras();
-      let unfit = "";
-      list.commander = e.target.value || null;
-      const uc = unitCommander(list);
-      if (uc) {
-        // a unit commander leads a new top row of his own; any other copy of his unit leaves the list
-        list.entries.forEach(en => { if (en.unit === uc.unit) en.unit = null; });
-        list.entries = list.entries.filter(en => en.unit || en.attachments.length);
-        list.entries.unshift({ unit: uc.unit, attachments: [] });
-        list.commanderUnit = 0;
-      } else if (list.commander) {
-        // the commander always joins the first row (it is created empty if there are no rows yet)
-        if (!list.entries.length) list.entries.push({ unit: null, attachments: [] });
-        list.commanderUnit = 0;
-        // a unit the commander cannot join (wrong type, or not one of his units) leaves the row
-        const first = list.entries[0].unit && data.unitsById.get(list.entries[0].unit);
-        const cmd = fieldCommander(list) ?? commanderOf(list);
-        if (first && !commanderFitsUnit(cmd, first)) {
-          unfit = `Removed ${first.name}, which ${cmd.name} cannot join.`;
-          list.entries[0].unit = null;
-        }
-        makeRoomForCommander(0);
-      } else list.commanderUnit = null;
-      const picked = commanderOf(list);
-      // any other version of the commander (his attachment or NCU form) leaves the list
-      const dupes = removeOtherVersions(picked);
-      if (picked?.ncu && !list.ncus.includes(picked.ncu)) list.ncus.push(picked.ncu);   // Doran joins as his NCU
-      dropOrphans();
-      if (unfit) notice = `${notice ? notice + " " : ""}${unfit}`;
-      if (dupes) notice = `${notice ? notice + " " : ""}${dupes}`;
-      if (gone) notice = `${notice ? notice + " " : ""}${gone}`;
-      tidy();
-      render();
-    } },
-      el("option", { value: "", textContent: list.faction ? "Choose a commander" : "Choose a faction" }),
-      ...commanders.map(c => el("option", {
-        value: c.id,
-        textContent: `${c.name} - ${c.nickname}`,
-        disabled: c.id !== list.commander && (loyaltyClash(c, list, true) || armyConflict(c, list)),   // his Loyalty clashes with a model already in the list
-        selected: c.id === list.commander
-      }))));
+    el("button", { className: "commander-btn", disabled: !list.faction,
+      textContent: !list.faction ? "Choose a faction" : cmd ? menuLabel(cmd) : "Choose a commander",
+      onclick: () => openMenu({ kind: "commander" }) }));
 
   box.append(factionRow, sizes, commanderLine);
   return box;
@@ -1289,6 +1289,13 @@ function renderUnitInfo(entry, i) {
   return box;
 }
 
+// a section heading with a "View cards" button for the cards in it
+function sectionHead(title, cards) {
+  return el("div", { className: "section-head" },
+    el("h3", { textContent: title }),
+    el("button", { textContent: "View cards", disabled: !cards.length, title: "Look through the cards in this section", onclick: () => openCards(cards) }));
+}
+
 function renderSlots() {
   const box = el("section", { className: "slots" }, el("div", { className: "slots-head" },
     el("h2", { textContent: "Your list" }),
@@ -1351,8 +1358,14 @@ function renderSlots() {
         setTimeout(() => row.classList.add("dragging"), 0);
       };
       handle.ondragend = () => { dragRow = null; clearDropMarks(); row.classList.remove("dragging"); };
-      row.append(handle);
-    } else row.append(el("div", { className: "drag-handle locked", title: "The commander's unit stays at the top", textContent: "" }));
+      // arrows above and below the grip move the row one place (nothing goes above the commander's row)
+      const first = i === 0 || (list.commanderUnit === 0 && i === 1);
+      const last = i === list.entries.length - 1;
+      row.append(el("div", { className: "reorder" },
+        el("button", { className: "move-btn", textContent: "▲", title: "Move up", "aria-label": "Move this row up", disabled: first, onclick: () => moveRow(i, i - 1) }),
+        handle,
+        el("button", { className: "move-btn", textContent: "▼", title: "Move down", "aria-label": "Move this row down", disabled: last, onclick: () => moveRow(i, i + 2) })));
+    } else row.append(el("div", { className: "reorder" }, el("div", { className: "drag-handle locked", title: "The commander's unit stays at the top", textContent: "" })));
     row.ondragover = e => {
       if (dragRow === null) return;
       e.preventDefault();
@@ -1375,7 +1388,7 @@ function renderSlots() {
   // one empty row at the bottom: pick a unit for it, or start it with an attachment
   const next = list.entries.length;
   box.append(el("div", { className: "slot-row" },
-    el("div", { className: "drag-handle locked" }),   // keeps the empty row lined up with the rows above
+    el("div", { className: "reorder" }, el("div", { className: "drag-handle locked" })),   // keeps the empty row lined up with the rows above
     slotBox("big", addTile(() => openMenu({ kind: "unit", index: next }), "big")),
     el("div", { className: "attach-col" },
       slotBox("small", addTile(() => {
@@ -1393,7 +1406,7 @@ function renderSlots() {
     list.enemyAttachments.forEach((id, i) =>
       enemyRow.append(slotBox("small", filledTile(data.unitsById.get(id), "small"), () => removeEnemyAttachment(i))));
     enemyRow.append(slotBox("small", addTile(enemyOpts.length ? () => openMenu({ kind: "enemy" }) : null)));
-    box.append(el("h3", { textContent: "Attachments to Enemy Units" }), enemyRow);
+    box.append(sectionHead("Attachments to Enemy Units", enemyCards()), enemyRow);
   }
 
   // non-combatant units
@@ -1405,7 +1418,7 @@ function renderSlots() {
     return t;
   })(), () => removeNcu(i))));
   ncuRow.append(slotBox("small", addTile(() => openMenu({ kind: "ncu" }))));
-  box.append(el("h3", { textContent: "Non-combatant units" }), ncuRow);
+  box.append(sectionHead("Non-combatant units", ncuCards()), ncuRow);
   return box;
 }
 
@@ -1442,16 +1455,38 @@ function renderSummary() {
 }
 
 // ---- the pick menu ------------------------------------------------------
+// what a model costs in the open menu: its points less any discount that would apply to it
+function menuPoints(model) {
+  const isAtt = menu.kind === "attachment" || menu.kind === "enemy";
+  const firstOff = isAtt && !list.entries.some(e => e.attachments.length) && !list.enemyAttachments.length ? firstAttachmentDiscount(list).amount : 0;
+  return Math.max(0, modelPoints(model, list) - pickDiscount(model, list) - firstOff);
+}
+// * = cannot use the free attachment points
+function menuStar(model) {
+  return (menu.kind === "attachment" || menu.kind === "enemy") && !usesFreePoints(model, list) ? "*" : "";
+}
 function menuTile(model, onclick) {
   // attachment / non-combatant pickers use the face icons (images/attachments) first, then images/units
   const tile = artTile(menu.kind === "unit" ? "units" : ["attachments", "units"], model, onclick);
-  // * = cannot use the free attachment points
-  const star = (menu.kind === "attachment" || menu.kind === "enemy") && !usesFreePoints(model, list) ? "*" : "";
-  const isAtt = menu.kind === "attachment" || menu.kind === "enemy";
-  const firstOff = isAtt && !list.entries.some(e => e.attachments.length) && !list.enemyAttachments.length ? firstAttachmentDiscount(list).amount : 0;
-  tile.append(el("span", { className: "tile-points", textContent: `${Math.max(0, modelPoints(model, list) - pickDiscount(model, list) - firstOff)}${star}` }));
+  if (menu.kind !== "commander") tile.append(el("span", { className: "tile-points", textContent: `${menuPoints(model)}${menuStar(model)}` }));
   tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
   return tile;
+}
+
+// the commander a menu entry stands for: Doran's tile is shown as Areo Hotah, the commander on the table
+function menuLabel(m) {
+  const field = m.field && data.commandersById.get(m.field);
+  return modelLabel(field ?? m);
+}
+// the cards to show for a pick: a commander who is his own unit (Mag, Varamyr) shows his unit's cards,
+// (without extras such as Varamyr's Eagle), and Doran's entry shows Areo's card and Doran's
+function menuCards(model) {
+  const label = "Card";
+  if (menu.kind === "commander") {
+    if (model.unit) return [modelCard(model.unit, label)].filter(Boolean);
+    if (model.field) return [modelCard(model.field, label), modelCard(model.id, label)].filter(Boolean);
+  }
+  return [modelCard(model.id, label)].filter(Boolean);
 }
 
 function renderMenu() {
@@ -1468,6 +1503,12 @@ function renderMenu() {
     groups = Object.entries(labels).map(([t, label]) => [label, opts.filter(u => u.type === t)]);
     const other = opts.filter(u => !(u.type in labels));
     if (other.length) groups.push(["Other", other]);
+  } else if (kind === "commander") {
+    title = list.commander ? "Change commander" : "Choose a commander";
+    pick = id => setCommander(id);
+    // Areo Hotah leads together with Doran Martell, so he is not a choice of his own: Doran's tile stands for both
+    const partners = new Set([...data.commandersById.values()].map(c => c.field).filter(Boolean));
+    groups = [["", [...data.commandersById.values()].filter(c => c.faction === list.faction && !partners.has(c.id))]];
   } else if (kind === "enemy") {
     title = "Attach to an enemy unit";
     pick = id => addAttachment(null, id);
@@ -1479,7 +1520,12 @@ function renderMenu() {
   } else {
     title = `Attach to ${rowName(list, index)}`;
     pick = id => addAttachment(index, id);
-    groups = [["", attachmentOptions(index)]];
+    // split by the kind of unit they attach to, as the unit menu does
+    const opts = attachmentOptions(index);
+    const labels = { infantry: "Infantry", cavalry: "Cavalry", monster: "Monsters", "war-machine": "War machines" };
+    groups = Object.entries(labels).map(([t, label]) => [label, opts.filter(u => u.attachesTo.type[0] === t)]);
+    const other = opts.filter(u => !(u.attachesTo.type[0] in labels));
+    if (other.length) groups.push(["Other", other]);
   }
   // the faction's own models first, then borrowed ones, then neutral; the data order is kept within each
   const rank = u => (u.faction === list.faction ? 0 : u.faction === "neutral" ? 2 : 1);
@@ -1488,19 +1534,69 @@ function renderMenu() {
 
   const overlay = el("div", { className: "overlay" });
   overlay.onclick = e => { if (e.target === overlay) closeMenu(); };
+  const scroll = el("div", { className: "menu-scroll" });
+  const dock = el("div", { className: "menu-dock" });
   const panel = el("div", { className: "menu" },
     el("div", { className: "menu-head" },
       el("h2", { textContent: title }),
-      el("button", { textContent: "Close", onclick: closeMenu })));
+      el("div", { className: "menu-head-btns" },
+        ...(kind === "commander" && list.commander ? [el("button", { textContent: "No commander", title: "Take the commander out of the list", onclick: () => { menu = null; setCommander(null); } })] : []),
+        el("button", { textContent: "Close", onclick: closeMenu }))),
+    scroll, dock);
+
+  // a click picks a model out and shows its card in the dock at the bottom; the big button adds it
+  // (double-clicking a tile adds it straight away)
+  const tiles = new Map();
+  const add = id => { menu = null; pick(id); };
+  const showDock = id => {
+    menu.selected = id;
+    tiles.forEach((t, tid) => t.classList.toggle("picked", tid === id));
+    const model = id && modelById(id);
+    dock.classList.toggle("empty", !model);
+    if (!model) { dock.replaceChildren(el("p", { className: "dock-hint", textContent: "Click one to see its card." })); return; }
+    const cards = menuCards(model);
+    const cardBtns = el("div", { className: "dock-cards" }, ...cards.map((card, ci) =>
+      el("button", { className: "dock-card", title: "Click the card to enlarge it", onclick: () => { gallery = { cards, index: ci }; render(); } },
+        cardPicture(card, cards.length > 1 ? 30 : 34))));
+    const swapping = kind === "unit" && list.entries[index]?.unit;
+    const cap = t => t.replace("-", " ").replace(/^\w/, c => c.toUpperCase());
+    const detail = kind === "commander"
+      ? ["Commander", ...(model.allowedUnitTypes ?? []).map(cap), ...(model.field ? [`Must include ${model.name} - ${model.nickname} (${model.points} pts)`] : [])].join(" · ")
+      : [model.type ? cap(model.type) : null, `${menuPoints(model)}${menuStar(model)} pts`].filter(Boolean).join(" · ");
+    const addText = kind === "commander" ? (list.commander ? "Choose this commander" : "Choose commander") : swapping ? "Swap unit" : "Add to list";
+    dock.replaceChildren(cardBtns, el("div", { className: "dock-info" },
+      el("div", { className: "dock-name", textContent: menuLabel(model) }),
+      el("div", { className: "dock-detail", textContent: detail }),
+      el("button", { className: "dock-add", textContent: addText, onclick: () => add(id) }),
+      el("div", { className: "dock-note", textContent: "Click the card to enlarge it" })));
+  };
   groups.forEach(([label, us]) => {
-    if (label) panel.append(el("h3", { textContent: label }));
-    panel.append(el("div", { className: kind === "unit" ? "menu-grid wide" : "menu-grid" },
-      ...us.map(u => menuTile(u, () => { menu = null; pick(u.id); }))));
+    if (label) scroll.append(el("h3", { textContent: label }));
+    scroll.append(el("div", { className: kind === "unit" ? "menu-grid wide" : "menu-grid" },
+      ...us.map(u => {
+        // Doran's entry is drawn as Areo Hotah, the commander on the table: his portrait and name
+        const tile = menuTile(kind === "commander" && u.field ? data.commandersById.get(u.field) : u, () => showDock(u.id));
+        tile.ondblclick = () => add(u.id);
+        // a commander whose Loyalty clashes with something already in the list cannot be chosen
+        if (kind === "commander" && u.id !== list.commander && (loyaltyClash(u, list, true) || armyConflict(u, list))) {
+          tile.disabled = true;
+          tile.classList.add("unavailable");
+          tile.title += " - cannot lead this list (clashes with a model already in it)";
+          tile.onclick = null; tile.ondblclick = null;
+        }
+        tiles.set(u.id, tile);
+        return tile;
+      })));
   });
-  if (!groups.length) panel.append(el("p", { textContent: "Nothing available." }));
+  if (!groups.length) scroll.append(el("p", { textContent: "Nothing available." }));
   if (kind === "attachment" || kind === "enemy")
-    panel.append(el("p", { className: "legend", textContent: "* = Neutral attachments cannot be purchased using free attachment points" }));
+    scroll.append(el("p", { className: "legend", textContent: "* = Neutral attachments cannot be purchased using free attachment points" }));
+  // the card viewer re-draws the page: keep the place in the list and the model picked
+  scroll.onscroll = () => { menu.scroll = scroll.scrollTop; };
+  if (kind === "commander" && !menu.selected) menu.selected = list.commander;   // the current commander is shown to start with
+  showDock(tiles.has(menu.selected) ? menu.selected : null);
   overlay.append(panel);
+  if (menu.scroll) requestAnimationFrame(() => { scroll.scrollTop = menu.scroll; });
   return overlay;
 }
 
@@ -1548,40 +1644,48 @@ function rowCards(i) {
     ...(attachedCommander(list, i) ? commanderIds(list).filter(id => data.cards.cards[id]).flatMap(id => [modelCard(id, `Row ${i + 1} - Commander`), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, `Row ${i + 1} - Commander`))]) : []),   // a commander who is his own unit (Mag, Varamyr) has no card of his own
   ].filter(Boolean);
 }
+function enemyCards() { return list.enemyAttachments.map(id => modelCard(id, "Attachment for an enemy unit")).filter(Boolean); }
+function ncuCards() {
+  return list.ncus.flatMap(id => [modelCard(id, "Non-combatant unit"), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, "Non-combatant unit"))]).filter(Boolean);
+}
 function allCards() {
   return [
     ...list.entries.flatMap((e, i) => rowCards(i)),
-    ...list.enemyAttachments.map(id => modelCard(id, "Attachment for an enemy unit")),
-    ...list.ncus.flatMap(id => [modelCard(id, "Non-combatant unit"), ...(modelById(id)?.extraCards ?? []).map(x => extraCard(x, "Non-combatant unit"))]),
+    ...enemyCards(),
+    ...ncuCards(),
   ].filter(Boolean)
     // a poison card or the like shared by several models is shown once
     .filter((card, i, all) => !card.extra || all.findIndex(c => c.extra === card.extra) === i);
 }
 function openCards(cards) { if (cards.length) { gallery = { cards, index: 0 }; render(); } }
 
+// the picture of a card, cut from its sheet; `vh` limits how tall it may be
+function cardPicture(card, vh) {
+  const im = card.image;
+  if (!im) return el("div", { className: "card-missing", textContent: "No picture of this card yet." });
+  const picture = el("div", { className: "card-img", role: "img", title: card.name });
+  picture.style.aspectRatio = `${im.w} / ${im.h}`;
+  picture.style.maxWidth = `min(100%, ${(vh * im.w / im.h).toFixed(1)}vh)`;
+  picture.style.backgroundImage = `url(${im.file})`;
+  picture.style.backgroundSize = `${im.cols * 100}% ${im.rows * 100}%`;
+  picture.style.backgroundPosition = `${im.cols > 1 ? im.col * 100 / (im.cols - 1) : 0}% ${im.rows > 1 ? im.row * 100 / (im.rows - 1) : 0}%`;
+  return picture;
+}
+
 function renderGallery() {
   if (!gallery) return null;
   const card = gallery.cards[gallery.index];
   const overlay = el("div", { className: "overlay" });
   overlay.onclick = e => { if (e.target === overlay) closeGallery(); };
-  let picture;
-  const im = card.image;
-  if (im) {
-    picture = el("div", { className: "card-img", role: "img", title: card.name });
-    picture.style.aspectRatio = `${im.w} / ${im.h}`;
-    picture.style.maxWidth = `min(100%, ${(68 * im.w / im.h).toFixed(1)}vh)`;
-    picture.style.backgroundImage = `url(${im.file})`;
-    picture.style.backgroundSize = `${im.cols * 100}% ${im.rows * 100}%`;
-    picture.style.backgroundPosition = `${im.cols > 1 ? im.col * 100 / (im.cols - 1) : 0}% ${im.rows > 1 ? im.row * 100 / (im.rows - 1) : 0}%`;
-  } else picture = el("div", { className: "card-missing", textContent: "No picture of this card yet." });
+  const picture = cardPicture(card, 68);
   overlay.append(el("div", { className: "gallery" },
     el("div", { className: "menu-head" },
       el("h2", { textContent: card.name }),
       el("button", { textContent: "Close", onclick: closeGallery })),
     el("div", { className: "gallery-body" },
-      el("button", { className: "nav", textContent: "‹", title: "Previous", onclick: () => galleryStep(-1) }),
+      el("button", { className: "nav", textContent: "‹", title: "Previous", onclick: () => galleryStep(-1), style: gallery.cards.length > 1 ? "" : "visibility:hidden" }),
       picture,
-      el("button", { className: "nav", textContent: "›", title: "Next", onclick: () => galleryStep(1) })),
+      el("button", { className: "nav", textContent: "›", title: "Next", onclick: () => galleryStep(1), style: gallery.cards.length > 1 ? "" : "visibility:hidden" })),
     el("p", { className: "gallery-count", textContent: `${gallery.index + 1} / ${gallery.cards.length} - ${card.label}` })));
   return overlay;
 }

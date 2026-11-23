@@ -1901,11 +1901,6 @@
 0,
 2
 ],
-"doran-martell-prince-of-dorne": [
-"martell-port",
-1,
-2
-],
 "ellaria-sand": [
 "martell-port",
 2,
@@ -1930,6 +1925,11 @@
 "martell-port",
 6,
 2
+],
+"doran-martell-prince-of-dorne": [
+"martell-port",
+7,
+3
 ],
 "areohotah": [
 "martell-port",

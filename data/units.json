@@ -5997,6 +5997,7 @@
   },
   {
     "id": "scorpion-modifications-othell-yarwyck",
+    "character": false,
     "name": "Scorpion Modifications",
     "nickname": "(Othell Yarwyck)",
     "class": "attachment",
@@ -6225,6 +6226,7 @@
   },
   {
     "id": "scorpion-modifications-builder",
+    "character": false,
     "name": "Scorpion Modifications",
     "nickname": "(Builder)",
     "class": "attachment",
