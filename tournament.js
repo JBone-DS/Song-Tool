@@ -572,7 +572,7 @@ function listSummary(code) {
   return info ? `${info.name ? info.name + ": " : ""}${info.faction}${info.commander ? `, ${info.commander}` : ""}, ${info.points}/${info.list.gameSize} points` : "";
 }
 function renderEntry(t) {
-  const title = el("h2", { textContent: isOrganiser(t) ? "Your own entry" : "Joining" });
+  const title = el("h2", { textContent: "List Submission" });
   if (!cloud.user) return el("section", { className: "an-panel" }, title, el("p", { className: "meta", textContent: "Sign in to ask to join this tournament." }),
     btn("Sign in", () => { closeTournament(); ui.tab = "signin"; render(); }));
   if (!me) return el("section", { className: "an-panel" }, title, el("p", { className: "meta", textContent: "Create your profile first, then you can ask to join." }),
@@ -608,25 +608,138 @@ function renderEntry(t) {
       captain && !m.teamOk ? btn("Accept", () => acceptMember(t, m.pid)) : "",
       captain && m.pid !== myId() && !t.listsLocked ? btn("Remove to replace", () => removeMember(t, m.pid)) : ""))),
     teamMembers(t, team.id).length < t.teamSize ? el("p", { className: "meta", textContent: `Room for ${t.teamSize - teamMembers(t, team.id).length} more. Teammates find this tournament and choose "Join ${team.name}". To swap a player before the organiser locks the lists, remove them and let their replacement join. After that, ask the organiser.` }) : "") : "";
-  return el("section", { className: "an-panel" }, title, el("p", { textContent: status }), teamBox,
-    el("p", { className: "meta", textContent: "Every player enters two lists of the same faction (the same list twice is fine). After each round is drawn you secretly lock in one of them for that game." }),
-    entryListBlock(t, e, 1, editable), entryListBlock(t, e, 2, editable),
+  const waiting = e.status !== "declined" && !(team && !e.teamOk);   // the plain "waiting" case is covered by the text below
+  return el("section", { className: "an-panel" }, title, waiting ? "" : el("p", { textContent: status }), teamBox,
+    el("p", { textContent: "Each player enters two lists belonging to the same faction." }),
+    el("p", { textContent: "Once submitted, the organiser will then approve or decline your application." }),
+    entryLists(t, e, editable),
     t.listsLocked ? el("p", { className: "meta", textContent: "Lists are locked. They can no longer be changed." }) : "",
-    el("div", { className: "an-pick" },
-      t.listsLocked && e.status !== "declined" ? "" : sure("withdraw", e.status === "declined" ? "Remove my request" : captain ? "Disband my team and leave" : "Leave this tournament", () => withdraw(t))));
+    entryButtons(t, e, editable, approved));
 }
-// one of the two list slots on the sign-up panel
-function entryListBlock(t, e, slot, editable) {
-  const code = listCodeOf(e, slot), problems = code ? lockProblems(t, code) : [], key = slot === 2 ? "pasteList2" : "pasteList";
-  return el("div", { className: "list-slot" }, el("h3", { textContent: `List ${slot}` }),
-    code ? el("p", { className: problems.length ? "warn" : "meta", textContent: `${listSummary(code)}.${problems.length ? ` Not valid yet: ${problems.join("; ")}.` : " It passes every check."}` })
-      : el("p", { className: "meta", textContent: e.status === "declined" ? "" : slot === 2 ? (e.listCode ? "You have not chosen your second list yet. It can be your first list again." : "Choose your first list, then your second.") : "You have not chosen a list yet." }),
-    editable && (slot === 1 || e.listCode) ? el("div", { className: "an-pick" },
-      field("Saved list", el("select", { onchange: e2 => { const sv = savedLists().find(x => x.name === e2.target.value); if (sv) chooseList(t, sv.code, slot); } },
-        opt("", savedLists().length ? "- choose one saved in this browser -" : "(none saved in this browser)", true), ...savedLists().map(sv => opt(sv.name, sv.name, false)))),
-      el("input", { type: "text", className: "paste", placeholder: "or paste a share link", value: ui[key] ?? "", onchange: e2 => { ui[key] = e2.target.value; chooseList(t, codeFromText(e2.target.value), slot); } }),
-      slot === 2 && e.listCode ? btn("Use list 1 again", () => chooseList(t, e.listCode, 2)) : "") : "",
-    code ? el("div", { className: "an-pick" }, el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", textContent: `View list ${slot}` })) : "");
+// Back and Submit under the sign-up lists. Choices are saved as they are made; Submit checks both lists and returns to the tournaments.
+async function submitEntry(t) {
+  const e = myEntry(t), problems = e ? entryProblems(t, e) : ["You have no entry."];
+  if (problems.length) { ui.msg = `Your entry is not complete yet: ${problems.join("; ")}.`; return render(); }
+  const approved = t.players.some(p => p.pid === myId());
+  closeTournament(); ui.tab = "mine";
+  ui.msg = approved ? "Your lists are saved." : "Entry submitted. The organiser will review your request.";
+  await enterTab();
+}
+function entryButtons(t, e, editable, approved) {
+  const problems = editable ? entryProblems(t, e) : [];
+  const back = btn("Back", async () => { closeTournament(); ui.msg = ""; await enterTab(); });
+  if (!editable) return el("div", { className: "an-pick" }, back);
+  return el("div", {},
+    el("p", { className: "meta", textContent: problems.length ? `Before you can submit: ${problems.join("; ")}.` : "Your choices are saved as you make them. Press Submit when both lists are right. You can come back and change them until the organiser locks the lists." }),
+    el("div", { className: "an-pick" }, back, el("button", { className: "row-btn submit-btn", textContent: "Submit", disabled: problems.length > 0, onclick: () => submitEntry(t) })));
+}
+// ---- sign-up: faction first, then two list cards ------------------------------
+// the cards of a list code, built the same way the list builder does (it works on the shared `list`)
+function cardsForCode(code) {
+  const saved = list;
+  try { list = decodeList(code); return list ? allCards() : []; } finally { list = saved; }
+}
+function openCardView(title, code) {
+  const cards = cardsForCode(code);
+  if (!cards.length) { ui.msg = "There are no cards to show for that list yet."; return render(); }
+  ui.cardView = { title, cards, index: 0 }; render();
+}
+function stepCardView(n) { const v = ui.cardView; if (v) { v.index = (v.index + n + v.cards.length) % v.cards.length; render(); } }
+function renderCardView() {
+  const v = ui.cardView; if (!v) return "";
+  const card = v.cards[v.index], close = () => { ui.cardView = null; render(); };
+  const overlay = el("div", { className: "overlay" });
+  overlay.onclick = e => { if (e.target === overlay) close(); };
+  const nav = (txt, n) => el("button", { className: "nav", textContent: txt, onclick: () => stepCardView(n), style: v.cards.length > 1 ? "" : "visibility:hidden" });
+  overlay.append(el("div", { className: "gallery" },
+    el("div", { className: "menu-head" }, el("h2", { textContent: `${v.title}: ${card.name}` }), el("button", { textContent: "Close", onclick: close })),
+    el("div", { className: "gallery-body" }, nav("‹", -1), cardPicture(card, 68), nav("›", 1)),
+    el("p", { className: "gallery-count", textContent: `${v.index + 1} / ${v.cards.length} - ${card.label}` })));
+  return overlay;
+}
+// a list laid out like the builder: a big unit tile with its attachments beside it, row by row
+function listView(code, slot) {
+  const info = listInfo(code), l = info.list;
+  const pts = n => el("span", { className: "tile-points", textContent: n });
+  const filled = (folder, model, size, points) => {
+    const tile = artTile(folder, model); tile.classList.add("filled", size); tile.disabled = true;
+    tile.title = model.nickname ? `${model.name} - ${model.nickname}` : model.name;
+    tile.append(pts(points)); return tile;
+  };
+  const rows = l.entries.map((entry, i) => {
+    const u = entry.unit ? data.unitsById.get(entry.unit) : null;
+    const costs = attachmentCosts(entry, l);
+    const small = [];
+    if (attachedCommander(l, i)) { const c = fieldCommander(l) ?? commanderOf(l); if (c) small.push(el("div", { className: "slot small" }, commanderTile(c))); }
+    costs.forEach(c => small.push(el("div", { className: "slot small" }, filled(["attachments", "units"], c.attachment, "small", c.cost))));
+    if (!u && !small.length) return null;
+    const isCmdUnit = unitCommander(l) && l.commanderUnit === i;
+    return el("div", { className: "slot-row" },
+      u ? el("div", { className: "slot big" }, filled("units", u, "big", isCmdUnit ? unitCommander(l).points : rowCost(l, i))) : "",
+      small.length ? el("div", { className: "attach-col" }, ...small) : "",
+      el("div", { className: "unit-info" }, u ? el("h3", { textContent: u.name }) : "",
+        el("p", { className: "meta", textContent: `${rowCost(l, i) + costs.reduce((n, c) => n + c.cost, 0)} pts${costs.length ? ` with ${costs.map(c => c.attachment.name).join(", ")}` : ""}` })));
+  }).filter(Boolean);
+  const ncus = (l.ncus ?? []).map(id => data.unitsById.get(id)).filter(Boolean);
+  return el("div", { className: "entry-list" },
+    el("h4", { textContent: info.name || `List ${slot}` }),
+    el("p", { className: "meta", textContent: `${info.faction}${info.commander ? ` · Commander: ${info.commander}` : ""} · ${info.points}/${l.gameSize} points` }),
+    ...rows,
+    ncus.length ? el("div", { className: "slot-row" }, ...ncus.map(n => el("div", { className: "slot small" }, filled(["attachments", "units"], n, "small", ncuCost(l, n.id)))), el("div", { className: "unit-info" }, el("p", { className: "meta", textContent: `Non-combatants: ${ncus.map(n => n.name).join(", ")}` }))) : "",
+    el("div", { className: "an-pick" }, btn("View cards", () => openCardView(info.name || `List ${slot}`, code)),
+      el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", rel: "noopener", textContent: "Open in builder" })));
+}
+const factionOfCode = code => (code ? listInfo(code)?.list.faction : null) ?? null;
+// the faction chosen on this sign-up: what the player clicked, else the faction of their first list
+function entryFaction(t, e) { return ui.entryFaction?.tid === t.id ? ui.entryFaction.id : factionOfCode(e.listCode); }
+function entryFactionRow(t, e, editable) {
+  const sel = entryFaction(t, e), row = el("div", { className: "faction-row" });
+  [...data.factionsById.values()].filter(f => f.id !== "neutral").forEach(f => {
+    const tile = artTile("factions", f, () => { ui.entryFaction = { tid: t.id, id: f.id }; render(); }, "png");
+    if (sel === f.id) tile.classList.add("selected");
+    if (!editable) tile.disabled = true;
+    row.append(tile);
+  });
+  return row;
+}
+function entrySlot(t, e, slot, editable, sel) {
+  const code = listCodeOf(e, slot), first = factionOfCode(e.listCode), key = slot === 2 ? "pasteList2" : "pasteList";
+  const fits = !!code && factionOfCode(code) === sel;
+  const needFirst = slot === 2 && first !== sel;   // the second list waits for a first list of the chosen faction
+  const problems = fits ? lockProblems(t, code) : [];
+  const saved = sel ? savedLists().filter(sv => factionOfCode(sv.code) === sel) : [];
+  const facName2 = sel ? data.factionsById.get(sel)?.name : "";
+  const status = fits ? (problems.length ? ["Not valid yet", "warn"] : ["Chosen", "ok"]) : ["Pick one", "todo"];
+  const card = el("div", { className: `entry-slot ${fits ? (problems.length ? "bad" : "ok") : "todo"}` },
+    el("div", { className: "entry-slot-head" }, el("h3", { textContent: `List ${slot}` }), el("span", { className: `badge ${status[1]}`, textContent: status[0] })));
+  if (!sel) { card.append(el("p", { className: "meta", textContent: "Choose your faction first." })); return card; }
+  if (editable && !needFirst) {
+    const current = fits ? saved.find(sv => sv.code === code) : null;
+    card.append(field("Saved list", el("select", { onchange: e2 => { if (e2.target.value) chooseList(t, e2.target.value, slot); } },
+      opt("", saved.length ? `- choose a ${facName2} list -` : `(no saved ${facName2} lists in this browser)`, !current),
+      ...saved.map(sv => opt(sv.code, sv.name, sv.code === code)),
+      fits && !current ? opt(code, `${listInfo(code).name || "Pasted list"} (pasted link)`, true) : "")));
+  }
+  if (needFirst) card.append(el("p", { className: "meta", textContent: first && first !== sel ? `Your saved List 1 is a different faction. Choose a ${facName2} List 1 first.` : "Choose List 1 first." }));
+  else if (!fits && code) card.append(el("p", { className: "warn", textContent: `Currently saved: ${listSummary(code)}. That is not ${facName2}, so choose a ${facName2} list to replace it.` }));
+  if (fits) {
+    if (problems.length) card.append(el("p", { className: "warn", textContent: `Not valid yet: ${problems.join("; ")}.` }));
+    card.append(listView(code, slot));
+  } else if (!needFirst && !code) card.append(el("p", { className: "meta", textContent: "No list chosen yet." }));
+  if (editable && !needFirst) card.append(el("div", { className: "an-pick" },
+    el("input", { type: "text", className: "paste", placeholder: "or paste a share link", value: ui[key] ?? "", onchange: e2 => { ui[key] = e2.target.value; chooseList(t, codeFromText(e2.target.value), slot); } }),
+    slot === 2 && e.listCode && first === sel ? btn("Use list 1 again", () => chooseList(t, e.listCode, 2)) : ""));
+  return card;
+}
+function entryLists(t, e, editable) {
+  const sel = entryFaction(t, e);
+  const chosen = [1, 2].filter(n => { const c = listCodeOf(e, n); return c && factionOfCode(c) === sel && !lockProblems(t, c).length; }).length;
+  return el("div", {},
+    el("h3", { textContent: "Faction" }),
+    el("p", { textContent: "Select your faction:" }),
+    entryFactionRow(t, e, editable),
+    el("div", { className: "entry-head" }, el("h3", { textContent: "Your lists" }), el("span", { className: `badge ${chosen === 2 ? "ok" : "todo"}`, textContent: `${chosen} of 2 lists ready` })),
+    el("div", { className: "entry-cards" }, entrySlot(t, e, 1, editable, sel), entrySlot(t, e, 2, editable, sel)));
 }
 
 // the people taking part, shown to everyone
@@ -731,11 +844,12 @@ function renderPlayers(t) {
   const full = !!t.maxPlayers && t.players.length >= t.maxPlayers, started = t.rounds.length > 0, ended = t.status === "finished";
   const waiting = t.requests.filter(r => r.status === "pending"), declined = t.requests.filter(r => r.status === "declined");
   const reqRows = [...waiting, ...declined].map(r => {
-    const pr = profile(r.pid), info = listInfo(r.listCode);
-    return el("tr", { className: r.status === "declined" ? "dropped" : "" }, ...(isTeam(t) ? [el("td", { textContent: teamLabel(t, r.teamId) + (r.teamOk ? "" : " (not accepted by captain)") })] : []), personCell(r.pid, true), el("td", { textContent: pr?.club || "-" }), el("td", { textContent: pr?.country || "-" }),
-      el("td", { textContent: listsSummary(r) }), el("td", { className: "cap", textContent: r.status }),
-      el("td", { className: "tn-actions" }, btn("Approve", () => setPlayer(t, r.pid, { status: "approved" }, `Approved ${nameOf(r.pid)}.`), full || t.listsLocked || (isTeam(t) && !r.teamOk) || !(r.listCode && r.listCode2)),
-        r.status === "pending" && !(r.listCode && r.listCode2) ? el("span", { className: "meta", textContent: "Needs two lists" }) : "",
+    const info = listInfo(r.listCode), problems = entryProblems(t, r), declinedRow = r.status === "declined";
+    return el("tr", { className: declinedRow ? "dropped" : "" }, ...(isTeam(t) ? [el("td", { textContent: teamLabel(t, r.teamId) + (r.teamOk ? "" : " (not accepted by captain)") })] : []), personCell(r.pid, true), el("td", { textContent: profile(r.pid)?.club || "-" }),
+      el("td", { textContent: info?.faction ?? "-" }), el("td", { textContent: commandersOf(r) || (info ? "-" : "") }), el("td", { textContent: info ? `${info.points}/${info.list.gameSize}` : "-" }),
+      el("td", { className: declinedRow || problems.length ? "meta" : "ok", textContent: declinedRow ? "Declined" : problems.length ? (info ? `Problem: ${problems[0]}` : "No list") : "OK" }),
+      el("td", { className: "tn-actions" }, ...listLinks(r),
+        btn("Approve", () => setPlayer(t, r.pid, { status: "approved" }, `Approved ${nameOf(r.pid)}.`), full || t.listsLocked || (isTeam(t) && !r.teamOk) || !(r.listCode && r.listCode2)),
         r.status === "pending" ? btn("Decline", () => setPlayer(t, r.pid, { status: "declined" }, `Declined ${nameOf(r.pid)}.`)) : ""));
   });
   const rows = t.players.map(p => {
@@ -744,8 +858,8 @@ function renderPlayers(t) {
       el("td", { textContent: info?.faction ?? "-" }), el("td", { textContent: commandersOf(p) || (info ? "-" : "") }), el("td", { textContent: info ? `${info.points}/${info.list.gameSize}` : "-" }),
       el("td", { className: problems.length ? "meta" : "ok", textContent: problems.length ? (info ? `Problem: ${problems[0]}` : "No list") : "OK" }),
       el("td", { className: "tn-actions" }, ...listLinks(p),
-        ended ? "" : btn("Replace", () => { ui.replacing = p.pid; ui.subResults = []; ui.subQ = ""; ui.subList = ""; ui.subList2 = ""; render(); }),
-        ended ? "" : btn(p.dropped ? "Reinstate" : "Drop", () => setPlayer(t, p.pid, { dropped: !p.dropped }, p.dropped ? `${nameOf(p.pid)} is back in.` : `${nameOf(p.pid)} has dropped out.`)),
+        ended || !started ? "" : btn("Replace", () => { ui.replacing = p.pid; ui.subResults = []; ui.subQ = ""; ui.subList = ""; ui.subList2 = ""; render(); }),
+        ended || !(started || p.dropped) ? "" : btn(p.dropped ? "Reinstate" : "Drop", () => setPlayer(t, p.pid, { dropped: !p.dropped }, p.dropped ? `${nameOf(p.pid)} is back in.` : `${nameOf(p.pid)} has dropped out.`)),
         started ? "" : sure(`remp:${p.pid}`, "Remove", () => setPlayer(t, p.pid, { status: "declined" }, `Removed ${nameOf(p.pid)}.`))));
   });
   const lockBar = ended ? "" : el("div", { className: "an-pick" },
@@ -767,11 +881,11 @@ function renderPlayers(t) {
   return [renderEntry(t), teamsPanel, renderReplace(t),
     waiting.length || declined.length ? el("section", { className: "an-panel" }, el("h2", { textContent: `Requests to join (${waiting.length} waiting)` }),
       el("div", { className: "table-wrap" }, el("table", { className: "an-table tn" },
-        el("thead", {}, el("tr", {}, ...[...(isTeam(t) ? ["Team"] : []), "Player", "Club", "Country", "List", "Status", ""].map(h => el("th", { textContent: h })))), el("tbody", {}, ...reqRows))),
+        el("thead", {}, el("tr", {}, ...[...(isTeam(t) ? ["Team"] : []), "Player", "Club", "Faction", "Commander", "Points", "Lists", ""].map(h => el("th", { textContent: h })))), el("tbody", {}, ...reqRows))),
       full ? el("p", { className: "meta", textContent: "The player limit is reached. Raise it in Details to approve more." }) : "") : "",
     el("section", { className: "an-panel" }, el("h2", { textContent: `Players (${active(t).length} playing${t.maxPlayers ? `, limit ${t.maxPlayers}` : ""})` }), lockBar,
       t.players.length ? el("div", { className: "table-wrap" }, el("table", { className: "an-table tn" },
-        el("thead", {}, el("tr", {}, ...[...(isTeam(t) ? ["Team"] : []), "Player", "Club", "Faction", "Commander", "Points", "List", ""].map(h => el("th", { textContent: h })))), el("tbody", {}, ...rows)))
+        el("thead", {}, el("tr", {}, ...[...(isTeam(t) ? ["Team"] : []), "Player", "Club", "Faction", "Commander", "Points", "Lists", ""].map(h => el("th", { textContent: h })))), el("tbody", {}, ...rows)))
         : el("p", { className: "meta", textContent: "Nobody is approved yet. Players find this tournament in the directory (or through its link) and ask to join." }))];
 }
 
@@ -1234,7 +1348,7 @@ function renderPage() {
     cloud.user ? el("div", { className: "an-panel tn-account" }, el("span", { id: "cloud-status", className: "meta", textContent: statusText() }), btn("Sign out", signOut)) : "",
     !tabs.length ? "" : el("div", { className: "site-nav" }, ...tabs.map(([k, label]) => el("a", { href: "#", className: !ui.t && ui.tab === k ? "nav-link current" : "nav-link", textContent: label,
       onclick: async e => { e.preventDefault(); closeTournament(); if (ui.viewing) { ui.viewing = null; history.replaceState(null, "", location.pathname); } if (ui.editProfile) { ui.editProfile = false; history.replaceState(null, "", location.pathname); } ui.tab = k; ui.msg = ""; ui.confirm = null; await enterTab(); } }))),
-    ui.msg ? el("p", { className: "an-panel tn-msg", textContent: ui.msg }) : "", ...[].concat(body)].flat();
+    ui.msg ? el("p", { className: "an-panel tn-msg", textContent: ui.msg }) : "", ...[].concat(body), renderCardView()].flat();
 }
 function render() {
   const focus = document.activeElement?.id, pos = document.activeElement?.selectionStart;

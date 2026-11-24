@@ -357,3 +357,32 @@ tr.match-row th { text-align: left; background: rgba(128, 128, 128, .15); font-w
 .lock-row .lock-note { display: block; margin-bottom: 4px; }
 .lock-row .row-btn { margin: 2px 6px 2px 0; display: inline-block; white-space: normal; text-align: left; max-width: 100%; }
 .lock-played { margin-right: 14px; display: inline-block; }
+
+/* tournament sign-up: faction row, then two list cards side by side */
+.entry-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; }
+.entry-head h3 { margin: 0; }
+.entry-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 8px 0; }
+@media (max-width: 720px) { .entry-cards { grid-template-columns: minmax(0, 1fr); } }
+.entry-slot { border: 2px solid var(--edge); border-radius: 14px; padding: 14px; background: var(--card); min-width: 0; }
+.entry-slot.ok { border-color: #5fb37f; }
+.entry-slot.bad { border-color: #d98a3d; }
+.entry-slot.todo { border: 2px dashed var(--accent); }
+.entry-slot-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.entry-slot-head h3 { margin: 0; }
+.entry-slot select { max-width: 100%; }
+.badge { display: inline-block; border-radius: 999px; padding: 2px 12px; font-size: 0.8rem; font-weight: 600; }
+.badge.ok { background: #5fb37f; color: #10241a; }
+.badge.todo { background: var(--accent); color: #1c2127; }
+.badge.warn { background: #d98a3d; color: #1c2127; }
+.entry-list h4 { margin: 10px 0 2px; font-size: 1.05rem; }
+.entry-list .slot-row { margin: 10px 0; gap: 10px; flex-wrap: nowrap; align-items: center; }
+.entry-list .slot.big { width: 120px; flex: 0 0 120px; }
+.entry-list .slot.small { width: 52px; }
+.entry-list .attach-col { width: auto; max-width: 112px; gap: 6px; flex: 0 1 auto; }
+.entry-list .unit-info { min-width: 0; }
+.entry-list .unit-info h3 { font-size: 1rem; }
+.entry-list .tile { border-radius: 12px; border-width: 2px; cursor: default; }
+.entry-list .tile-points { width: 20px; height: 20px; font-size: 0.7rem; }
+.faction-row .tile:disabled { cursor: default; }
+.submit-btn { background: var(--accent); color: #1c2127; border-color: var(--accent); font-weight: 600; }
+.submit-btn:disabled { background: var(--card); color: var(--sub); border-color: var(--edge); }
