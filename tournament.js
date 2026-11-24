@@ -154,7 +154,7 @@ function entryProblems(t, p) {
 function listLinks(p) {
   const [c1, c2] = entryCodes(p), link = (code, label) => el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", textContent: label });
   if (!c1) return [];
-  return c2 && c2 !== c1 ? [link(c1, "View list 1"), link(c2, "View list 2")] : [link(c1, "View list")];
+  return c2 ? [link(c1, "View list 1"), link(c2, "View list 2")] : [link(c1, "View list 1"), el("span", { className: "row-btn ghost", textContent: "View list 2", "aria-hidden": "true" })];   // the empty slot keeps the buttons in line
 }
 const listsSummary = p => {
   const [c1, c2] = entryCodes(p);
@@ -630,18 +630,17 @@ function entryButtons(t, e, editable, approved) {
   const back = btn("Back", async () => { closeTournament(); ui.msg = ""; await enterTab(); });
   if (!editable) return el("div", { className: "an-pick" }, back);
   return el("div", {},
-    el("p", { className: "meta", textContent: problems.length ? `Before you can submit: ${problems.join("; ")}.` : "Your choices are saved as you make them. Press Submit when both lists are right. You can come back and change them until the organiser locks the lists." }),
+    el("p", { className: "meta", textContent: problems.length ? `Before you can submit: ${problems.join("; ")}.` : "Press 'Submit' when both lists are selected. You can come back and change them until the tournament organiser locks the lists." }),
     el("div", { className: "an-pick" }, back, el("button", { className: "row-btn submit-btn", textContent: "Submit", disabled: problems.length > 0, onclick: () => submitEntry(t) })));
 }
 // ---- sign-up: faction first, then two list cards ------------------------------
 // the cards of a list code, built the same way the list builder does (it works on the shared `list`)
-function cardsForCode(code) {
+function cardsFor(code, pick) {
   const saved = list;
-  try { list = decodeList(code); return list ? allCards() : []; } finally { list = saved; }
+  try { list = decodeList(code); return list ? pick().filter(Boolean) : []; } finally { list = saved; }
 }
-function openCardView(title, code) {
-  const cards = cardsForCode(code);
-  if (!cards.length) { ui.msg = "There are no cards to show for that list yet."; return render(); }
+function openCardView(title, cards) {
+  if (!cards.length) { ui.msg = "There are no cards to show for that row yet."; return render(); }
   ui.cardView = { title, cards, index: 0 }; render();
 }
 function stepCardView(n) { const v = ui.cardView; if (v) { v.index = (v.index + n + v.cards.length) % v.cards.length; render(); } }
@@ -657,6 +656,7 @@ function renderCardView() {
     el("p", { className: "gallery-count", textContent: `${v.index + 1} / ${v.cards.length} - ${card.label}` })));
   return overlay;
 }
+const andList = a => (a.length > 1 ? `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}` : a[0] ?? "");
 // a list laid out like the builder: a big unit tile with its attachments beside it, row by row
 function listView(code, slot) {
   const info = listInfo(code), l = info.list;
@@ -669,25 +669,32 @@ function listView(code, slot) {
   const rows = l.entries.map((entry, i) => {
     const u = entry.unit ? data.unitsById.get(entry.unit) : null;
     const costs = attachmentCosts(entry, l);
-    const small = [];
-    if (attachedCommander(l, i)) { const c = fieldCommander(l) ?? commanderOf(l); if (c) small.push(el("div", { className: "slot small" }, commanderTile(c))); }
+    const small = [], withNames = [];
+    if (attachedCommander(l, i)) { const c = fieldCommander(l) ?? commanderOf(l); if (c) withNames.push(`${c.name} (C)`); if (c) small.push(el("div", { className: "slot small" }, commanderTile(c))); }
     costs.forEach(c => small.push(el("div", { className: "slot small" }, filled(["attachments", "units"], c.attachment, "small", c.cost))));
     if (!u && !small.length) return null;
     const isCmdUnit = unitCommander(l) && l.commanderUnit === i;
     return el("div", { className: "slot-row" },
       u ? el("div", { className: "slot big" }, filled("units", u, "big", isCmdUnit ? unitCommander(l).points : rowCost(l, i))) : "",
-      small.length ? el("div", { className: "attach-col" }, ...small) : "",
+      el("div", { className: "attach-col" }, ...small),   // always there, so the text lines up from row to row
       el("div", { className: "unit-info" }, u ? el("h3", { textContent: u.name }) : "",
-        el("p", { className: "meta", textContent: `${rowCost(l, i) + costs.reduce((n, c) => n + c.cost, 0)} pts${costs.length ? ` with ${costs.map(c => c.attachment.name).join(", ")}` : ""}` })));
+        el("p", { className: "meta", textContent: `${rowCost(l, i) + costs.reduce((n, c) => n + c.cost, 0)} pts${withNames.length || costs.length ? ` with ${andList([...withNames, ...costs.map(c => c.attachment.name)])}` : ""}` }),
+        el("button", { className: "row-btn", textContent: "View cards", onclick: () => openCardView(u?.name ?? `Row ${i + 1}`, cardsFor(code, () => rowCards(i))) })));
   }).filter(Boolean);
   const ncus = (l.ncus ?? []).map(id => data.unitsById.get(id)).filter(Boolean);
   return el("div", { className: "entry-list" },
     el("h4", { textContent: info.name || `List ${slot}` }),
-    el("p", { className: "meta", textContent: `${info.faction}${info.commander ? ` · Commander: ${info.commander}` : ""} · ${info.points}/${l.gameSize} points` }),
+    el("div", { className: "entry-meta-row" },
+      el("p", { className: "meta", textContent: `${info.faction}${info.commander ? ` · Commander: ${info.commander}` : ""} · ${info.points}/${l.gameSize} points` }),
+      btn("View Tactics Deck", () => openCardView("Tactics deck", tacticsCards(buildDeck(l))))),
+    rows.length ? el("h3", { className: "entry-sub", textContent: "Combat Units" }) : "",
     ...rows,
-    ncus.length ? el("div", { className: "slot-row" }, ...ncus.map(n => el("div", { className: "slot small" }, filled(["attachments", "units"], n, "small", ncuCost(l, n.id)))), el("div", { className: "unit-info" }, el("p", { className: "meta", textContent: `Non-combatants: ${ncus.map(n => n.name).join(", ")}` }))) : "",
-    el("div", { className: "an-pick" }, btn("View cards", () => openCardView(info.name || `List ${slot}`, code)),
-      el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", rel: "noopener", textContent: "Open in builder" })));
+    ncus.length ? el("h3", { className: "entry-sub", textContent: "Non-Combat Units" }) : "",
+    ...ncus.map(n => el("div", { className: "slot-row" },
+      el("div", { className: "slot big" }, filled(["attachments", "units"], n, "big", ncuCost(l, n.id))),
+      el("div", { className: "unit-info" }, el("h3", { textContent: n.name }), el("p", { className: "meta", textContent: `${ncuCost(l, n.id)} pts` }),
+        el("button", { className: "row-btn", textContent: "View cards", onclick: () => openCardView(n.name, cardsFor(code, () => [modelCard(n.id, "Non-Combat Unit"), ...(modelById(n.id)?.extraCards ?? []).map(x => extraCard(x, "Non-Combat Unit"))])) })))),
+    el("div", { className: "an-pick" }, el("a", { className: "row-btn", href: `index.html#list=${code}`, target: "_blank", rel: "noopener", textContent: "Open in builder" })));
 }
 const factionOfCode = code => (code ? listInfo(code)?.list.faction : null) ?? null;
 // the faction chosen on this sign-up: what the player clicked, else the faction of their first list
@@ -727,8 +734,7 @@ function entrySlot(t, e, slot, editable, sel) {
     card.append(listView(code, slot));
   } else if (!needFirst && !code) card.append(el("p", { className: "meta", textContent: "No list chosen yet." }));
   if (editable && !needFirst) card.append(el("div", { className: "an-pick" },
-    el("input", { type: "text", className: "paste", placeholder: "or paste a share link", value: ui[key] ?? "", onchange: e2 => { ui[key] = e2.target.value; chooseList(t, codeFromText(e2.target.value), slot); } }),
-    slot === 2 && e.listCode && first === sel ? btn("Use list 1 again", () => chooseList(t, e.listCode, 2)) : ""));
+    el("input", { type: "text", className: "paste", placeholder: "or paste a share link", value: ui[key] ?? "", onchange: e2 => { ui[key] = e2.target.value; chooseList(t, codeFromText(e2.target.value), slot); } })));
   return card;
 }
 function entryLists(t, e, editable) {
@@ -850,7 +856,7 @@ function renderPlayers(t) {
       el("td", { className: declinedRow || problems.length ? "meta" : "ok", textContent: declinedRow ? "Declined" : problems.length ? (info ? `Problem: ${problems[0]}` : "No list") : "OK" }),
       el("td", { className: "tn-actions" }, ...listLinks(r),
         btn("Approve", () => setPlayer(t, r.pid, { status: "approved" }, `Approved ${nameOf(r.pid)}.`), full || t.listsLocked || (isTeam(t) && !r.teamOk) || !(r.listCode && r.listCode2)),
-        r.status === "pending" ? btn("Decline", () => setPlayer(t, r.pid, { status: "declined" }, `Declined ${nameOf(r.pid)}.`)) : ""));
+        r.status === "pending" ? btn("Decline", () => setPlayer(t, r.pid, { status: "declined" }, `Declined ${nameOf(r.pid)}.`)) : el("span", { className: "row-btn ghost", textContent: "Decline", "aria-hidden": "true" })));
   });
   const rows = t.players.map(p => {
     const info = listInfo(p.listCode), problems = entryProblems(t, p);
